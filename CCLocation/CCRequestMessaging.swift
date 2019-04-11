@@ -740,7 +740,7 @@ class CCRequestMessaging: NSObject {
         clientMessage.locationMessage.append(locationMessage)
         
         if let data = try? clientMessage.serializedData(){
-            NSLog("Location message build: \(clientMessage) with size: \(String(describing: data.count))")
+//            NSLog("Location message build: \(clientMessage) with size: \(String(describing: data.count))")
             userDefaults.set(counter, forKey: CCRequestMessagingConstants.messageCounter)
             sendOrQueueClientMessage(data: data, messageType: .queueable)
         }
@@ -812,7 +812,7 @@ class CCRequestMessaging: NSObject {
         clientMessage.iosCapability = capabilityMessage
         
         if let data = try? clientMessage.serializedData(){
-            //            DDLogVerbose("Capability message build: \(clientMessage) with size: \(String(describing: data.count))")
+//            Log.debug("Capability message build: \(clientMessage) with size: \(String(describing: data.count))")
             sendOrQueueClientMessage(data: data, messageType: .queueable)
         }
     }
