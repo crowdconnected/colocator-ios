@@ -93,12 +93,55 @@ struct Messaging_ServerMessage {
   /// Clears the value of `messageIdentifier`. Subsequent reads from it will return its default value.
   mutating func clearMessageIdentifier() {_uniqueStorage()._messageIdentifier = nil}
 
+  var stop: Messaging_ServerMessage.StopType {
+    get {return _storage._stop ?? .stop}
+    set {_uniqueStorage()._stop = newValue}
+  }
+  /// Returns true if `stop` has been explicitly set.
+  var hasStop: Bool {return _storage._stop != nil}
+  /// Clears the value of `stop`. Subsequent reads from it will return its default value.
+  mutating func clearStop() {_uniqueStorage()._stop = nil}
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  enum StopType: SwiftProtobuf.Enum {
+    typealias RawValue = Int
+    case stop // = 1
+    case terminate // = 2
+
+    init() {
+      self = .stop
+    }
+
+    init?(rawValue: Int) {
+      switch rawValue {
+      case 1: self = .stop
+      case 2: self = .terminate
+      default: return nil
+      }
+    }
+
+    var rawValue: Int {
+      switch self {
+      case .stop: return 1
+      case .terminate: return 2
+      }
+    }
+
+  }
 
   init() {}
 
   fileprivate var _storage = _StorageClass.defaultInstance
 }
+
+#if swift(>=4.2)
+
+extension Messaging_ServerMessage.StopType: CaseIterable {
+  // Support synthesized by the compiler.
+}
+
+#endif  // swift(>=4.2)
 
 ///Top level wrapper for iOS specific messages
 struct Messaging_IosSettings {
@@ -392,7 +435,6 @@ struct Messaging_AndroidSettings {
   fileprivate var _storage = _StorageClass.defaultInstance
 }
 
-///Android Geo Settings
 struct Messaging_AndroidGeoSettings {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -494,7 +536,6 @@ extension Messaging_AndroidGeoSettings.Priority: CaseIterable {
 
 #endif  // swift(>=4.2)
 
-///Android Beacon Settings
 struct Messaging_AndroidBeaconSettings {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -523,7 +564,6 @@ struct Messaging_AndroidBeaconSettings {
   fileprivate var _storage = _StorageClass.defaultInstance
 }
 
-///Android Wifi Settings
 struct Messaging_AndroidWifiSettings {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -585,7 +625,6 @@ struct Messaging_AndroidWifiSettings {
   fileprivate var _rttInterval: UInt64? = nil
 }
 
-///Cross platform Beacon / Bluetooth messages
 struct Messaging_BeaconRegion {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -917,6 +956,15 @@ struct Messaging_BeaconRanging {
   /// Clears the value of `eddystoneScan`. Subsequent reads from it will return its default value.
   mutating func clearEddystoneScan() {_uniqueStorage()._eddystoneScan = nil}
 
+  var iBeaconScan: Bool {
+    get {return _storage._iBeaconScan ?? false}
+    set {_uniqueStorage()._iBeaconScan = newValue}
+  }
+  /// Returns true if `iBeaconScan` has been explicitly set.
+  var hasIBeaconScan: Bool {return _storage._iBeaconScan != nil}
+  /// Clears the value of `iBeaconScan`. Subsequent reads from it will return its default value.
+  mutating func clearIBeaconScan() {_uniqueStorage()._iBeaconScan = nil}
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   init() {}
@@ -960,7 +1008,6 @@ struct Messaging_BeaconFilter {
   fileprivate var _maxObservations: UInt32? = nil
 }
 
-///Cross Platform System Messages
 struct Messaging_GlobalSettings {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -1300,6 +1347,15 @@ struct Messaging_LocationMessage {
   /// Clears the value of `timestamp`. Subsequent reads from it will return its default value.
   mutating func clearTimestamp() {self._timestamp = nil}
 
+  var isMockLocation: Bool {
+    get {return _isMockLocation ?? false}
+    set {_isMockLocation = newValue}
+  }
+  /// Returns true if `isMockLocation` has been explicitly set.
+  var hasIsMockLocation: Bool {return self._isMockLocation != nil}
+  /// Clears the value of `isMockLocation`. Subsequent reads from it will return its default value.
+  mutating func clearIsMockLocation() {self._isMockLocation = nil}
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   init() {}
@@ -1312,6 +1368,7 @@ struct Messaging_LocationMessage {
   fileprivate var _course: Double? = nil
   fileprivate var _speed: Double? = nil
   fileprivate var _timestamp: UInt64? = nil
+  fileprivate var _isMockLocation: Bool? = nil
 }
 
 struct Messaging_Bluetooth {
@@ -1887,6 +1944,15 @@ struct Messaging_Capability {
   /// Clears the value of `expiryTime`. Subsequent reads from it will return its default value.
   mutating func clearExpiryTime() {self._expiryTime = nil}
 
+  var rtt: Bool {
+    get {return _rtt ?? false}
+    set {_rtt = newValue}
+  }
+  /// Returns true if `rtt` has been explicitly set.
+  var hasRtt: Bool {return self._rtt != nil}
+  /// Clears the value of `rtt`. Subsequent reads from it will return its default value.
+  mutating func clearRtt() {self._rtt = nil}
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   init() {}
@@ -1898,6 +1964,7 @@ struct Messaging_Capability {
   fileprivate var _isGpson: Bool? = nil
   fileprivate var _foregroundService: Bool? = nil
   fileprivate var _expiryTime: UInt64? = nil
+  fileprivate var _rtt: Bool? = nil
 }
 
 struct Messaging_IosCapability {
@@ -2170,6 +2237,7 @@ extension Messaging_ServerMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
     5: .same(proto: "deviceId"),
     6: .same(proto: "sentTimestamp"),
     7: .same(proto: "messageIdentifier"),
+    8: .same(proto: "stop"),
   ]
 
   fileprivate class _StorageClass {
@@ -2180,6 +2248,7 @@ extension Messaging_ServerMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
     var _deviceID: Data? = nil
     var _sentTimestamp: UInt64? = nil
     var _messageIdentifier: Data? = nil
+    var _stop: Messaging_ServerMessage.StopType? = nil
 
     static let defaultInstance = _StorageClass()
 
@@ -2193,6 +2262,7 @@ extension Messaging_ServerMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
       _deviceID = source._deviceID
       _sentTimestamp = source._sentTimestamp
       _messageIdentifier = source._messageIdentifier
+      _stop = source._stop
     }
   }
 
@@ -2215,6 +2285,7 @@ extension Messaging_ServerMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
         case 5: try decoder.decodeSingularBytesField(value: &_storage._deviceID)
         case 6: try decoder.decodeSingularUInt64Field(value: &_storage._sentTimestamp)
         case 7: try decoder.decodeSingularBytesField(value: &_storage._messageIdentifier)
+        case 8: try decoder.decodeSingularEnumField(value: &_storage._stop)
         default: break
         }
       }
@@ -2244,6 +2315,9 @@ extension Messaging_ServerMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
       if let v = _storage._messageIdentifier {
         try visitor.visitSingularBytesField(value: v, fieldNumber: 7)
       }
+      if let v = _storage._stop {
+        try visitor.visitSingularEnumField(value: v, fieldNumber: 8)
+      }
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -2260,6 +2334,7 @@ extension Messaging_ServerMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
         if _storage._deviceID != rhs_storage._deviceID {return false}
         if _storage._sentTimestamp != rhs_storage._sentTimestamp {return false}
         if _storage._messageIdentifier != rhs_storage._messageIdentifier {return false}
+        if _storage._stop != rhs_storage._stop {return false}
         return true
       }
       if !storagesAreEqual {return false}
@@ -2267,6 +2342,13 @@ extension Messaging_ServerMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
+}
+
+extension Messaging_ServerMessage.StopType: SwiftProtobuf._ProtoNameProviding {
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "STOP"),
+    2: .same(proto: "TERMINATE"),
+  ]
 }
 
 extension Messaging_IosSettings: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
@@ -3085,6 +3167,7 @@ extension Messaging_BeaconRanging: SwiftProtobuf.Message, SwiftProtobuf._Message
     4: .same(proto: "filter"),
     5: .same(proto: "nonBeaconScan"),
     6: .same(proto: "eddystoneScan"),
+    7: .same(proto: "iBeaconScan"),
   ]
 
   fileprivate class _StorageClass {
@@ -3094,6 +3177,7 @@ extension Messaging_BeaconRanging: SwiftProtobuf.Message, SwiftProtobuf._Message
     var _filter: Messaging_BeaconFilter? = nil
     var _nonBeaconScan: Bool? = nil
     var _eddystoneScan: Bool? = nil
+    var _iBeaconScan: Bool? = nil
 
     static let defaultInstance = _StorageClass()
 
@@ -3106,6 +3190,7 @@ extension Messaging_BeaconRanging: SwiftProtobuf.Message, SwiftProtobuf._Message
       _filter = source._filter
       _nonBeaconScan = source._nonBeaconScan
       _eddystoneScan = source._eddystoneScan
+      _iBeaconScan = source._iBeaconScan
     }
   }
 
@@ -3127,6 +3212,7 @@ extension Messaging_BeaconRanging: SwiftProtobuf.Message, SwiftProtobuf._Message
         case 4: try decoder.decodeSingularMessageField(value: &_storage._filter)
         case 5: try decoder.decodeSingularBoolField(value: &_storage._nonBeaconScan)
         case 6: try decoder.decodeSingularBoolField(value: &_storage._eddystoneScan)
+        case 7: try decoder.decodeSingularBoolField(value: &_storage._iBeaconScan)
         default: break
         }
       }
@@ -3153,6 +3239,9 @@ extension Messaging_BeaconRanging: SwiftProtobuf.Message, SwiftProtobuf._Message
       if let v = _storage._eddystoneScan {
         try visitor.visitSingularBoolField(value: v, fieldNumber: 6)
       }
+      if let v = _storage._iBeaconScan {
+        try visitor.visitSingularBoolField(value: v, fieldNumber: 7)
+      }
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -3168,6 +3257,7 @@ extension Messaging_BeaconRanging: SwiftProtobuf.Message, SwiftProtobuf._Message
         if _storage._filter != rhs_storage._filter {return false}
         if _storage._nonBeaconScan != rhs_storage._nonBeaconScan {return false}
         if _storage._eddystoneScan != rhs_storage._eddystoneScan {return false}
+        if _storage._iBeaconScan != rhs_storage._iBeaconScan {return false}
         return true
       }
       if !storagesAreEqual {return false}
@@ -3526,6 +3616,7 @@ extension Messaging_LocationMessage: SwiftProtobuf.Message, SwiftProtobuf._Messa
     7: .same(proto: "course"),
     8: .same(proto: "speed"),
     4: .same(proto: "timestamp"),
+    9: .same(proto: "isMockLocation"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -3539,6 +3630,7 @@ extension Messaging_LocationMessage: SwiftProtobuf.Message, SwiftProtobuf._Messa
       case 6: try decoder.decodeSingularDoubleField(value: &self._verticalAccuracy)
       case 7: try decoder.decodeSingularDoubleField(value: &self._course)
       case 8: try decoder.decodeSingularDoubleField(value: &self._speed)
+      case 9: try decoder.decodeSingularBoolField(value: &self._isMockLocation)
       default: break
       }
     }
@@ -3569,6 +3661,9 @@ extension Messaging_LocationMessage: SwiftProtobuf.Message, SwiftProtobuf._Messa
     if let v = self._speed {
       try visitor.visitSingularDoubleField(value: v, fieldNumber: 8)
     }
+    if let v = self._isMockLocation {
+      try visitor.visitSingularBoolField(value: v, fieldNumber: 9)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -3581,6 +3676,7 @@ extension Messaging_LocationMessage: SwiftProtobuf.Message, SwiftProtobuf._Messa
     if lhs._course != rhs._course {return false}
     if lhs._speed != rhs._speed {return false}
     if lhs._timestamp != rhs._timestamp {return false}
+    if lhs._isMockLocation != rhs._isMockLocation {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -4024,6 +4120,7 @@ extension Messaging_Capability: SwiftProtobuf.Message, SwiftProtobuf._MessageImp
     5: .same(proto: "isGPSOn"),
     6: .same(proto: "foregroundService"),
     7: .same(proto: "expiryTime"),
+    8: .same(proto: "rtt"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -4036,6 +4133,7 @@ extension Messaging_Capability: SwiftProtobuf.Message, SwiftProtobuf._MessageImp
       case 5: try decoder.decodeSingularBoolField(value: &self._isGpson)
       case 6: try decoder.decodeSingularBoolField(value: &self._foregroundService)
       case 7: try decoder.decodeSingularUInt64Field(value: &self._expiryTime)
+      case 8: try decoder.decodeSingularBoolField(value: &self._rtt)
       default: break
       }
     }
@@ -4063,6 +4161,9 @@ extension Messaging_Capability: SwiftProtobuf.Message, SwiftProtobuf._MessageImp
     if let v = self._expiryTime {
       try visitor.visitSingularUInt64Field(value: v, fieldNumber: 7)
     }
+    if let v = self._rtt {
+      try visitor.visitSingularBoolField(value: v, fieldNumber: 8)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -4074,6 +4175,7 @@ extension Messaging_Capability: SwiftProtobuf.Message, SwiftProtobuf._MessageImp
     if lhs._isGpson != rhs._isGpson {return false}
     if lhs._foregroundService != rhs._foregroundService {return false}
     if lhs._expiryTime != rhs._expiryTime {return false}
+    if lhs._rtt != rhs._rtt {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
