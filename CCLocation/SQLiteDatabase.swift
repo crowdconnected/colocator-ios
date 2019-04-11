@@ -302,6 +302,7 @@ extension SQLiteDatabase {
 extension SQLiteDatabase {
     func insertMessage(ccMessage: CCMessage) throws {
         messagesBuffer.append(ccMessage)
+        Log.debug("insertMessage: \(ccMessage.observation.count) \(ccMessage.observation.hexEncodedString())")
     }
     
     @objc func insertBundledMessages() throws {
@@ -327,8 +328,22 @@ extension SQLiteDatabase {
             
             for message in messagesBuffer {
                 if #available(iOS 9.0, *) {
-                    guard message.observation.withUnsafeBytes({ (bytes: UnsafePointer<UInt8>) -> Int32 in
-                        sqlite3_bind_blob64(insertStatement, 1, bytes, sqlite3_uint64(message.observation.count), nil)
+                    
+                    let data = message.observation
+
+                    // Addition of 10 bytes at the start of each blob to be stored fixes an issue that leads to data from the sqlite database retrieved to be random for first 10 bytes
+                    
+                    var dataFix:Data?
+
+                    let tenByteString = "0000000000"
+                    dataFix = Data([UInt8](tenByteString.utf8))
+                
+                    dataFix?.append(data)
+                    
+                    // -- end fix
+                    
+                    guard dataFix!.withUnsafeBytes({ (bytes: UnsafePointer<UInt8>) -> Int32 in
+                        sqlite3_bind_blob64(insertStatement, 1, bytes, sqlite3_uint64(dataFix!.count), nil)
                     }) == SQLITE_OK else {
                         throw SQLiteError.Bind(message: errorMessage)
                     }
@@ -397,8 +412,15 @@ extension SQLiteDatabase {
             while sqlite3_step(statement) == SQLITE_ROW {
                 if let pointer = sqlite3_column_blob(statement, 1){
                     let size = Int(sqlite3_column_bytes(statement, 1))
-                    let data = NSData(bytes: pointer, length: size)
-                    clientMessageData = data as Data
+                    var data = Data(bytes: pointer, count: size)
+                    
+                    // Addition of 10 bytes at the start of each blob to be stored fixes an issue that leads to data from the sqlite database retrieved to be random for first 10 bytes
+
+                    data.replaceSubrange(0..<10, with: Data())
+                    
+                    // -- end fix
+
+                    clientMessageData = data
                     clientMessagesData.append(clientMessageData)
                 }
                 
