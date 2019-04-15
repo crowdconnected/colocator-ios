@@ -3,4 +3,4 @@
 [![Badge w/ Platform](https://cocoapod-badges.herokuapp.com/p/CCLocation/badge.png)](https://cocoapod-badges.herokuapp.com/p/CCLocation/badge.png)
 
 # colocator-ios
-The CrowdConnected colocator iOS library
+The CrowdConnected colocator iOS library requires an ongoing commercial license.
