@@ -302,7 +302,7 @@ extension SQLiteDatabase {
 extension SQLiteDatabase {
     func insertMessage(ccMessage: CCMessage) throws {
         messagesBuffer.append(ccMessage)
-        Log.debug("insertMessage: \(ccMessage.observation.count) \(ccMessage.observation.hexEncodedString())")
+//        Log.debug("insertMessage: \(ccMessage.observation.count) \(ccMessage.observation.hexEncodedString())")
     }
     
     @objc func insertBundledMessages() throws {
@@ -315,8 +315,6 @@ extension SQLiteDatabase {
             
             let total_count = try count(table: CCLocationTables.MESSAGES_TABLE)
             
-            Log.verbose("Flushing messages buffer with \(messagesBuffer.count) and total message count \(total_count)")
-            
             try saveResetAutoincrement(table: CCLocationTables.MESSAGES_TABLE)
             
             guard sqlite3_exec(dbPointer, "BEGIN IMMEDIATE TRANSACTION", nil, nil, nil) == SQLITE_OK else  {
@@ -327,33 +325,14 @@ extension SQLiteDatabase {
             let insertStatement = try prepareStatement(sql: insertSql)
             
             for message in messagesBuffer {
-                if #available(iOS 9.0, *) {
-                    
-                    let data = message.observation
+                let data = message.observation
 
-                    // Addition of 10 bytes at the start of each blob to be stored fixes an issue that leads to data from the sqlite database retrieved to be random for first 10 bytes
-                    
-                    var dataFix:Data?
-
-                    let tenByteString = "0000000000"
-                    dataFix = Data([UInt8](tenByteString.utf8))
+                let observationBase64 = data.base64EncodedString() as NSString
                 
-                    dataFix?.append(data)
-                    
-                    // -- end fix
-                    
-                    guard dataFix!.withUnsafeBytes({ (bytes: UnsafePointer<UInt8>) -> Int32 in
-                        sqlite3_bind_blob64(insertStatement, 1, bytes, sqlite3_uint64(dataFix!.count), nil)
-                    }) == SQLITE_OK else {
-                        throw SQLiteError.Bind(message: errorMessage)
-                    }
-                } else {
-                    guard message.observation.withUnsafeBytes({ (bytes: UnsafePointer<UInt8>) -> Int32 in
-                        sqlite3_bind_blob(insertStatement, 1, bytes, Int32(message.observation.count), nil)
-                    }) == SQLITE_OK else {
-                        throw SQLiteError.Bind(message: errorMessage)
-                    }
+                guard sqlite3_bind_text(insertStatement, 1, observationBase64.utf8String, -1, nil) == SQLITE_OK else {
+                    throw SQLiteError.Bind(message: errorMessage)
                 }
+                    
                 guard sqlite3_step(insertStatement) == SQLITE_DONE else {
                     throw SQLiteError.Step(message: errorMessage)
                 }
@@ -410,20 +389,14 @@ extension SQLiteDatabase {
             let statement = try prepareStatement(sql: sql)
             
             while sqlite3_step(statement) == SQLITE_ROW {
-                if let pointer = sqlite3_column_blob(statement, 1){
-                    let size = Int(sqlite3_column_bytes(statement, 1))
-                    var data = Data(bytes: pointer, count: size)
-                    
-                    // Addition of 10 bytes at the start of each blob to be stored fixes an issue that leads to data from the sqlite database retrieved to be random for first 10 bytes
 
-                    data.replaceSubrange(0..<10, with: Data())
-                    
-                    // -- end fix
-
-                    clientMessageData = data
-                    clientMessagesData.append(clientMessageData)
-                }
+                let observationBase64 = sqlite3_column_text(statement, 1)
                 
+                let string = String(cString: observationBase64!)
+                
+                clientMessageData = Data(base64Encoded: string)!
+                clientMessagesData.append(clientMessageData)
+
                 let id = sqlite3_column_int(statement, 0)
                 ids.append("\(id)")
             }
