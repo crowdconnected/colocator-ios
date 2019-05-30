@@ -1,5 +1,4 @@
 github "apple/swift-protobuf" == 1.4.0
 github "facebook/SocketRocket" == 0.4.2
 github "ReSwift/ReSwift" == 4.1.1
-github "instacart/TrueTime.swift" == 5.0.0
-github "antitypical/Result" == 4.1.0
+github "instacart/TrueTime.swift" == 5.0.2
