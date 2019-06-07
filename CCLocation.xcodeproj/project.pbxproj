@@ -72,6 +72,10 @@
 		4FBB8AC51F37120300DEF04F /* CCRquestMessagingReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8AC41F37120300DEF04F /* CCRquestMessagingReducer.swift */; };
 		4FD05EFC1F25F83000EC1CC8 /* TrueTime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FD05EFB1F25F82F00EC1CC8 /* TrueTime.framework */; };
 		4FD6F9161F2608DA00079FA2 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FD6F9151F2608DA00079FA2 /* Result.framework */; };
+		4FE19A5322A90215000CE5A8 /* CCInertial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FE19A5222A90215000CE5A8 /* CCInertial.swift */; };
+		4FE19A5522AA49DE000CE5A8 /* InertialState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FE19A5422AA49DE000CE5A8 /* InertialState.swift */; };
+		4FE19A5722AA4AF4000CE5A8 /* InertialReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FE19A5622AA4AF4000CE5A8 /* InertialReducer.swift */; };
+		4FE19A5B22AA513E000CE5A8 /* InertialActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FE19A5A22AA513E000CE5A8 /* InertialActions.swift */; };
 		4FEA866B1EE0636200CEAEB9 /* SwiftProtobuf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FEA866A1EE0636200CEAEB9 /* SwiftProtobuf.framework */; };
 		4FEF0C8B1EEFF58E00CB8AA9 /* CCRequestMessaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF0C8A1EEFF58E00CB8AA9 /* CCRequestMessaging.swift */; };
 		4FF6BA662105EA430082859F /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF6BA652105EA430082859F /* Logger.swift */; };
@@ -179,6 +183,10 @@
 		4FBB8AC41F37120300DEF04F /* CCRquestMessagingReducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CCRquestMessagingReducer.swift; sourceTree = "<group>"; };
 		4FD05EFB1F25F82F00EC1CC8 /* TrueTime.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = TrueTime.framework; path = Carthage/Build/iOS/TrueTime.framework; sourceTree = "<group>"; };
 		4FD6F9151F2608DA00079FA2 /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Result.framework; path = Carthage/Build/iOS/Result.framework; sourceTree = "<group>"; };
+		4FE19A5222A90215000CE5A8 /* CCInertial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CCInertial.swift; sourceTree = "<group>"; };
+		4FE19A5422AA49DE000CE5A8 /* InertialState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InertialState.swift; sourceTree = "<group>"; };
+		4FE19A5622AA4AF4000CE5A8 /* InertialReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InertialReducer.swift; sourceTree = "<group>"; };
+		4FE19A5A22AA513E000CE5A8 /* InertialActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InertialActions.swift; sourceTree = "<group>"; };
 		4FEA866A1EE0636200CEAEB9 /* SwiftProtobuf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftProtobuf.framework; path = Carthage/Build/iOS/SwiftProtobuf.framework; sourceTree = "<group>"; };
 		4FEF0C8A1EEFF58E00CB8AA9 /* CCRequestMessaging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CCRequestMessaging.swift; sourceTree = "<group>"; };
 		4FF6BA652105EA430082859F /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
@@ -249,6 +257,7 @@
 				4FFAA5941EF688CD00A2D508 /* LibraryState.swift */,
 				4F8FFD7E1F2C74940001910A /* LifecycleState.swift */,
 				4F222B181F90EA4300FB11BD /* BatteryLevelState.swift */,
+				4FE19A5422AA49DE000CE5A8 /* InertialState.swift */,
 			);
 			path = States;
 			sourceTree = "<group>";
@@ -259,6 +268,7 @@
 				4FFAA5981EF689ED00A2D508 /* LibraryReducer.swift */,
 				4F8FFD801F2C75E90001910A /* LifecycleReducer.swift */,
 				4F222B1A1F90EDA600FB11BD /* BatteryLevelReducer.swift */,
+				4FE19A5622AA4AF4000CE5A8 /* InertialReducer.swift */,
 				4FE620B2211B4E8F00DF8DB2 /* LocationReducers */,
 				4FE620B1211B4E8300DF8DB2 /* CCRequestMessagingReducers */,
 			);
@@ -282,6 +292,7 @@
 				4FBB8AB31F311D3400DEF04F /* BackgroundBeaconActions.swift */,
 				4FBB8AB71F32092B00DEF04F /* CurrentLocationActions.swift */,
 				4F920BF91F3B1C7F00BD7FEF /* LibraryTimeStateAction.swift */,
+				4FE19A5A22AA513E000CE5A8 /* InertialActions.swift */,
 			);
 			path = Actions;
 			sourceTree = "<group>";
@@ -399,6 +410,7 @@
 				BC9DEB792124160B0015C5CF /* CCSocket.swift */,
 				BC9DEB7B212425680015C5CF /* Reachability.swift */,
 				BC9DEB7D212429B10015C5CF /* ReachabilityManager.swift */,
+				4FE19A5222A90215000CE5A8 /* CCInertial.swift */,
 			);
 			path = CCLocation;
 			sourceTree = "<group>";
@@ -507,6 +519,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = F0AF0C2E1DB3912700E72E76;
@@ -572,7 +585,9 @@
 				F0B2DE5F1E6D7859005E3B7A /* Constants.swift in Sources */,
 				4F8FFD9D1F2CF6C90001910A /* ForegroundGEOReducer.swift in Sources */,
 				4FBB8AAC1F31145700DEF04F /* CurrentBeaconReducer.swift in Sources */,
+				4FE19A5722AA4AF4000CE5A8 /* InertialReducer.swift in Sources */,
 				4F8FFD8F1F2CE0340001910A /* ForegroundGEOState.swift in Sources */,
+				4FE19A5522AA49DE000CE5A8 /* InertialState.swift in Sources */,
 				BC0647B5218757E200555512 /* DispatchTimer.swift in Sources */,
 				4F920BFC1F3B1D6400BD7FEF /* LibraryTimeReducer.swift in Sources */,
 				4F8FFD911F2CE30C0001910A /* LocationSettingsState.swift in Sources */,
@@ -594,6 +609,7 @@
 				4FBB8AB81F32092B00DEF04F /* CurrentLocationActions.swift in Sources */,
 				4FBB8ABA1F320A0F00DEF04F /* CurrentiBeaconMonitoringReducer.swift in Sources */,
 				4FBB8AA01F30D23600DEF04F /* CurrentLocationState.swift in Sources */,
+				4FE19A5B22AA513E000CE5A8 /* InertialActions.swift in Sources */,
 				4F659BB61F24910100775ABD /* CCLocationManager.swift in Sources */,
 				4FBB8ABE1F325EDD00DEF04F /* AutoEquatable.generated.swift in Sources */,
 				4F8FFD971F2CE8FA0001910A /* CurrentGEOReducer.swift in Sources */,
@@ -603,6 +619,7 @@
 				4FBB8A911F30B9AD00DEF04F /* ForegroundBeaconState.swift in Sources */,
 				4FBB8AA71F3113B000DEF04F /* ForegroundLocationReducer.swift in Sources */,
 				4F222B1B1F90EDA600FB11BD /* BatteryLevelReducer.swift in Sources */,
+				4FE19A5322A90215000CE5A8 /* CCInertial.swift in Sources */,
 				4FEF0C8B1EEFF58E00CB8AA9 /* CCRequestMessaging.swift in Sources */,
 				4FBB8A8D1F2F2F6300DEF04F /* BackgroundGEOActions.swift in Sources */,
 				4F8FFD7F1F2C74940001910A /* LifecycleState.swift in Sources */,

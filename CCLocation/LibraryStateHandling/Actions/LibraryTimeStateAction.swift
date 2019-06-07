@@ -6,8 +6,6 @@
 //  Copyright © 2017 Crowd Connected. All rights reserved.
 //
 
-import Foundation
-
 import ReSwift
 
 struct NewTruetimeReceivedAction: Action {

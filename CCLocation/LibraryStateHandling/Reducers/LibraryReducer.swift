@@ -13,7 +13,8 @@ func libraryReducer(action: Action, state: LibraryState?) -> LibraryState {
         lifecycleState: lifecycleReducer(action: action, state: state?.lifecycleState),
         ccRequestMessagingState: ccRequestMessagingReducer(action: action, state: state?.ccRequestMessagingState),
         locationSettingsState: locationSettingsReducer(action: action, state: state?.locationSettingsState),
-        batteryLevelState: batteryLevelReducer(action: action, state: state?.batteryLevelState)
+        batteryLevelState: batteryLevelReducer(action: action, state: state?.batteryLevelState),
+        intertialState: inertialReducer(action: action, state: state?.intertialState)
     )
     
     switch action {
