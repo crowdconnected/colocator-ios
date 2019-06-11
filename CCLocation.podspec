@@ -12,10 +12,12 @@ Pod::Spec.new do |s|
   s.documentation_url     = 'https://developers.colocator.net'
 
   s.source_files          = 'CCLocation/**/*.swift'
-  s.resources              = 'CCLocation/certificate.der'
+  s.resources             = 'CCLocation/certificate.der'
   s.module_name           = 'CCLocation'
 
   s.ios.deployment_target = '9.0'
+
+  s.swift_version         = '4.2'
 
   s.frameworks            = 'CoreLocation', 'UIKit', 'CoreBluetooth'
 
