@@ -16,5 +16,5 @@ public struct LibraryState: StateType {
     var ccRequestMessagingState: CCRequestMessagingState
     var locationSettingsState: LocationSettingsState
     var batteryLevelState: BatteryLevelState
-    var intertialState: InertialState
+    var intertialState: InertialState?
 }

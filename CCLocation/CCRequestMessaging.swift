@@ -1086,6 +1086,8 @@ class CCRequestMessaging: NSObject {
                                 
                                 tempClientMessage = try? Messaging_ClientMessage(serializedData: tempMessage)
                                 
+                                if tempClientMessage != nil {
+                                
                                 if (tempClientMessage!.locationMessage.count > 0) {
                                     //                DDLogVerbose ("Found location message in queue")
                                     
@@ -1253,6 +1255,7 @@ class CCRequestMessaging: NSObject {
                                     compiledClientMessage.marker = markerMessage
                                     
                                     subMessageCounter += 1
+                                }
                                 }
                             }
                         }

@@ -160,6 +160,13 @@ public func == (lhs: ForegroundLocationState, rhs: ForegroundLocationState) -> B
     guard compareOptionals(lhs: lhs.foregroundBeaconState, rhs: rhs.foregroundBeaconState, compare: ==) else { return false }
     return true
 }
+// MARK: - InertialState AutoEquatable
+extension InertialState: Equatable {}
+public func == (lhs: InertialState, rhs: InertialState) -> Bool {
+    guard compareOptionals(lhs: lhs.isEnabled, rhs: rhs.isEnabled, compare: ==) else { return false }
+    guard compareOptionals(lhs: lhs.interval, rhs: rhs.interval, compare: ==) else { return false }
+    return true
+}
 // MARK: - LibraryTimeState AutoEquatable
 extension LibraryTimeState: Equatable {}
 public func == (lhs: LibraryTimeState, rhs: LibraryTimeState) -> Bool {

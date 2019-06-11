@@ -1043,6 +1043,7 @@ extension CCLocationManager {
     }
 }
 
+// MARK: - Responding to state changes
 extension CCLocationManager: StoreSubscriber {
     public func newState(state: CurrentLocationState) {
         

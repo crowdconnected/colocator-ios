@@ -27,6 +27,7 @@ public class CCLocation:NSObject {
     var ccRequestObject: CCSocket?
     var ccRequestMessaging: CCRequestMessaging?
     var ccLocationManager: CCLocationManager?
+    var ccInertial: CCInertial?
     var libraryStarted: Bool?
     
     public static let sharedInstance : CCLocation = {
@@ -57,6 +58,7 @@ public class CCLocation:NSObject {
             ccRequestObject = CCSocket.sharedInstance
             ccRequestMessaging = CCRequestMessaging(ccSocket: ccRequestObject!, stateStore: stateStore!)
             ccLocationManager = CCLocationManager(stateStore: stateStore!)
+            ccInertial = CCInertial(stateStore: stateStore!)
             
             ccRequestObject!.delegate = self
 
@@ -94,6 +96,8 @@ public class CCLocation:NSObject {
 
             ccRequestObject!.stop()
             ccRequestObject!.delegate = nil
+            
+            ccInertial?.stop()
 
             ccRequestMessaging?.stop()
 
@@ -101,6 +105,7 @@ public class CCLocation:NSObject {
             ccLocationManager = nil
             ccRequestObject = nil
             ccRequestMessaging = nil
+            ccInertial = nil
         } else {
             NSLog("[Colocator] already stopped")
         }
