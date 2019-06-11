@@ -198,7 +198,9 @@ extension SQLiteDatabase {
                 sqlite3_reset(insertStatement)
                 
                 let deleteSql = "DELETE FROM \(CCLocationTables.IBEACON_MESSAGES_TABLE) WHERE ID IN (SELECT ID FROM \(CCLocationTables.IBEACON_MESSAGES_TABLE) ORDER BY ID LIMIT \(deleteDiff));"
-                Log.debug("\(deleteSql)")
+                
+//                Log.debug("\(deleteSql)")
+                
                 let deleteStatement = try prepareStatement(sql: deleteSql)
                 
                 guard sqlite3_step(deleteStatement) == SQLITE_DONE else {
@@ -275,7 +277,9 @@ extension SQLiteDatabase {
                 sqlite3_reset(insertStatement)
                 
                 let deleteSql = "DELETE FROM \(CCLocationTables.EDDYSTONE_BEACON_MESSAGES_TABLE) WHERE ID IN (SELECT ID FROM \(CCLocationTables.EDDYSTONE_BEACON_MESSAGES_TABLE) ORDER BY ID LIMIT \(deleteDiff));"
-                Log.debug("\(deleteSql)")
+                
+//                Log.debug("\(deleteSql)")
+                
                 let deleteStatement = try prepareStatement(sql: deleteSql)
                 
                 guard sqlite3_step(deleteStatement) == SQLITE_DONE else {
@@ -349,7 +353,9 @@ extension SQLiteDatabase {
                 sqlite3_reset(insertStatement)
                 
                 let deleteSql = "DELETE FROM \(CCLocationTables.MESSAGES_TABLE) WHERE ID IN (SELECT ID FROM \(CCLocationTables.MESSAGES_TABLE) ORDER BY ID LIMIT \(deleteDiff));"
-                Log.debug("\(deleteSql)")
+                
+//                Log.debug("\(deleteSql)")
+                
                 let deleteStatement = try prepareStatement(sql: deleteSql)
                 
                 guard sqlite3_step(deleteStatement) == SQLITE_DONE else {
