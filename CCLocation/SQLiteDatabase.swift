@@ -393,9 +393,12 @@ extension SQLiteDatabase {
                 let observationBase64 = sqlite3_column_text(statement, 1)
                 
                 let string = String(cString: observationBase64!)
+                                
+                if let tempClientMessageData = Data(base64Encoded: string) {
                 
-                clientMessageData = Data(base64Encoded: string)!
-                clientMessagesData.append(clientMessageData)
+                    clientMessageData = tempClientMessageData
+                    clientMessagesData.append(clientMessageData)
+                }
 
                 let id = sqlite3_column_int(statement, 0)
                 ids.append("\(id)")
@@ -403,16 +406,11 @@ extension SQLiteDatabase {
             
             sqlite3_reset(statement)
             
-            if (clientMessagesData.count > 0) {
-                let idsJoined = ids.joined(separator: ",")
-                let deleteSql = "DELETE FROM \(CCLocationTables.MESSAGES_TABLE) WHERE ID IN (\(idsJoined));"
-                let statement = try prepareStatement(sql: deleteSql)
-                
-                guard sqlite3_step(statement) == SQLITE_DONE else {
-                    throw SQLiteError.Step(message: errorMessage)
-                }
-            }
-            else {
+            let idsJoined = ids.joined(separator: ",")
+            let deleteSql = "DELETE FROM \(CCLocationTables.MESSAGES_TABLE) WHERE ID IN (\(idsJoined));"
+            let deleteStatement = try prepareStatement(sql: deleteSql)
+            
+            guard sqlite3_step(deleteStatement) == SQLITE_DONE else {
                 throw SQLiteError.Step(message: errorMessage)
             }
             
