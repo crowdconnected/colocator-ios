@@ -8,7 +8,7 @@
 
 import ReSwift
 
-struct inertialStateChangedAction {
-    let isEnabled: Bool
-    let interval: UInt32
+struct InertialStateChangedAction: Action {
+    let isEnabled: Bool?
+    let interval: UInt32?
 }

@@ -541,6 +541,25 @@ class CCRequestMessaging: NSObject {
                 DispatchQueue.main.async {self.stateStore.dispatch(DisableBackgroundiBeaconAction())}
             }
         }
+        
+        if (serverMessage.hasIosSettings && serverMessage.iosSettings.hasInertialSettings) {
+            
+            var isInertialEnable: Bool?
+            var interval: UInt32?
+            
+            let inertialSettings = serverMessage.iosSettings.inertialSettings
+            
+            if inertialSettings.hasEnabled {
+                isInertialEnable = inertialSettings.enabled
+            }
+            
+            if inertialSettings.hasInterval {
+                interval = inertialSettings.interval
+            }
+
+            DispatchQueue.main.async {self.stateStore.dispatch(InertialStateChangedAction(isEnabled: isInertialEnable,
+                                                                                          interval: interval))}
+        }
     }
     
     //    func processSystemBeacons(serverMessage:Messaging_ServerMessage) {
@@ -1324,7 +1343,6 @@ class CCRequestMessaging: NSObject {
                             
                             if let stateStore = self?.stateStore {
                                 if let ccSocket = self?.ccSocket {
-                            
                                     if let isRebootTimeSame = self?.timeHandling.isRebootTimeSame(stateStore: stateStore, ccSocket: ccSocket) {
                                         if isRebootTimeSame {
                                             if let currentTimePeriod = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {

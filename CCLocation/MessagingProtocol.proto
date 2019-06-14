@@ -25,12 +25,18 @@ message IosSettings {
     optional IosGeoSettings geoSettings = 1;
     optional IosBeaconSettings beaconSettings = 2;
     optional uint64 backgroundExtension = 3; //Time in milliseconds to extend background operation
+    optional IosInertialSettings inertialSettings = 4;
 }
 
 message IosBeaconSettings {
     optional BeaconMonitoring monitoring = 1; //regions to monitor for
     optional BeaconRanging foregroundRanging = 2; //ranging to be used when app has focus
     optional BeaconRanging backgroundRanging = 3; //ranging to be used when app is in background
+}
+
+message IosInertialSettings {
+    optional bool enabled = 1;
+    optional uint32 interval = 2;
 }
 
 //iOS Geo Settings
@@ -179,6 +185,7 @@ message ClientMessage {
     optional bool surveryMode = 16;
     repeated WifiRTTMessage wifiRttMessage = 17;
     repeated EddystoneBeacon eddystonemessage = 18;
+    repeated Step step = 19;
 }
 
 message UserInputLocationMessage {
@@ -326,4 +333,9 @@ message Battery {
 
 message Acknowledgement {
     optional bytes messageIdentifier = 1;
+}
+
+message Step {
+    optional uint64 timestamp = 1;
+    optional double angle = 2;
 }

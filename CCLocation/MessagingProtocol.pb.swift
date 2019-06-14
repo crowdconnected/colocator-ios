@@ -177,6 +177,15 @@ struct Messaging_IosSettings {
   /// Clears the value of `backgroundExtension`. Subsequent reads from it will return its default value.
   mutating func clearBackgroundExtension() {_uniqueStorage()._backgroundExtension = nil}
 
+  var inertialSettings: Messaging_IosInertialSettings {
+    get {return _storage._inertialSettings ?? Messaging_IosInertialSettings()}
+    set {_uniqueStorage()._inertialSettings = newValue}
+  }
+  /// Returns true if `inertialSettings` has been explicitly set.
+  var hasInertialSettings: Bool {return _storage._inertialSettings != nil}
+  /// Clears the value of `inertialSettings`. Subsequent reads from it will return its default value.
+  mutating func clearInertialSettings() {_uniqueStorage()._inertialSettings = nil}
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   init() {}
@@ -224,6 +233,37 @@ struct Messaging_IosBeaconSettings {
   init() {}
 
   fileprivate var _storage = _StorageClass.defaultInstance
+}
+
+struct Messaging_IosInertialSettings {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var enabled: Bool {
+    get {return _enabled ?? false}
+    set {_enabled = newValue}
+  }
+  /// Returns true if `enabled` has been explicitly set.
+  var hasEnabled: Bool {return self._enabled != nil}
+  /// Clears the value of `enabled`. Subsequent reads from it will return its default value.
+  mutating func clearEnabled() {self._enabled = nil}
+
+  var interval: UInt32 {
+    get {return _interval ?? 0}
+    set {_interval = newValue}
+  }
+  /// Returns true if `interval` has been explicitly set.
+  var hasInterval: Bool {return self._interval != nil}
+  /// Clears the value of `interval`. Subsequent reads from it will return its default value.
+  mutating func clearInterval() {self._interval = nil}
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+
+  fileprivate var _enabled: Bool? = nil
+  fileprivate var _interval: UInt32? = nil
 }
 
 ///iOS Geo Settings
@@ -1178,6 +1218,11 @@ struct Messaging_ClientMessage {
   var eddystonemessage: [Messaging_EddystoneBeacon] {
     get {return _storage._eddystonemessage}
     set {_uniqueStorage()._eddystonemessage = newValue}
+  }
+
+  var step: [Messaging_Step] {
+    get {return _storage._step}
+    set {_uniqueStorage()._step = newValue}
   }
 
   var unknownFields = SwiftProtobuf.UnknownStorage()
@@ -2223,6 +2268,37 @@ struct Messaging_Acknowledgement {
   fileprivate var _messageIdentifier: Data? = nil
 }
 
+struct Messaging_Step {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var timestamp: UInt64 {
+    get {return _timestamp ?? 0}
+    set {_timestamp = newValue}
+  }
+  /// Returns true if `timestamp` has been explicitly set.
+  var hasTimestamp: Bool {return self._timestamp != nil}
+  /// Clears the value of `timestamp`. Subsequent reads from it will return its default value.
+  mutating func clearTimestamp() {self._timestamp = nil}
+
+  var angle: Double {
+    get {return _angle ?? 0}
+    set {_angle = newValue}
+  }
+  /// Returns true if `angle` has been explicitly set.
+  var hasAngle: Bool {return self._angle != nil}
+  /// Clears the value of `angle`. Subsequent reads from it will return its default value.
+  mutating func clearAngle() {self._angle = nil}
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+
+  fileprivate var _timestamp: UInt64? = nil
+  fileprivate var _angle: Double? = nil
+}
+
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
 fileprivate let _protobuf_package = "Messaging"
@@ -2357,12 +2433,14 @@ extension Messaging_IosSettings: SwiftProtobuf.Message, SwiftProtobuf._MessageIm
     1: .same(proto: "geoSettings"),
     2: .same(proto: "beaconSettings"),
     3: .same(proto: "backgroundExtension"),
+    4: .same(proto: "inertialSettings"),
   ]
 
   fileprivate class _StorageClass {
     var _geoSettings: Messaging_IosGeoSettings? = nil
     var _beaconSettings: Messaging_IosBeaconSettings? = nil
     var _backgroundExtension: UInt64? = nil
+    var _inertialSettings: Messaging_IosInertialSettings? = nil
 
     static let defaultInstance = _StorageClass()
 
@@ -2372,6 +2450,7 @@ extension Messaging_IosSettings: SwiftProtobuf.Message, SwiftProtobuf._MessageIm
       _geoSettings = source._geoSettings
       _beaconSettings = source._beaconSettings
       _backgroundExtension = source._backgroundExtension
+      _inertialSettings = source._inertialSettings
     }
   }
 
@@ -2390,6 +2469,7 @@ extension Messaging_IosSettings: SwiftProtobuf.Message, SwiftProtobuf._MessageIm
         case 1: try decoder.decodeSingularMessageField(value: &_storage._geoSettings)
         case 2: try decoder.decodeSingularMessageField(value: &_storage._beaconSettings)
         case 3: try decoder.decodeSingularUInt64Field(value: &_storage._backgroundExtension)
+        case 4: try decoder.decodeSingularMessageField(value: &_storage._inertialSettings)
         default: break
         }
       }
@@ -2407,6 +2487,9 @@ extension Messaging_IosSettings: SwiftProtobuf.Message, SwiftProtobuf._MessageIm
       if let v = _storage._backgroundExtension {
         try visitor.visitSingularUInt64Field(value: v, fieldNumber: 3)
       }
+      if let v = _storage._inertialSettings {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 4)
+      }
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -2419,6 +2502,7 @@ extension Messaging_IosSettings: SwiftProtobuf.Message, SwiftProtobuf._MessageIm
         if _storage._geoSettings != rhs_storage._geoSettings {return false}
         if _storage._beaconSettings != rhs_storage._beaconSettings {return false}
         if _storage._backgroundExtension != rhs_storage._backgroundExtension {return false}
+        if _storage._inertialSettings != rhs_storage._inertialSettings {return false}
         return true
       }
       if !storagesAreEqual {return false}
@@ -2500,6 +2584,41 @@ extension Messaging_IosBeaconSettings: SwiftProtobuf.Message, SwiftProtobuf._Mes
       }
       if !storagesAreEqual {return false}
     }
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Messaging_IosInertialSettings: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = _protobuf_package + ".IosInertialSettings"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "enabled"),
+    2: .same(proto: "interval"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      switch fieldNumber {
+      case 1: try decoder.decodeSingularBoolField(value: &self._enabled)
+      case 2: try decoder.decodeSingularUInt32Field(value: &self._interval)
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if let v = self._enabled {
+      try visitor.visitSingularBoolField(value: v, fieldNumber: 1)
+    }
+    if let v = self._interval {
+      try visitor.visitSingularUInt32Field(value: v, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Messaging_IosInertialSettings, rhs: Messaging_IosInertialSettings) -> Bool {
+    if lhs._enabled != rhs._enabled {return false}
+    if lhs._interval != rhs._interval {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -3364,6 +3483,7 @@ extension Messaging_ClientMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
     16: .same(proto: "surveryMode"),
     17: .same(proto: "wifiRttMessage"),
     18: .same(proto: "eddystonemessage"),
+    19: .same(proto: "step"),
   ]
 
   fileprivate class _StorageClass {
@@ -3385,6 +3505,7 @@ extension Messaging_ClientMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
     var _surveryMode: Bool? = nil
     var _wifiRttMessage: [Messaging_WifiRTTMessage] = []
     var _eddystonemessage: [Messaging_EddystoneBeacon] = []
+    var _step: [Messaging_Step] = []
 
     static let defaultInstance = _StorageClass()
 
@@ -3409,6 +3530,7 @@ extension Messaging_ClientMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
       _surveryMode = source._surveryMode
       _wifiRttMessage = source._wifiRttMessage
       _eddystonemessage = source._eddystonemessage
+      _step = source._step
     }
   }
 
@@ -3442,6 +3564,7 @@ extension Messaging_ClientMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
         case 16: try decoder.decodeSingularBoolField(value: &_storage._surveryMode)
         case 17: try decoder.decodeRepeatedMessageField(value: &_storage._wifiRttMessage)
         case 18: try decoder.decodeRepeatedMessageField(value: &_storage._eddystonemessage)
+        case 19: try decoder.decodeRepeatedMessageField(value: &_storage._step)
         default: break
         }
       }
@@ -3504,6 +3627,9 @@ extension Messaging_ClientMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
       if !_storage._eddystonemessage.isEmpty {
         try visitor.visitRepeatedMessageField(value: _storage._eddystonemessage, fieldNumber: 18)
       }
+      if !_storage._step.isEmpty {
+        try visitor.visitRepeatedMessageField(value: _storage._step, fieldNumber: 19)
+      }
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -3531,6 +3657,7 @@ extension Messaging_ClientMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
         if _storage._surveryMode != rhs_storage._surveryMode {return false}
         if _storage._wifiRttMessage != rhs_storage._wifiRttMessage {return false}
         if _storage._eddystonemessage != rhs_storage._eddystonemessage {return false}
+        if _storage._step != rhs_storage._step {return false}
         return true
       }
       if !storagesAreEqual {return false}
@@ -4352,6 +4479,41 @@ extension Messaging_Acknowledgement: SwiftProtobuf.Message, SwiftProtobuf._Messa
 
   static func ==(lhs: Messaging_Acknowledgement, rhs: Messaging_Acknowledgement) -> Bool {
     if lhs._messageIdentifier != rhs._messageIdentifier {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Messaging_Step: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = _protobuf_package + ".Step"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "timestamp"),
+    2: .same(proto: "angle"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      switch fieldNumber {
+      case 1: try decoder.decodeSingularUInt64Field(value: &self._timestamp)
+      case 2: try decoder.decodeSingularDoubleField(value: &self._angle)
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if let v = self._timestamp {
+      try visitor.visitSingularUInt64Field(value: v, fieldNumber: 1)
+    }
+    if let v = self._angle {
+      try visitor.visitSingularDoubleField(value: v, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Messaging_Step, rhs: Messaging_Step) -> Bool {
+    if lhs._timestamp != rhs._timestamp {return false}
+    if lhs._angle != rhs._angle {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

@@ -24,7 +24,7 @@ func inertialReducer (action: Action, state: InertialState?) -> InertialState {
     }
     
     switch action {
-        case let inertialStateChangedAction as inertialStateChangedAction:
+        case let inertialStateChangedAction as InertialStateChangedAction:
             state.isEnabled = inertialStateChangedAction.isEnabled
             state.interval = inertialStateChangedAction.interval
             
