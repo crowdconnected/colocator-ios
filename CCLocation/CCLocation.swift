@@ -64,7 +64,7 @@ public class CCLocation:NSObject {
 
             NSLog ("[Colocator] Attempt to connect to back-end with URL: \(tempUrlString) and APIKey: \(apiKey)")
             
-            ccRequestObject!.start(urlString: tempUrlString, apiKey: apiKey, ccRequestMessaging: ccRequestMessaging!, ccLocationManager: ccLocationManager!)
+            ccRequestObject!.start(urlString: tempUrlString, apiKey: apiKey, ccRequestMessaging: ccRequestMessaging!, ccLocationManager: ccLocationManager!, ccInertial: ccInertial!)
         } else {
             NSLog ("[Colocator] already running: Colocator start method called more than once in a row")
         }

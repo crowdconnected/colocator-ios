@@ -29,6 +29,7 @@ class CCSocket:NSObject {
     var ccWebsocketBaseURL: String?
     var ccLocationManager: CCLocationManager?
     var ccRequestMessaging: CCRequestMessaging?
+    var ccInertial: CCInertial?
     var delay: Double = 0
     
     var maxCycleTimer: Timer?
@@ -45,7 +46,7 @@ class CCSocket:NSObject {
         return instance
     }()
     
-    func start(urlString: String, apiKey: String, ccRequestMessaging: CCRequestMessaging, ccLocationManager: CCLocationManager){
+    func start(urlString: String, apiKey: String, ccRequestMessaging: CCRequestMessaging, ccLocationManager: CCLocationManager, ccInertial: CCInertial){
         
         if (!running){
             running = true
@@ -60,8 +61,14 @@ class CCSocket:NSObject {
             
             self.ccLocationManager = ccLocationManager
             
-            if let ccLocationManager = self.ccLocationManager{
+            if let ccLocationManager = self.ccLocationManager {
                 ccLocationManager.delegate = self
+            }
+            
+            self.ccInertial = ccInertial
+            
+            if let ccInertial = self.ccInertial {
+                ccInertial.delegate = self
             }
             
             self.ccRequestMessaging = ccRequestMessaging
@@ -71,7 +78,7 @@ class CCSocket:NSObject {
 
         } else {
             stop()
-            start(urlString: urlString, apiKey: apiKey, ccRequestMessaging: ccRequestMessaging, ccLocationManager: ccLocationManager)
+            start(urlString: urlString, apiKey: apiKey, ccRequestMessaging: ccRequestMessaging, ccLocationManager: ccLocationManager, ccInertial: ccInertial)
         }
     }
     
@@ -405,6 +412,12 @@ extension CCSocket: CCLocationManagerDelegate {
     }
 }
 
+// MARK: CCInertialDelegate
+extension CCSocket: CCInertialDelegate {
+    func receivedStep(date: Date, angle: Double) {
+        ccRequestMessaging?.processStep(date: date, angle: angle)
+    }
+}
 
 // MARK: SRWebSocketDelegate
 extension CCSocket: SRWebSocketDelegate {

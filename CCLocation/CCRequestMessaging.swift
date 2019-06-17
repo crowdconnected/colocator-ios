@@ -427,13 +427,13 @@ class CCRequestMessaging: NSObject {
                 let isIBeaconRangingEnabled = rangingRegions.count > 0 ? true : false
                 
                 DispatchQueue.main.async {store.dispatch(EnableForegroundBeaconAction(maxRuntime: maxRuntime,
-                                                                 minOffTime: minOffTime,
-                                                                 regions: rangingRegions.sorted(by: {$0.identifier < $1.identifier}),
-                                                                 filterWindowSize: filterWindowSize,
-                                                                 filterMaxObservations: maxObservations,
-                                                                 filterExcludeRegions: excludeRegions.sorted(by: {$0.identifier < $1.identifier}),
-                                                                 isEddystoneScanEnabled: eddystoneScan,
-                                                                 isIBeaconRangingEnabled: isIBeaconRangingEnabled))}
+                                                                                      minOffTime: minOffTime,
+                                                                                      regions: rangingRegions.sorted(by: {$0.identifier < $1.identifier}),
+                                                                                      filterWindowSize: filterWindowSize,
+                                                                                      filterMaxObservations: maxObservations,
+                                                                                      filterExcludeRegions: excludeRegions.sorted(by: {$0.identifier < $1.identifier}),
+                                                                                      isEddystoneScanEnabled: eddystoneScan,
+                                                                                      isIBeaconRangingEnabled: isIBeaconRangingEnabled))}
             } else {
                 DispatchQueue.main.async {store.dispatch(DisableForegroundiBeaconAction())}
             }
@@ -530,13 +530,13 @@ class CCRequestMessaging: NSObject {
                 let isIBeaconRangingEnabled = rangingRegions.count > 0 ? true : false
                 
                 DispatchQueue.main.async {self.stateStore.dispatch(EnableBackgroundiBeaconAction(maxRuntime: maxRuntime,
-                                                                  minOffTime: minOffTime,
-                                                                  regions: rangingRegions.sorted(by: {$0.identifier < $1.identifier}),
-                                                                  filterWindowSize: filterWindowSize,
-                                                                  filterMaxObservations: maxObservations,
-                                                                  filterExcludeRegions: excludeRegions.sorted(by: {$0.identifier < $1.identifier}),
-                                                                  eddystoneScanEnabled: eddystoneScan,
-                                                                  isIBeaconRangingEnabled: isIBeaconRangingEnabled))}
+                                                                                                 minOffTime: minOffTime,
+                                                                                                 regions: rangingRegions.sorted(by: {$0.identifier < $1.identifier}),
+                                                                                                 filterWindowSize: filterWindowSize,
+                                                                                                 filterMaxObservations: maxObservations,
+                                                                                                 filterExcludeRegions: excludeRegions.sorted(by: {$0.identifier < $1.identifier}),
+                                                                                                 eddystoneScanEnabled: eddystoneScan,
+                                                                                                 isIBeaconRangingEnabled: isIBeaconRangingEnabled))}
             } else {
                 DispatchQueue.main.async {self.stateStore.dispatch(DisableBackgroundiBeaconAction())}
             }
@@ -556,7 +556,7 @@ class CCRequestMessaging: NSObject {
             if inertialSettings.hasInterval {
                 interval = inertialSettings.interval
             }
-
+            
             DispatchQueue.main.async {self.stateStore.dispatch(InertialStateChangedAction(isEnabled: isInertialEnable,
                                                                                           interval: interval))}
         }
@@ -759,11 +759,40 @@ class CCRequestMessaging: NSObject {
         clientMessage.locationMessage.append(locationMessage)
         
         if let data = try? clientMessage.serializedData(){
-//            NSLog("Location message build: \(clientMessage) with size: \(String(describing: data.count))")
+            //            NSLog("Location message build: \(clientMessage) with size: \(String(describing: data.count))")
             userDefaults.set(counter, forKey: CCRequestMessagingConstants.messageCounter)
             sendOrQueueClientMessage(data: data, messageType: .queueable)
         }
     }
+    
+    public func processStep(date: Date, angle: Double) {
+        
+        var clientMessage = Messaging_ClientMessage()
+        var stepMessage = Messaging_Step()
+        
+        stepMessage.angle = angle
+        
+        let trueTimeSame = timeHandling.isRebootTimeSame(stateStore: stateStore, ccSocket: ccSocket)
+        
+        if ((stateStore.state.ccRequestMessagingState.libraryTimeState?.lastTrueTime) != nil || trueTimeSame) {
+            
+            let lastSystemTime = stateStore.state.ccRequestMessagingState.libraryTimeState?.systemTimeAtLastTrueTime
+            
+            let beetweenSystemsTimeInterval = date.timeIntervalSince(lastSystemTime!)
+            
+            let sendTimeInterval = stateStore.state.ccRequestMessagingState.libraryTimeState?.lastTrueTime?.addingTimeInterval(beetweenSystemsTimeInterval).timeIntervalSince1970
+            
+            stepMessage.timestamp = UInt64(sendTimeInterval! * 1000)
+        }
+        
+        clientMessage.step.append(stepMessage)
+        
+        if let data = try? clientMessage.serializedData(){
+            NSLog("Step message build: \(clientMessage) with size: \(String(describing: data.count))")
+            sendOrQueueClientMessage(data: data, messageType: .queueable)
+        }
+    }
+    
     
     public func processIOSCapability(locationAuthStatus: CLAuthorizationStatus?,
                                      bluetoothHardware: CBCentralManagerState?,
@@ -831,7 +860,7 @@ class CCRequestMessaging: NSObject {
         clientMessage.iosCapability = capabilityMessage
         
         if let data = try? clientMessage.serializedData(){
-//            Log.debug("Capability message build: \(clientMessage) with size: \(String(describing: data.count))")
+            //            Log.debug("Capability message build: \(clientMessage) with size: \(String(describing: data.count))")
             sendOrQueueClientMessage(data: data, messageType: .queueable)
         }
     }
@@ -1050,7 +1079,7 @@ class CCRequestMessaging: NSObject {
                 while (messagesCount() > 0 && connectionState == .online) {
                     
                     if workItem.isCancelled { break }
-                
+                    
                     connectionState = self?.stateStore.state.ccRequestMessagingState.webSocketState?.connectionState
                     
                     var compiledClientMessage = Messaging_ClientMessage()
@@ -1105,8 +1134,6 @@ class CCRequestMessaging: NSObject {
                                 
                                 tempClientMessage = try? Messaging_ClientMessage(serializedData: tempMessage)
                                 
-                                if tempClientMessage != nil {
-                                
                                 if (tempClientMessage!.locationMessage.count > 0) {
                                     //                DDLogVerbose ("Found location message in queue")
                                     
@@ -1133,7 +1160,27 @@ class CCRequestMessaging: NSObject {
                                         subMessageCounter += 1
                                     }
                                 }
-                                
+
+                                if (tempClientMessage!.step.count > 0) {
+                                    Log.verbose ("Found step message in queue")
+                                    
+                                    for tempStepMessage in tempClientMessage!.step {
+                                        
+                                        var stepMessage = Messaging_Step()
+                                        
+                                        stepMessage.timestamp = tempStepMessage.timestamp
+                                        stepMessage.angle = tempStepMessage.angle
+
+                                        if (subMessageCounter >= 0) {
+                                            compiledClientMessage.step.append(stepMessage)
+                                        } else {
+                                            backToQueueMessages.step.append(stepMessage)
+                                        }
+                                        
+                                        subMessageCounter += 1
+                                    }
+                                }
+
                                 if (tempClientMessage!.bluetoothMessage.count > 0) {
                                     
                                     //                DDLogVerbose ("Found bluetooth message in queue")
@@ -1274,7 +1321,6 @@ class CCRequestMessaging: NSObject {
                                     compiledClientMessage.marker = markerMessage
                                     
                                     subMessageCounter += 1
-                                }
                                 }
                             }
                         }
