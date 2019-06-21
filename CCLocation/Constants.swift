@@ -35,3 +35,8 @@ struct CCSocketConstants {
 struct CCRequestMessagingConstants {
     static let messageCounter = "messageCounterKey"
 }
+
+struct CCInertialConstants {
+    static let bufferSize = 500 // do not make smaller than 50
+    static let cutOff = 100
+}

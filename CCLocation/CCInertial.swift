@@ -127,6 +127,15 @@ class CCInertial: NSObject {
                     Log.debug("Yaw:\(yawData.yaw), Timestamp: \(yawData.date.timeIntervalSince1970), Interval: \(self.motion.deviceMotionUpdateInterval )")
                 
                 self.yawDataBuffer.append(yawData)
+                
+                let bufferSize = CCInertialConstants.bufferSize
+                let cutOff = CCInertialConstants.cutOff
+                
+                if self.yawDataBuffer.count >= bufferSize {
+                    Log.debug("tidying up yaw buffer: \(self.yawDataBuffer.count), last entry: \(String(describing: self.yawDataBuffer.last))")
+                    self.yawDataBuffer.removeSubrange(0 ... bufferSize - cutOff - 1)
+                    Log.debug("new yaw buffer length: \(self.yawDataBuffer.count), last entry: \(String(describing: self.yawDataBuffer.last))")
+                }
             })
         }
     }
