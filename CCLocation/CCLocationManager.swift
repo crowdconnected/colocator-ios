@@ -658,7 +658,7 @@ extension CCLocationManager {
         //Log.debug("Received \(locations.count) locations")
         
         for location in locations {
-            Log.debug("geolocation information: \(location.description)")
+//            Log.debug("geolocation information: \(location.description)")
             
             //            if #available(iOS 10.0, *) {
             //                let content = UNMutableNotificationContent()

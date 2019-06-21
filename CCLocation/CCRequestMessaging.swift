@@ -792,7 +792,7 @@ class CCRequestMessaging: NSObject {
         clientMessage.step.append(stepMessage)
         
         if let data = try? clientMessage.serializedData(){
-            NSLog("Step message build: \(clientMessage) with size: \(String(describing: data.count))")
+//            NSLog("Step message build: \(clientMessage) with size: \(String(describing: data.count))")
             sendOrQueueClientMessage(data: data, messageType: .queueable)
         }
     }
