@@ -32,7 +32,7 @@ class CCInertial: NSObject {
     private var pedometerStartDate: Date = Date()
     private var previousPedometerData: PedometerData?
     private var yawDataBuffer: [YawData] = []
-        
+    
     fileprivate var currentInertialState: InertialState!
     
     weak var stateStore: Store<LibraryState>!
@@ -164,10 +164,22 @@ class CCInertial: NSObject {
     }
     
     internal func start () {
-        Log.debug("Starting intertial")
         
-        startCountingSteps()
-        startMotionUpdates()
+        if #available(iOS 11.0, *) {
+            let pedometerAuthStatus = CMPedometer.authorizationStatus()
+            if pedometerAuthStatus == .authorized || pedometerAuthStatus == .notDetermined {
+                Log.debug("Starting intertial")
+                startCountingSteps()
+                startMotionUpdates()
+            } else {
+                Log.debug("Authorisation status is:  \(pedometerAuthStatus), no inertial updates requested")
+            }
+        } else {
+            Log.debug("Starting intertial")
+            
+            startCountingSteps()
+            startMotionUpdates()
+        }
     }
     
     internal func stop () {
