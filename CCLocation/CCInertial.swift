@@ -32,10 +32,7 @@ class CCInertial: NSObject {
     private var pedometerStartDate: Date = Date()
     private var previousPedometerData: PedometerData?
     private var yawDataBuffer: [YawData] = []
-    
-    private var isInertialRunning = false
-    private var interval: Double = -1
-    
+        
     fileprivate var currentInertialState: InertialState!
     
     weak var stateStore: Store<LibraryState>!
@@ -47,14 +44,14 @@ class CCInertial: NSObject {
         
         self.stateStore = stateStore
         
-        currentInertialState = InertialState(isEnabled: true, interval: 0)
+        currentInertialState = InertialState(isEnabled: false, interval: 0)
         
         stateStore.subscribe(self)
     }
     
     internal func startCountingSteps() {
         
-        if CMPedometer.isStepCountingAvailable(){
+        if CMPedometer.isStepCountingAvailable (){
             
             pedometerStartDate = Date()
             
@@ -112,8 +109,7 @@ class CCInertial: NSObject {
     
     private func startMotionUpdates() {
         if motion.isDeviceMotionAvailable {
-            self.motion.deviceMotionUpdateInterval = interval
-            self.motion.showsDeviceMovementDisplay = true // need to double check the behaviour on this one
+//            self.motion.showsDeviceMovementDisplay = true // need to double check the behaviour on this one
             self.motion.startDeviceMotionUpdates(using: .xArbitraryZVertical, to: OperationQueue.main, withHandler: { (deviceMotion, error) in
                 
                 guard let data = deviceMotion, error == nil else {
@@ -125,23 +121,29 @@ class CCInertial: NSObject {
                     return
                 }
                 
-                
                 let yawValue = data.attitude.yaw
                 let yawData = YawData(yaw: yawValue, date: Date())
                 
-//                    Log.debug("Yaw:\(yawData.yaw), Timestamp: \(yawData.date.timeIntervalSince1970), Interval: \(self.interval)")
+                    Log.debug("Yaw:\(yawData.yaw), Timestamp: \(yawData.date.timeIntervalSince1970), Interval: \(self.motion.deviceMotionUpdateInterval )")
                 
                 self.yawDataBuffer.append(yawData)
             })
         }
+    }
+
+    private func setInterval (time: TimeInterval){
+        self.motion.deviceMotionUpdateInterval = time
     }
     
     private func findFirstSmallerYaw (yawArray:[YawData], timeInterval: TimeInterval) -> YawData?{
         for (index, yaw) in yawArray.reversed().enumerated() {
             //            Log.debug("Yaw time interval: \(yaw.date.timeIntervalSince1970), Time interval: \(timeInterval)")
             if yaw.date.timeIntervalSince1970 < timeInterval {
-//                yawDataBuffer.removeSubrange(index ... yawDataBuffer.count - 1)
-                Log.debug("Yaw index: \(index)")
+                yawDataBuffer.removeSubrange(0 ... (yawArray.count - index - 1))
+//                Log.debug("Yaw index: \(index)")
+//                Log.debug("Index: \(String(describing: yawArray.firstIndex(where: {item in item.date.timeIntervalSince1970 == yaw.date.timeIntervalSince1970})))")
+//                Log.debug("Index reverse engineered: \(yawArray.count - index - 1)")
+//                Log.debug("Array count: \(yawArray.count)")
                 return yaw
             }
         }
@@ -155,11 +157,8 @@ class CCInertial: NSObject {
     internal func start () {
         Log.debug("Starting intertial")
         
-        if !isInertialRunning{
-            startCountingSteps()
-            startMotionUpdates()
-            isInertialRunning = true
-        }
+        startCountingSteps()
+        startMotionUpdates()
     }
     
     internal func stop () {
@@ -177,20 +176,23 @@ extension CCInertial: StoreSubscriber {
             Log.debug("new state is: \(newInertialState)")
             
             if newInertialState != self.currentInertialState {
-                self.currentInertialState = newInertialState
                 Log.debug("new state is: \(newInertialState)")
                 
                 if let interval = newInertialState.interval {
-                    self.interval = Double(interval) / 1000
+                    setInterval(time: Double(interval) / 1000)
                 }
 
                 if let isInertialEnabled = newInertialState.isEnabled {
-                    if isInertialEnabled {
+                    if isInertialEnabled && !self.currentInertialState.isEnabled! {
                         start()
-                    } else {
+                    }
+                
+                    if !isInertialEnabled && self.currentInertialState.isEnabled! {
                         stop()
                     }
                 }
+
+                self.currentInertialState = newInertialState
             }
         }
     }
