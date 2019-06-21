@@ -8,6 +8,7 @@
 
 import Foundation
 import ReSwift
+import CoreMotion
 
 internal struct Constants {
     static let DEFAULT_END_POINT_PARTIAL_URL = ".colocator.net:443/socket"
@@ -35,6 +36,10 @@ public class CCLocation:NSObject {
         instance.libraryStarted = false
         return instance
     } ()
+    
+    public static func askMotionPermissions () {
+        CMPedometer().stopUpdates()
+    }
     
     public func start (apiKey: String, urlString: String? = nil) {
         
