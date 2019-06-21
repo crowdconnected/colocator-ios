@@ -162,6 +162,10 @@ class CCRequestMessaging: NSObject {
             DispatchQueue.main.async {store.dispatch(DisableCurrrentiBeaconAction())}
         }
         
+        if (serverMessage.hasIosSettings && !serverMessage.iosSettings.hasInertialSettings) {
+            DispatchQueue.main.async {store.dispatch(DisableInertialAction())}
+        }
+        
         if (serverMessage.hasIosSettings && serverMessage.iosSettings.hasGeoSettings) {
             let geoSettings = serverMessage.iosSettings.geoSettings
             

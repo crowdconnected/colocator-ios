@@ -30,6 +30,11 @@ func inertialReducer (action: Action, state: InertialState?) -> InertialState {
             
             saveInertialStateToUserDefaults(inertialState: state)
         
+        case let disableInertial as DisableInertialAction:
+            state.isEnabled = false
+        
+            saveInertialStateToUserDefaults(inertialState: state)
+        
         default: break
     }
     
