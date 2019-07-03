@@ -974,15 +974,7 @@ class CCRequestMessaging: NSObject {
                     if (messageType == .queueable){
                         //                        Log.verbose("Message is queuable, buffer timer active, going to queue message")
                         
-                        if let database = self.messagesDB {
-                            do {
-                                try database.insertMessage(ccMessage: CCMessage(observation: data))
-                            } catch SQLiteError.Prepare(let error) {
-                                Log.error("SQL Prepare Error: \(error)")
-                            } catch {
-                                Log.error("Error while executing messagesDB.insertMessage \(error)")
-                            }
-                        }
+                        insertMessageInLocalDatabase(message: data)
                     }
                     
                     // case for Latency Message, when buffer timer is set
@@ -1002,15 +994,7 @@ class CCRequestMessaging: NSObject {
         // case for iBeacon + GEO + Marker + Alias messages, when offline
         if (messageType == .queueable){
             //            Log.verbose("Websocket is offline, message is queuable, going to queue message")
-            if let database = self.messagesDB {
-                do {
-                    try database.insertMessage(ccMessage: CCMessage(observation: data))
-                } catch SQLiteError.Prepare(let error) {
-                    Log.error("SQL Prepare Error: \(error)")
-                } catch {
-                    Log.error("Error while executing messagesDB.insertMessage \(error)")
-                }
-            }
+            insertMessageInLocalDatabase(message: data)
         }
         
         // case for Latency message, when offline
@@ -1042,18 +1026,20 @@ class CCRequestMessaging: NSObject {
         var workItem: DispatchWorkItem!
         
         if (firstMessage != nil){
-            Log.verbose("Received a new message, pushing new message into message queue")
-            if let database = self.messagesDB {
-                if let firstMessage = firstMessage{
-                    do {
-                        try database.insertMessage(ccMessage: CCMessage.init(observation: firstMessage))
-                    } catch SQLiteError.Prepare(let error) {
-                        Log.error("SQL Prepare Error: \(error)")
-                    } catch {
-                        Log.error("Error while executing messagesDB.insertMessage \(error)")
-                    }
+            
+            // If radioSilencer is nil, message is sent to the server instant
+            if stateStore.state.ccRequestMessagingState.radiosilenceTimerState?.timeInterval == nil,
+                let newMessage = firstMessage {
+                
+                sendMessageDirectly(message: newMessage)
+                return
+                
+            } else {
+                if let newMessage = firstMessage {
+                    insertMessageInLocalDatabase(message: newMessage)
                 }
             }
+            
         }
         
         // inline function to get the message count and handle any errors from SQL
@@ -1121,15 +1107,7 @@ class CCRequestMessaging: NSObject {
                         
                         if workItem.isCancelled { break }
                         
-                        if let database = self?.messagesDB {
-                            do {
-                                tempMessageData = try database.popMessages(num: maxMessagesToReturn)
-                            } catch SQLiteError.Prepare(let error) {
-                                Log.error("SQL Prepare Error: \(error)")
-                            } catch {
-                                Log.error("Error while executing messagesDB.popMessage \(error)")
-                            }
-                        }
+                        tempMessageData = self?.popMessagesFromLocalDatabase(maxMessagesToReturn: maxMessagesToReturn)
                         
                         if let unwrappedTempMessageData = tempMessageData {
                             for tempMessage in unwrappedTempMessageData {
@@ -1358,18 +1336,11 @@ class CCRequestMessaging: NSObject {
                     if workItem.isCancelled { break }
                     
                     if let backToQueueData = try? backToQueueMessages.serializedData() {
-                        //            //DDLogDebug("Had to split a client message into two, pushing \(subMessageCounter) unsent messages back to the Queue")
+                        //DDLogDebug("Had to split a client message into two, pushing \(subMessageCounter) unsent messages back to the Queue")
                         if backToQueueData.count > 0 {
-                            //                ccRequest?.messageQueuePushSwiftBridge(backToQueueData)
-                            if let database = self?.messagesDB {
-                                do {
-                                    try database.insertMessage(ccMessage: CCMessage.init(observation: backToQueueData))
-                                } catch SQLiteError.Prepare(let error) {
-                                    Log.error("SQL Prepare Error: \(error)")
-                                } catch {
-                                    Log.error("Error while executing messagesDB.insertMessage \(error)")
-                                }
-                            }
+                            //    ccRequest?.messageQueuePushSwiftBridge(backToQueueData)
+                            
+                            self?.insertMessageInLocalDatabase(message: backToQueueData)
                         }
                     } else {
                         //DDLogError("Couldn't serialize back to queue data")
@@ -1495,41 +1466,6 @@ class CCRequestMessaging: NSObject {
         //        if #available(iOS 9.0, *) {
         //            NotificationCenter.default.addObserver(self, selector: #selector(powerModeDidChange), name: NSNotification.Name.NSProcessInfoPowerStateDidChange, object: nil)
         //        }
-    }
-    
-    // MARK:- OBSERVATION MESSAGES DATABASE HANDLING
-    
-    func openMessagesDatabase() {
-        // Get the library directory
-        let dirPaths = NSSearchPathForDirectoriesInDomains (.libraryDirectory, .userDomainMask, true)
-        
-        let docsDir = dirPaths[0]
-        
-        // Build the path to the database file
-        let messageDBPath = URL.init(string: docsDir)?.appendingPathComponent(messagesDBName).absoluteString
-        
-        guard let messageDBPathStringUnwrapped = messageDBPath else {
-            Log.error("Unable to observation messages database path")
-            return
-        }
-        
-        do {
-            messagesDB = try SQLiteDatabase.open(path: messageDBPathStringUnwrapped)
-            Log.debug("Successfully opened connection to observation messages database.")
-        } catch SQLiteError.OpenDatabase(let message) {
-            Log.error("Unable to open observation messages database. \(message)")
-        } catch {
-            Log.error("An unexpected error was thrown, when trying to open a connection to observation messages database")
-        }
-    }
-    
-    func createCCMesageTable() {
-        
-        do {
-            try messagesDB.createTable(table: CCMessage.self)
-        } catch {
-            Log.error("message database error: \(messagesDB.errorMessage)")
-        }
     }
     
     func version() -> String {
@@ -1659,18 +1595,18 @@ extension CCRequestMessaging: StoreSubscriber {
                             
                             //                            DDLogVerbose("RADIOSILENCETIMER intervalForLastTimer = \(intervalForLastTimer)")
                             
-                            if intervalForLastTimer < Double(timeInterval / 1000) {
+                            if intervalForLastTimer < Double(Double(timeInterval) / 1000) {
                                 timeBetweenSendsTimer = Timer.scheduledTimer(timeInterval:TimeInterval(intervalForLastTimer), target: self, selector: #selector(self.sendQueuedClientMessagesTimerFiredOnce), userInfo: nil, repeats: false)
                                 DispatchQueue.main.async {self.stateStore.dispatch(TimerRunningAction(startTimeInterval: nil))}
                             } else {
-                                timeBetweenSendsTimer = Timer.scheduledTimer(timeInterval:TimeInterval(timeInterval / 1000), target: self, selector: #selector(self.sendQueuedClientMessagesTimerFired), userInfo: nil, repeats: true)
+                                timeBetweenSendsTimer = Timer.scheduledTimer(timeInterval:TimeInterval(Double(timeInterval) / 1000), target: self, selector: #selector(self.sendQueuedClientMessagesTimerFired), userInfo: nil, repeats: true)
                                 
                                 DispatchQueue.main.async {self.stateStore.dispatch(TimerRunningAction(startTimeInterval: TimeHandling.timeIntervalSinceBoot()))}
                             }
                             
                         } else {
                             
-                            timeBetweenSendsTimer = Timer.scheduledTimer(timeInterval:TimeInterval(timeInterval / 1000), target: self, selector: #selector(self.sendQueuedClientMessagesTimerFired), userInfo: nil, repeats: true)
+                            timeBetweenSendsTimer = Timer.scheduledTimer(timeInterval:TimeInterval(Double(timeInterval) / 1000), target: self, selector: #selector(self.sendQueuedClientMessagesTimerFired), userInfo: nil, repeats: true)
                             
                             DispatchQueue.main.async {self.stateStore.dispatch(TimerRunningAction(startTimeInterval: TimeHandling.timeIntervalSinceBoot()))}
                         }
