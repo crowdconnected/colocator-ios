@@ -40,28 +40,40 @@ extension CCRequestMessaging {
             tempClientMessage = try? Messaging_ClientMessage(serializedData: tempMessage)
             
             if (tempClientMessage!.locationMessage.count > 0) {
-                for tempLocationMessage in tempClientMessage!.locationMessage {
-                    
-                    var locationMessage = Messaging_LocationMessage()
-                    
-                    locationMessage.longitude = tempLocationMessage.longitude
-                    locationMessage.latitude = tempLocationMessage.latitude
-                    locationMessage.horizontalAccuracy = tempLocationMessage.horizontalAccuracy
-                    
-                    if (tempLocationMessage.hasAltitude){
-                        locationMessage.altitude = tempLocationMessage.altitude
-                    }
-                    
-                    locationMessage.timestamp = tempLocationMessage.timestamp
-                    
-                    if (subMessageCounter >= 0) {
-                        compiledClientMessage.locationMessage.append(locationMessage)
-                    } else {
-                        backToQueueMessages.locationMessage.append(locationMessage)
-                    }
-                    
-                    subMessageCounter += 1
+                
+                let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self?.checkLocationTypeMessages(tempClientMessage!.locationMessage, subMessageCounter: subMessageCounter) ?? (subMessageCounter, [], [])
+                
+                subMessageCounter = actualizedSubmessageCounter
+                if subMessageCounter > 0 {
+                    compiledClientMessage.locationMessage.append(contentsOf: toCompileMessages)
+                } else {
+                    backToQueueMessages.locationMessage.append(contentsOf: toQueueMessages)
                 }
+                
+                //todo replace all messages type with functions like this
+                
+//                for tempLocationMessage in tempClientMessage!.locationMessage {
+//
+//                    var locationMessage = Messaging_LocationMessage()
+//
+//                    locationMessage.longitude = tempLocationMessage.longitude
+//                    locationMessage.latitude = tempLocationMessage.latitude
+//                    locationMessage.horizontalAccuracy = tempLocationMessage.horizontalAccuracy
+//
+//                    if (tempLocationMessage.hasAltitude){
+//                        locationMessage.altitude = tempLocationMessage.altitude
+//                    }
+//
+//                    locationMessage.timestamp = tempLocationMessage.timestamp
+//
+//                    if (subMessageCounter >= 0) {
+//                        compiledClientMessage.locationMessage.append(locationMessage)
+//                    } else {
+//                        backToQueueMessages.locationMessage.append(locationMessage)
+//                    }
+//
+//                    subMessageCounter += 1
+//                }
             }
             
             if (tempClientMessage!.step.count > 0) {
@@ -244,5 +256,38 @@ extension CCRequestMessaging {
         }
         
         DispatchQueue.global(qos: .background).async(execute: workItem)
+    }
+    
+    public func checkLocationTypeMessages(_ messages: [Messaging_LocationMessage],
+                                          subMessageCounter: Int) -> (Int, [Messaging_LocationMessage], [Messaging_LocationMessage]) {
+    
+        var clientMessagesToCompile = [Messaging_LocationMessage]()
+        var messagesToQueue = [Messaging_LocationMessage]()
+        var subMessageNo = subMessageCounter
+        
+        for tempLocationMessage in messages {
+        
+            var locationMessage = Messaging_LocationMessage()
+        
+            locationMessage.longitude = tempLocationMessage.longitude
+            locationMessage.latitude = tempLocationMessage.latitude
+            locationMessage.horizontalAccuracy = tempLocationMessage.horizontalAccuracy
+        
+            if (tempLocationMessage.hasAltitude){
+                locationMessage.altitude = tempLocationMessage.altitude
+            }
+        
+            locationMessage.timestamp = tempLocationMessage.timestamp
+        
+            if (subMessageNo >= 0) {
+                clientMessagesToCompile.append(locationMessage)
+            } else {
+                messagesToQueue.append(locationMessage)
+            }
+        
+            subMessageNo += 1
+        }
+    
+        return (subMessageNo, clientMessagesToCompile, messagesToQueue)
     }
 }
