@@ -16,7 +16,7 @@ import CoreBluetooth
 extension CCRequestMessaging {
     
     func processIosSettings (serverMessage:Messaging_ServerMessage, store: Store<LibraryState>){
-        //        DDLogVerbose("got ios settings message")
+        Log.info("Got iOS settings message")
         
         if (serverMessage.hasIosSettings && !serverMessage.iosSettings.hasGeoSettings) {
             DispatchQueue.main.async {store.dispatch(DisableBackgroundGEOAction())}

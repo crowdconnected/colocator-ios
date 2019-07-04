@@ -9,8 +9,7 @@
 import Foundation
 import CoreLocation
 import ReSwift
-import CoreBluetooth // only needed for state reporting - CBCentralManagerState enum
-//import os.log
+import CoreBluetooth
 
 class CCRequestMessaging: NSObject {
     
@@ -83,7 +82,7 @@ class CCRequestMessaging: NSObject {
     func processGlobalSettings(serverMessage:Messaging_ServerMessage, store: Store<LibraryState>) {
         
         if (serverMessage.hasGlobalSettings) {
-            //            DDLogVerbose("got global settings message")
+            Log.info("Got global settings message")
             
             let globalSettings = serverMessage.globalSettings
             
@@ -148,7 +147,7 @@ class CCRequestMessaging: NSObject {
     //    func processSystemBeacons(serverMessage:Messaging_ServerMessage) {
     //
     //        if (serverMessage.beacon.count > 0) {
-    //            DDLogDebug("Got an iBeacon message")
+    //            Log.debug("Got an iBeacon message")
     //
     //            var beaconUUIDs: [String] = []
     //
@@ -163,7 +162,7 @@ class CCRequestMessaging: NSObject {
     //    func processBTSettings(serverMessage:Messaging_ServerMessage) {
     //
     //        if (serverMessage.btSettings.count > 0) {
-    //            DDLogDebug("got BT settings")
+    //            Log.debug("got BT settings")
     //
     //            for btSetting in serverMessage.btSettings {
     //                let btleAltBeaconScanTime = Double(btSetting.btleAltBeaconScanTime) / 1000.0
@@ -210,7 +209,7 @@ class CCRequestMessaging: NSObject {
     //            clientMessage.bluetoothMessage.append(bluetoothMessage)
     //        }
     //
-    //        DDLogVerbose ("Collated Bluetooth message build: \(clientMessage)")
+    //        Log.verbose ("Collated Bluetooth message build: \(clientMessage)")
     //
     //        if let data = try? clientMessage.serializedData(){
     //            sendClientMessage(data: data, messageType: .queueable)
@@ -283,7 +282,7 @@ class CCRequestMessaging: NSObject {
         clientMessage.iosCapability = capabilityMessage
         
         if let data = try? clientMessage.serializedData(){
-            //            Log.debug("Capability message build: \(clientMessage) with size: \(String(describing: data.count))")
+            Log.debug("Capability message build: \(clientMessage) with size: \(String(describing: data.count))")
             sendOrQueueClientMessage(data: data, messageType: .queueable)
         }
     }
@@ -349,14 +348,14 @@ class CCRequestMessaging: NSObject {
                 } else {
                     // case for iBeacon + GEO + Marker + Alias + Bluetooth messages, when buffer timer is set
                     if (messageType == .queueable){
-                        //                        Log.verbose("Message is queuable, buffer timer active, going to queue message")
+                        Log.verbose("Message is queuable, buffer timer active, going to queue message")
                         
                         insertMessageInLocalDatabase(message: data)
                     }
                     
                     // case for Latency Message, when buffer timer is set
                     if (messageType == .discardable){
-                        //DDLogVerbose("Message is discardable (most likely latency message), buffer timer active, Websocket is online, sending new and queued messages")
+                        Log.verbose("Message is discardable (most likely latency message), buffer timer active, Websocket is online, sending new and queued messages")
                         sendQueuedClientMessages(firstMessage: data)
                     }
                 }
@@ -370,7 +369,7 @@ class CCRequestMessaging: NSObject {
         
         // case for iBeacon + GEO + Marker + Alias messages, when offline
         if (messageType == .queueable){
-            //            Log.verbose("Websocket is offline, message is queuable, going to queue message")
+            Log.verbose("Websocket is offline, message is queuable, going to queue message")
             insertMessageInLocalDatabase(message: data)
         }
         
@@ -382,7 +381,7 @@ class CCRequestMessaging: NSObject {
     
     // sendQueuedClientMessage for timeBetweenSendsTimer firing
     @objc internal func sendQueuedClientMessagesTimerFired(){
-        Log.verbose("flushing queued messages")
+        Log.info("Flushing queued messages")
         
         // make sure that websocket is actually online before trying to send any messages
         if stateStore.state.ccRequestMessagingState.webSocketState?.connectionState == .online {
@@ -391,7 +390,7 @@ class CCRequestMessaging: NSObject {
     }
     
     @objc internal func sendQueuedClientMessagesTimerFiredOnce(){
-        //DDLogVerbose("truncated silence period timer fired")
+        Log.verbose("Truncated silence period timer fired")
         sendQueuedClientMessagesTimerFired()
         
         // now we simply resume the normal timer
@@ -401,29 +400,27 @@ class CCRequestMessaging: NSObject {
     // MARK: - APPLICATION STATE HANDLING FUNCTIONS
     
     @objc func applicationWillResignActive () {
-        //        DDLogDebug("[APP STATE] applicationWillResignActive");
+        Log.debug("[APP STATE] applicationWillResignActive");
     }
     
     @objc func applicationDidEnterBackground () {
-        
-        //        DDLogDebug("[APP STATE] applicationDidEnterBackground");
+        Log.debug("[APP STATE] applicationDidEnterBackground");
         
         DispatchQueue.main.async {self.stateStore.dispatch(LifeCycleAction(lifecycleState: LifeCycle.background))}
     }
     
     @objc func applicationWillEnterForeground () {
-        //        DDLogDebug("[APP STATE] applicationWillEnterForeground");
-        
+        Log.debug("[APP STATE] applicationWillEnterForeground");
     }
     
     @objc func applicationDidBecomeActive () {
-        //        DDLogDebug("[APP STATE] applicationDidBecomeActive");
+        Log.debug("[APP STATE] applicationDidBecomeActive");
         
         DispatchQueue.main.async {self.stateStore.dispatch(LifeCycleAction(lifecycleState: LifeCycle.foreground))}
     }
     
     @objc func applicationWillTerminate () {
-        //        DDLogDebug("[APP STATE] applicationWillTerminate");
+        Log.debug("[APP STATE] applicationWillTerminate");
     }
     
     // MARK:- SYSTEM NOTIFCATIONS SETUP
@@ -522,19 +519,19 @@ class CCRequestMessaging: NSObject {
     
     deinit {
         NotificationCenter.default.removeObserver(self)
-        //        DDLogVerbose("CCRequestMessaging DEINIT")
-        //        if #available(iOS 10.0, *) {
-        //            os_log("[CC] CCRequestMessaging DEINIT")
-        //        } else {
-        //            // Fallback on earlier versions
-        //        }
+        Log.debug("CCRequestMessaging DEINIT")
+        if #available(iOS 10.0, *) {
+            Log.debug("[CC] CCRequestMessaging DEINIT")
+        } else {
+            // Fallback on earlier versions
+        }
     }
 }
 
 // MARK:- TimeHandling delegate
 extension CCRequestMessaging: TimeHandlingDelegate {
     public func newTrueTimeAvailable(trueTime: Date, timeIntervalSinceBootTime: TimeInterval, systemTime: Date, lastRebootTime: Date) {
-        Log.debug("received new truetime \(trueTime), timeIntervalSinceBootTime \(timeIntervalSinceBootTime), systemTime \(systemTime), lastRebootTime \(lastRebootTime)")
+        Log.debug("Received new truetime \(trueTime), timeIntervalSinceBootTime \(timeIntervalSinceBootTime), systemTime \(systemTime), lastRebootTime \(lastRebootTime)")
         
         DispatchQueue.main.async {self.stateStore.dispatch(NewTruetimeReceivedAction(lastTrueTime: trueTime, bootTimeIntervalAtLastTrueTime: timeIntervalSinceBootTime, systemTimeAtLastTrueTime: systemTime, lastRebootTime: lastRebootTime))}
         

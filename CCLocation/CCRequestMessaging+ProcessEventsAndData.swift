@@ -34,7 +34,7 @@ extension CCRequestMessaging {
         
         clientMessage.ibeaconMessage.append(iBeaconMessage)
         
-        //        Log.debug("iBeacon message built: \(clientMessage)")
+        Log.debug("iBeacon message built: \(clientMessage)")
         
         if let data = try? clientMessage.serializedData(){
             sendOrQueueClientMessage(data: data, messageType: .queueable)
@@ -53,7 +53,7 @@ extension CCRequestMessaging {
         
         clientMessage.eddystonemessage.append(eddyStoneMessage)
         
-        Log.verbose("Eddystone beacon message build: \(clientMessage)")
+        Log.debug("Eddystone beacon message build: \(clientMessage)")
         
         if let data = try? clientMessage.serializedData(){
             sendOrQueueClientMessage(data: data, messageType: .queueable)
@@ -78,7 +78,7 @@ extension CCRequestMessaging {
         
         clientMessage.bluetoothMessage.append(bluetoothMessage)
         
-        //DDLogVerbose ("Bluetooth message build: \(clientMessage)")
+        Log.debug ("Bluetooth message build: \(clientMessage)")
         
         if let data = try? clientMessage.serializedData() {
             sendOrQueueClientMessage(data: data, messageType: .queueable)
@@ -165,7 +165,6 @@ extension CCRequestMessaging {
         clientMessage.step.append(stepMessage)
         
         if let data = try? clientMessage.serializedData(){
-            //            NSLog("Step message build: \(clientMessage) with size: \(String(describing: data.count))")
             sendOrQueueClientMessage(data: data, messageType: .queueable)
         }
     }
@@ -184,7 +183,7 @@ extension CCRequestMessaging {
             clientMessage.alias.append(aliasMessage)
         }
         
-        //DDLogVerbose ("alias message build: \(clientMessage)")
+        Log.debug("Alias message build: \(clientMessage)")
         
         if let data = try? clientMessage.serializedData() {
             sendOrQueueClientMessage(data: data, messageType: .discardable)
@@ -203,7 +202,7 @@ extension CCRequestMessaging {
             
             clientMessage.marker = markerMessage
             
-            //DDLogVerbose ("marker message build: \(clientMessage)")
+            Log.debug("Marker message build: \(clientMessage)")
             
             if let data = try? clientMessage.serializedData() {
                 sendOrQueueClientMessage(data: data, messageType: .queueable)

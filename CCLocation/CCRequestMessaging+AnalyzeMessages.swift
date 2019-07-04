@@ -26,7 +26,7 @@ extension CCRequestMessaging {
         tempClientMessage = try? Messaging_ClientMessage(serializedData: message)
         
         if (tempClientMessage!.locationMessage.count > 0) {
-            //                DDLogVerbose ("Found location messages in queue")
+            Log.verbose ("Found location messages in queue")
             
             let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self.checkLocationTypeMessages(tempClientMessage!.locationMessage, subMessageCounter: subMessageCounter)
             
@@ -36,7 +36,7 @@ extension CCRequestMessaging {
         }
         
         if (tempClientMessage!.step.count > 0) {
-            //                DDLogVerbose ("Found step messages in queue")
+            Log.verbose ("Found step messages in queue")
             
             let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self.checkStepsTypeMessages(tempClientMessage!.step, subMessageCounter: subMessageCounter)
             
@@ -46,7 +46,7 @@ extension CCRequestMessaging {
         }
         
         if (tempClientMessage!.bluetoothMessage.count > 0) {
-            //                DDLogVerbose ("Found bluetooth messages in queue")
+            Log.verbose ("Found bluetooth messages in queue")
             
             let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self.checkBluetoothTypeMessages(tempClientMessage!.bluetoothMessage, subMessageCounter: subMessageCounter)
             
@@ -56,7 +56,7 @@ extension CCRequestMessaging {
         }
         
         if (tempClientMessage!.ibeaconMessage.count > 0) {
-            //                DDLogVerbose ("Found ibeacon messages in queue")
+            Log.verbose ("Found ibeacon messages in queue")
             
             let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self.checkiBeaconTypeMessages(tempClientMessage!.ibeaconMessage, subMessageCounter: subMessageCounter)
             
@@ -66,7 +66,7 @@ extension CCRequestMessaging {
         }
         
         if (tempClientMessage!.eddystonemessage.count > 0) {
-            //                DDLogVerbose ("Found eddystone messages in queue")
+            Log.verbose ("Found eddystone messages in queue")
             
             let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self.checkEddystoneTypeMessages(tempClientMessage!.eddystonemessage, subMessageCounter: subMessageCounter)
             
@@ -77,7 +77,7 @@ extension CCRequestMessaging {
         
         
         if (tempClientMessage!.alias.count > 0) {
-            //                DDLogVerbose ("Found alias messages in queue")
+            Log.verbose ("Found alias messages in queue")
             
             let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self.checkAliasesTypeMessages(tempClientMessage!.alias, subMessageCounter: subMessageCounter)
             
@@ -87,7 +87,7 @@ extension CCRequestMessaging {
         }
         
         if (tempClientMessage!.hasIosCapability){
-            //                DDLogVerbose ("Found iosCapability messages in queue")
+            Log.verbose ("Found iosCapability messages in queue")
             
             let (actualizedSubmessageCounter, toCompileMessage, toQueueMessage) = self.checkMessageIOSCapability(tempClientMessage!.iosCapability, subMessageCounter: subMessageCounter)
             
@@ -103,12 +103,12 @@ extension CCRequestMessaging {
         let (actualizedSubmessageCounter, toCompileMessage) = self.checkMarkerMessage(tempClientMessage!, subMessageCounter: subMessageCounter)
         subMessageCounter = actualizedSubmessageCounter
         if let newCompileMessage = toCompileMessage {
-            //                DDLogVerbose ("Found marker messages in queue")
+            Log.verbose ("Found marker messages in queue")
             compiledClientMessage.marker = newCompileMessage
         }
         
         if let newBatteryMessage = self.checkNewBatteryLevelTypeMessage() {
-            //                DDLogVerbose ("Found new battery level messages in queue")
+            Log.verbose ("Found new battery level messages in queue")
             compiledClientMessage.battery = newBatteryMessage
         }
         

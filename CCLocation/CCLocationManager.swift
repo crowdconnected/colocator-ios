@@ -8,7 +8,6 @@
 
 import Foundation
 import CoreLocation
-//import os.log
 //import UserNotifications
 import SQLite3
 import ReSwift
@@ -98,11 +97,11 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
         
         // then see if we can start monitoring for new region
         
-        //        DDLogVerbose("------- a list of monitored regions before adding iBeacons -------")
-        //        for monitoredRegion in locationManager.monitoredRegions {
-        //            DDLogVerbose("region \(monitoredRegion)")
-        //        }
-        //        DDLogVerbose("------- list end -------")
+        Log.verbose("------- a list of monitored regions before adding iBeacons -------")
+        for monitoredRegion in locationManager.monitoredRegions {
+            Log.verbose("region \(monitoredRegion)")
+        }
+        Log.verbose("------- list end -------")
         
         for region in currentiBeaconMonitoringState.monitoringRegions {
             
@@ -655,10 +654,10 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
 extension CCLocationManager {
     
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        //Log.debug("Received \(locations.count) locations")
+        Log.debug("Received \(locations.count) locations")
         
         for location in locations {
-//            Log.debug("geolocation information: \(location.description)")
+            Log.debug("Geolocation information: \(location.description)")
             
             //            if #available(iOS 10.0, *) {
             //                let content = UNMutableNotificationContent()
@@ -669,7 +668,6 @@ extension CCLocationManager {
             //                let request = UNNotificationRequest(identifier: "GEOLocation", content: content, trigger: nil)
             //                UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
             //
-            //                os_log("[CC] A geolocation was discovered")
             //            }
             
             delegate?.receivedGEOLocation(location: location)
@@ -705,11 +703,7 @@ extension CCLocationManager {
     }
     
     public func locationManager(_ manager: CLLocationManager, didFinishDeferredUpdatesWithError error: Error?) {
-        //        guard let error = error else {
-        //            return
-        //        }
-        
-        //Log.error(error.localizedDescription)
+        Log.error("Did finish deferred updates with error \(error?.localizedDescription ?? "nil"))")
     }
 }
 
@@ -850,14 +844,14 @@ extension CCLocationManager {
     }
     
     public func locationManager(_ manager: CLLocationManager, didDetermineState state: CLRegionState, for region: CLRegion) {
-        //        switch state {
-        //        case .inside:
-        //            Log.verbose(String(format: "Inside region: %@", region.identifier))
-        //        case .outside:
-        //            Log.verbose(String(format: "Outside region: %@", region.identifier))
-        //        case .unknown:
-        //            Log.verbose(String(format: "Unkown region state: %@", region.identifier))
-        //        }
+        switch state {
+        case .inside:
+            Log.verbose(String(format: "Inside region: %@", region.identifier))
+        case .outside:
+            Log.verbose(String(format: "Outside region: %@", region.identifier))
+        case .unknown:
+            Log.verbose(String(format: "Unkown region state: %@", region.identifier))
+        }
     }
     
     public func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) {
@@ -870,16 +864,16 @@ extension CCLocationManager {
     }
     
     public func locationManager(_ manager: CLLocationManager, didStartMonitoringFor region: CLRegion){
-        //        if let beaconRegion = region as? CLBeaconRegion {
-        //            Log.debug("Did start monitoring for region: \(beaconRegion.identifier) uuid: \(beaconRegion.proximityUUID) major: \(String(describing: beaconRegion.major)) minor: \(String(describing: beaconRegion.minor))")
-        //
-        //            Log.verbose("------- a list of monitored regions -------")
-        //            for monitoredRegion in locationManager.monitoredRegions {
-        //                DDLogVerbose("\(monitoredRegion)")
-        //            }
-        //            Log.verbose("------- list end -------")
-        //
-        //        }
+        if let beaconRegion = region as? CLBeaconRegion {
+            Log.debug("Did start monitoring for region: \(beaconRegion.identifier) uuid: \(beaconRegion.proximityUUID) major: \(String(describing: beaconRegion.major)) minor: \(String(describing: beaconRegion.minor))")
+
+            Log.verbose("------- a list of monitored regions -------")
+            for monitoredRegion in locationManager.monitoredRegions {
+                Log.verbose("\(monitoredRegion)")
+            }
+            Log.verbose("------- list end -------")
+
+        }
     }
 }
 
@@ -889,7 +883,7 @@ extension CCLocationManager {
         if (beacons.count > 0){
             for beacon in beacons {
                 
-//                Log.verbose("Ranged beacon with UUID: \(beacon.proximityUUID.uuidString), MAJOR: \(beacon.major), MINOR: \(beacon.minor), RSSI: \(beacon.rssi)")
+                Log.verbose("Ranged beacon with UUID: \(beacon.proximityUUID.uuidString), MAJOR: \(beacon.major), MINOR: \(beacon.minor), RSSI: \(beacon.rssi)")
                 
                 
                 //                if #available(iOS 10.0, *) {
@@ -900,8 +894,6 @@ extension CCLocationManager {
                 //
                 //                    let request = UNNotificationRequest(identifier: "GEOLocation", content: content, trigger: nil)
                 //                    UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
-                //
-                //                    os_log("[CC] A beacon was ranged")
                 //                }
                 
                 // mainly excluding RSSI's that are zero, which happens some time
@@ -945,7 +937,7 @@ extension CCLocationManager {
                         if results.count > 0 {
                             Log.debug("Beacon is in exclude regions")
                         } else {
-//                            Log.debug("Beacon is input to reporting")
+                            Log.debug("Beacon is input to reporting")
                             
                             if isFilterAvailable {
                                 insert(beacon: beacon)
@@ -979,18 +971,18 @@ extension CCLocationManager {
 // MARK: - Responding to Authorization Changes
 extension CCLocationManager {
     public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        // Log.debug("Changed authorization status")
+        Log.debug("Changed authorization status")
         
         DispatchQueue.main.async {self.stateStore.dispatch(LocationAuthStatusChangedAction(locationAuthStatus: status))}
         DispatchQueue.main.async {self.stateStore.dispatch(IsLocationServicesEnabledAction(isLocationServicesEnabled: CLLocationManager.locationServicesEnabled()))}
         
         switch (status) {
         case .notDetermined:
-            // Log.debug("CLLocationManager authorization status not determined")
+            Log.info("CLLocationManager authorization status not determined")
             break
             
         case .restricted:
-            // Log.verbose("CLLocationManager authorization status restricted, can not use location services")
+             Log.info("CLLocationManager authorization status restricted, can not use location services")
             
             if #available(iOS 9.0, *) {
                 locationManager.allowsBackgroundLocationUpdates = false
@@ -1001,7 +993,7 @@ extension CCLocationManager {
             break
             
         case .denied:
-            //            DDLogVerbose("CLLocationManager authorization status denied in user settings, can not use location services, until user enables them")
+            Log.info("CLLocationManager authorization status denied in user settings, can not use location services, until user enables them")
             // might consider here to ask a question to the user to enable location services again
             
             if #available(iOS 9.0, *) {
@@ -1013,14 +1005,9 @@ extension CCLocationManager {
             break
             
         case .authorizedAlways:
-//            Log.verbose("CLLocationManager authorization status set to always authorized, we are ready to go")
+            Log.info("CLLocationManager authorization status set to always authorized, we are ready to go")
             
             if #available(iOS 9.0, *) {
-                //                if #available(iOS 10.0, *) {
-                //                    os_log("[CC] Enabling allowsBackgroundLocationUpdates")
-                //                } else {
-                //                    // Fallback on earlier versions
-                //                }
                 locationManager.allowsBackgroundLocationUpdates = true
             } else {
                 // Fallback on earlier versions
@@ -1029,8 +1016,7 @@ extension CCLocationManager {
             break
             
         case .authorizedWhenInUse:
-            //            Log.verbose("CLLocationManager authorization status set to in use, no background updates enabled")
-            // might need to consider here to ask a question to the user to enable background location services
+            Log.info("CLLocationManager authorization status set to in use, no background updates enabled")
             
             if #available(iOS 9.0, *) {
                 locationManager.allowsBackgroundLocationUpdates = false
@@ -1053,7 +1039,7 @@ extension CCLocationManager: StoreSubscriber {
             
             if newGEOState != self.currentGEOState || wakeupState == CCWakeup.notifyWakeup {
                 
-//                Log.debug("new state is: \(newGEOState)")
+                Log.debug("New state is: \(newGEOState)")
                 
                 self.currentGEOState = newGEOState
                 
@@ -1087,22 +1073,22 @@ extension CCLocationManager: StoreSubscriber {
                         // in case an offTime has been stored in state state store last time round
                         if let offTime = newGEOState.offTime {
                             if offTime <= Date() {
-                                //Log.verbose("GEOTIMER offTime \(offTime) occured before current time \(Date()), resetting offTime")
+                                Log.verbose("GEOTIMER offTime \(offTime) occured before current time \(Date()), resetting offTime")
                                 DispatchQueue.main.async {self.stateStore.dispatch(SetGEOOffTimeEnd(offTimeEnd: nil))}
                             } else {
-                                //Log.verbose("GEOTIMER offTime \(offTime) occured after current date \(Date()), keeping offTime and doing nothing")
+                                Log.verbose("GEOTIMER offTime \(offTime) occured after current date \(Date()), keeping offTime and doing nothing")
                                 // do nothing
                             }
                             // and in case there is not offTime, just start the location manager for maxRuntime
                         } else {
-                            //Log.verbose("GEOTIMER startUpdatingLocation no offTime available")
+                            Log.verbose("GEOTIMER startUpdatingLocation no offTime available")
                             locationManager.startUpdatingLocation()
                             
-                            // Log.verbose("Enabled GEO settings are activityType:\(locationManager.activityType), desiredAccuracy: \(locationManager.desiredAccuracy), distanceFilter: \(locationManager.distanceFilter), pausesUpdates: \(locationManager.pausesLocationUpdatesAutomatically)")
+                            Log.verbose("Enabled GEO settings are activityType:\(locationManager.activityType), desiredAccuracy: \(locationManager.desiredAccuracy), distanceFilter: \(locationManager.distanceFilter), pausesUpdates: \(locationManager.pausesLocationUpdatesAutomatically)")
                             
                             if let maxRunTime = newGEOState.maxRuntime {
                                 if (self.maxRunGEOTimer == nil){
-                                    //Log.verbose("GEOTIMER start maxGEORunTimer \(maxRunTime)")
+                                    Log.verbose("GEOTIMER start maxGEORunTimer \(maxRunTime)")
                                     self.maxRunGEOTimer = Timer.scheduledTimer(timeInterval: TimeInterval(maxRunTime / 1000), target: self, selector: #selector(stopLocationUpdates), userInfo: nil, repeats: false)
                                 }
                             } else {
@@ -1178,7 +1164,7 @@ extension CCLocationManager: StoreSubscriber {
                     //                            updateRangingIBeacons()
                     //                            if let maxRuntime = currentBeaconState.maxRuntime {
                     //                                if maxBeaconRunTimer == nil {
-                    //                                    //                                        DDLogVerbose("IBEACONTIMER start maxRunTimer \(maxRuntime)")
+                    //                                    Log.verbose("IBEACONTIMER start maxRunTimer \(maxRuntime)")
                     //                                    maxBeaconRunTimer = Timer.scheduledTimer(timeInterval: TimeInterval(maxRuntime / 1000), target: self, selector: #selector(stopRangingBeaconsFor), userInfo: nil, repeats: false)
                     //                                    stateStore.dispatch(SetiBEaconMaxOnTimeStartAction(maxOnTimeStart: Date()))
                     //                                }
@@ -1190,7 +1176,7 @@ extension CCLocationManager: StoreSubscriber {
                     if let beaconWindowSizeDuration = currentBeaconState.filterWindowSize {
                         // initialise time on filterWindowSize being available
                         if beaconWindowSizeDurationTimer == nil {
-//                            Log.verbose("BEACONWINDOWSIZETIMER start beaconWindowSizeDuration timer with: \(beaconWindowSizeDuration)")
+                            Log.verbose("BEACONWINDOWSIZETIMER start beaconWindowSizeDuration timer with: \(beaconWindowSizeDuration)")
                             beaconWindowSizeDurationTimer = Timer.scheduledTimer(timeInterval: TimeInterval(beaconWindowSizeDuration / 1000), target: self, selector: #selector(processBeaconTables), userInfo: nil, repeats: true)
                         }
                     } else {
@@ -1219,10 +1205,10 @@ extension CCLocationManager: StoreSubscriber {
         }
         
         if let newWakeupNotificationState = state.wakeupState {
-            //DDLogDebug("got a wake up state reported, state is: \(newWakeupNotificationState)")
+            Log.debug("Got a wake up state reported, state is: \(newWakeupNotificationState)")
             if newWakeupNotificationState != wakeupState {
                 wakeupState = newWakeupNotificationState
-                //DDLogDebug("new state is: \(newWakeupNotificationState)")
+                Log.debug("new state is: \(newWakeupNotificationState)")
                 if wakeupState.ccWakeup == CCWakeup.notifyWakeup{
                     DispatchQueue.main.async {self.stateStore.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.idle))}
                 }

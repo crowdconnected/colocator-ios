@@ -385,12 +385,12 @@ class CCSocket:NSObject {
     }
     
     deinit {
-        //        DDLogVerbose("CCRequestMessaging DEINIT")
-        //        if #available(iOS 10.0, *) {
-        //            os_log("[CC] CCRequestMessaging DEINIT")
-        //        } else {
-        //            // Fallback on earlier versions
-        //        }
+        Log.debug("CCRequestMessaging DEINIT")
+        if #available(iOS 10.0, *) {
+            Log.debug("[CC] CCRequestMessaging DEINIT")
+        } else {
+            // Fallback on earlier versions
+        }
     }
 }
 

@@ -89,42 +89,37 @@ extension CCRequestMessaging {
                         }
                     }
                     
-                    //DDLogVerbose("Compiled \(subMessageCounter) message(s)")
-                    
-                    //        if (compiledClientMessage.locationMessage.count > 0){
-                    //            let geoMsg = compiledClientMessage.locationMessage[0]
-                    //            let geoData = try? geoMsg.serializedData()
-                    //DDLogVerbose("compiled geoMsg: \(geoData?.count ?? -1) and byte array: \(geoData?.hexEncodedString() ?? "NOT AVAILABLE")")
-                    //        }
-                    
-                    //        if (compiledClientMessage.bluetoothMessage.count > 0){
-                    //            let blMsg = compiledClientMessage.bluetoothMessage[0]
-                    //            let blData = try? blMsg.serializedData()
-                    //DDLogVerbose("compiled bluetooth message: \(blData?.count ?? -1) and byte array: \(blData?.hexEncodedString() ?? "NOT AVAILABLE"))")
-                    
-                    //        }
-                    
-                    //        for beacon in compiledClientMessage.ibeaconMessage {
-                    //            DDLogVerbose("Sending beacons \(compiledClientMessage.ibeaconMessage.count) with \(beacon)")
-                    //        }
-                    
-                    //        if (compiledClientMessage.alias.count > 0){
-                    //            let alMsg = compiledClientMessage.alias[0]
-                    //            let alData = try? alMsg.serializedData()
-                    //DDLogVerbose("compiled alias message: \(alData?.count ?? -1)  and byte array: \(alData?.hexEncodedString() ?? "NOT AVAILABLE"))")
-                    //        }
+                    Log.verbose("Compiled \(subMessageCounter) message(s)")
+                    if (compiledClientMessage.locationMessage.count > 0) {
+                        let geoMsg = compiledClientMessage.locationMessage[0]
+                        let geoData = try? geoMsg.serializedData()
+                        Log.verbose("Compiled geoMsg: \(geoData?.count ?? -1) and byte array: \(geoData?.hexEncodedString() ?? "NOT AVAILABLE")")
+                    }
+                    if (compiledClientMessage.bluetoothMessage.count > 0) {
+                        let blMsg = compiledClientMessage.bluetoothMessage[0]
+                        let blData = try? blMsg.serializedData()
+                        Log.verbose("Compiled bluetooth message: \(blData?.count ?? -1) and byte array: \(blData?.hexEncodedString() ?? "NOT AVAILABLE"))")
+                    }
+                    for beacon in compiledClientMessage.ibeaconMessage {
+                        Log.verbose("Sending beacons \(compiledClientMessage.ibeaconMessage.count) with \(beacon)")
+                    }
+                    if (compiledClientMessage.alias.count > 0) {
+                        let alMsg = compiledClientMessage.alias[0]
+                        let alData = try? alMsg.serializedData()
+                        Log.verbose("Compiled alias message: \(alData?.count ?? -1)  and byte array: \(alData?.hexEncodedString() ?? "NOT AVAILABLE"))")
+                    }
                     
                     if workItem.isCancelled { break }
                     
                     if let backToQueueData = try? backToQueueMessages.serializedData() {
-                        //DDLogDebug("Had to split a client message into two, pushing \(subMessageCounter) unsent messages back to the Queue")
+                        Log.debug("Had to split a client message into two, pushing \(subMessageCounter) unsent messages back to the Queue")
                         if backToQueueData.count > 0 {
                             //    ccRequest?.messageQueuePushSwiftBridge(backToQueueData)
                             
                             self?.insertMessageInLocalDatabase(message: backToQueueData)
                         }
                     } else {
-                        //DDLogError("Couldn't serialize back to queue data")
+                        Log.error("Couldn't serialize back to queue data")
                     }
                     
                     if let data = try? compiledClientMessage.serializedData(){
@@ -136,13 +131,13 @@ extension CCRequestMessaging {
                                         if isRebootTimeSame {
                                             if let currentTimePeriod = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {
                                                 compiledClientMessage.sentTime = UInt64(currentTimePeriod * 1000)
-                                                //                        DDLogVerbose("Added sent time to the client message")
+                                                Log.verbose("Added sent time to the client message")
                                             }
                                         }
                                     }
                                     
                                     if let dataIncludingSentTime = try? compiledClientMessage.serializedData(){
-                                        //            Log.verbose("Sending \(unwrappedData.count) bytes of compiled client message data")
+                                        Log.verbose("Sending \(dataIncludingSentTime.count) bytes of compiled client message data")
                                         self?.ccSocket?.sendWebSocketMessage(data: dataIncludingSentTime)
                                     }
                                 }
@@ -185,17 +180,17 @@ extension CCRequestMessaging {
                 return
             }
             
-            var (_, compiledClientMessage, backToQueueMessage) = self?.handleMessageType(message: message) ?? (0, Messaging_ClientMessage(),Messaging_ClientMessage())
+            var (subMessageCounter, compiledClientMessage, backToQueueMessage) = self?.handleMessageType(message: message) ?? (0, Messaging_ClientMessage(),Messaging_ClientMessage())
             
             if let backToQueueData = try? backToQueueMessage.serializedData() {
-                //DDLogDebug("Had to split a client message into two, pushing \(subMessageCounter) unsent messages back to the Queue")
+                Log.debug("Had to split a client message into two, pushing \(subMessageCounter) unsent messages back to the Queue")
                 if backToQueueData.count > 0 {
                     //    ccRequest?.messageQueuePushSwiftBridge(backToQueueData)
                     
                     self?.insertMessageInLocalDatabase(message: backToQueueData)
                 }
             } else {
-                //DDLogError("Couldn't serialize back to queue data")
+                Log.error("Couldn't serialize back to queue data")
             }
             
             if let data = try? compiledClientMessage.serializedData(){

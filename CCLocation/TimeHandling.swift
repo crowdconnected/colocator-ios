@@ -107,7 +107,7 @@ class TimeHandling {
             
             let isSame = abs(beetweenBootsTimeInterval - beetweenSystemsTimeInterval) < 30
             
-            //DDLogDebug("Comparing bootTimeIntervalDiff \(String(describing: beetweenBootsTimeInterval)) with systemTimeInterval \(String(describing: beetweenSystemsTimeInterval)) result = \(isSame)")
+            Log.debug("Comparing bootTimeIntervalDiff \(String(describing: beetweenBootsTimeInterval)) with systemTimeInterval \(String(describing: beetweenSystemsTimeInterval)) result = \(isSame)")
             
             // if there has been some drift or similar fetch a new true time
             if !isSame {
