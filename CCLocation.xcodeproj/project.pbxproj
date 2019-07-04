@@ -81,6 +81,10 @@
 		9702361F22CCF34500D559A8 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9702361B22CCF34500D559A8 /* Result.framework */; };
 		9702362022CCF34500D559A8 /* SocketRocket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9702361C22CCF34500D559A8 /* SocketRocket.framework */; };
 		9702362122CCF34500D559A8 /* TrueTime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9702361D22CCF34500D559A8 /* TrueTime.framework */; };
+		97036DBE22CE05A2005A8322 /* CCRequestMessaging+StoreSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DBD22CE05A2005A8322 /* CCRequestMessaging+StoreSubscriber.swift */; };
+		97036DC022CE06A3005A8322 /* CCRequestMessaging+ProcessEventsAndData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DBF22CE06A3005A8322 /* CCRequestMessaging+ProcessEventsAndData.swift */; };
+		97036DC222CE07BF005A8322 /* CCRequestMessaging+ProcessiOSSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DC122CE07BF005A8322 /* CCRequestMessaging+ProcessiOSSettings.swift */; };
+		97036DC422CE0869005A8322 /* CCRequestMessaging+AnalyzeMessages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DC322CE0869005A8322 /* CCRequestMessaging+AnalyzeMessages.swift */; };
 		BC0647AF218757A500555512 /* CCBeaconScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0647AE218757A500555512 /* CCBeaconScanner.swift */; };
 		BC0647B1218757B900555512 /* CCEddystone.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0647B0218757B900555512 /* CCEddystone.swift */; };
 		BC0647B5218757E200555512 /* DispatchTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0647B4218757E200555512 /* DispatchTimer.swift */; };
@@ -195,6 +199,10 @@
 		9702361B22CCF34500D559A8 /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Result.framework; path = "../../Downloads/07 CrowdConnected/00 Code base/GitHub_Library_Releases/colocator-ios/Carthage/Build/iOS/Result.framework"; sourceTree = "<group>"; };
 		9702361C22CCF34500D559A8 /* SocketRocket.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SocketRocket.framework; path = "../../Downloads/07 CrowdConnected/00 Code base/GitHub_Library_Releases/colocator-ios/Carthage/Build/iOS/SocketRocket.framework"; sourceTree = "<group>"; };
 		9702361D22CCF34500D559A8 /* TrueTime.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = TrueTime.framework; path = "../../Downloads/07 CrowdConnected/00 Code base/GitHub_Library_Releases/colocator-ios/Carthage/Build/iOS/TrueTime.framework"; sourceTree = "<group>"; };
+		97036DBD22CE05A2005A8322 /* CCRequestMessaging+StoreSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCRequestMessaging+StoreSubscriber.swift"; sourceTree = "<group>"; };
+		97036DBF22CE06A3005A8322 /* CCRequestMessaging+ProcessEventsAndData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCRequestMessaging+ProcessEventsAndData.swift"; sourceTree = "<group>"; };
+		97036DC122CE07BF005A8322 /* CCRequestMessaging+ProcessiOSSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCRequestMessaging+ProcessiOSSettings.swift"; sourceTree = "<group>"; };
+		97036DC322CE0869005A8322 /* CCRequestMessaging+AnalyzeMessages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCRequestMessaging+AnalyzeMessages.swift"; sourceTree = "<group>"; };
 		BC0647AE218757A500555512 /* CCBeaconScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CCBeaconScanner.swift; path = CCLocation/CCBeaconScanner.swift; sourceTree = SOURCE_ROOT; };
 		BC0647B0218757B900555512 /* CCEddystone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CCEddystone.swift; sourceTree = "<group>"; };
 		BC0647B4218757E200555512 /* DispatchTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchTimer.swift; sourceTree = "<group>"; };
@@ -401,8 +409,12 @@
 				F0AF0C931DB3C80300E72E76 /* CCLocation.swift */,
 				4F659BB51F24910100775ABD /* CCLocationManager.swift */,
 				4FEF0C8A1EEFF58E00CB8AA9 /* CCRequestMessaging.swift */,
-				9702361122CCC2A100D559A8 /* CCRequestMessaging+DatabaseOperations.swift */,
+				97036DC122CE07BF005A8322 /* CCRequestMessaging+ProcessiOSSettings.swift */,
+				97036DBF22CE06A3005A8322 /* CCRequestMessaging+ProcessEventsAndData.swift */,
 				9702360F22CCBDAB00D559A8 /* CCRequestMessaging+SendMessages.swift */,
+				97036DC322CE0869005A8322 /* CCRequestMessaging+AnalyzeMessages.swift */,
+				97036DBD22CE05A2005A8322 /* CCRequestMessaging+StoreSubscriber.swift */,
+				9702361122CCC2A100D559A8 /* CCRequestMessaging+DatabaseOperations.swift */,
 				4F648D662051A38D0043175F /* SQLiteDatabase.swift */,
 				4F648D6A2052F3390043175F /* TimeHandling.swift */,
 				F0B2DE5E1E6D7859005E3B7A /* Constants.swift */,
@@ -611,9 +623,11 @@
 				4F8FFD9B1F2CF6640001910A /* ForegroundGEOActions.swift in Sources */,
 				4FBB8AB81F32092B00DEF04F /* CurrentLocationActions.swift in Sources */,
 				4FBB8ABA1F320A0F00DEF04F /* CurrentiBeaconMonitoringReducer.swift in Sources */,
+				97036DC422CE0869005A8322 /* CCRequestMessaging+AnalyzeMessages.swift in Sources */,
 				4FBB8AA01F30D23600DEF04F /* CurrentLocationState.swift in Sources */,
 				4FE19A5B22AA513E000CE5A8 /* InertialActions.swift in Sources */,
 				4F659BB61F24910100775ABD /* CCLocationManager.swift in Sources */,
+				97036DC022CE06A3005A8322 /* CCRequestMessaging+ProcessEventsAndData.swift in Sources */,
 				4FBB8ABE1F325EDD00DEF04F /* AutoEquatable.generated.swift in Sources */,
 				4F8FFD971F2CE8FA0001910A /* CurrentGEOReducer.swift in Sources */,
 				F0AF0C941DB3C80300E72E76 /* CCLocation.swift in Sources */,
@@ -621,6 +635,7 @@
 				4FBB8A8B1F2F2EDF00DEF04F /* BackgroundGEOReducer.swift in Sources */,
 				4FBB8A911F30B9AD00DEF04F /* ForegroundBeaconState.swift in Sources */,
 				4FBB8AA71F3113B000DEF04F /* ForegroundLocationReducer.swift in Sources */,
+				97036DC222CE07BF005A8322 /* CCRequestMessaging+ProcessiOSSettings.swift in Sources */,
 				4F222B1B1F90EDA600FB11BD /* BatteryLevelReducer.swift in Sources */,
 				4FE19A5322A90215000CE5A8 /* CCInertial.swift in Sources */,
 				4FEF0C8B1EEFF58E00CB8AA9 /* CCRequestMessaging.swift in Sources */,
@@ -645,6 +660,7 @@
 				4F222B191F90EA4300FB11BD /* BatteryLevelState.swift in Sources */,
 				4F920BF81F3B161100BD7FEF /* LibraryTimeState.swift in Sources */,
 				4FBB8A931F30BCF200DEF04F /* BackgroundBeaconState.swift in Sources */,
+				97036DBE22CE05A2005A8322 /* CCRequestMessaging+StoreSubscriber.swift in Sources */,
 				4FAAEA281F46F9C500DF4DA1 /* WakeupReducer.swift in Sources */,
 				4FBB8AA51F31139200DEF04F /* CurrentLocationReducer.swift in Sources */,
 				BC9DEB7A2124160B0015C5CF /* CCSocket.swift in Sources */,
