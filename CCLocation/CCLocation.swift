@@ -115,6 +115,21 @@ public class CCLocation:NSObject {
             NSLog("[Colocator] already stopped")
         }
     }
+    
+    public func setLoggerLevels(verbose: Bool,
+                                info: Bool,
+                                debug: Bool,
+                                warninig: Bool,
+                                error: Bool,
+                                severe: Bool) {
+        // filters all the logs that appear on console depending on the type
+        Log.configureLoggerLevelsDisplayed(verbose: verbose,
+                                           info: info,
+                                           debug: debug,
+                                           warninig: warninig,
+                                           error: error,
+                                           severe: severe)
+    }
 }
 
 extension CCLocation: CCSocketDelegate {

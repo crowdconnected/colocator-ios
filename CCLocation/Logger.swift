@@ -58,6 +58,16 @@ class Log {
         #endif
     }
     
+    private static var logLevelsAllowed: [LogEvent] = [.v,
+                                               .i,
+                                               .d,
+                                               .w,
+                                               .e,
+                                               .s]
+    static func checkPermissionForLevel(event: LogEvent) -> Bool {
+        logLevelsAllowed.contains(event)
+    }
+    
     // MARK: - Loging methods
     
     
@@ -70,7 +80,7 @@ class Log {
     ///   - column: Column number of the log message
     ///   - funcName: Name of the function from where the logging is done
     class func error( _ object: Any, filename: String = #file, line: Int = #line, column: Int = #column, funcName: String = #function) {
-        if isLoggingEnabled {
+        if isLoggingEnabled && Log.checkPermissionForLevel(event: .e) {
             print("\(Date().toString()) \(LogEvent.e.rawValue)[\(sourceFileName(filePath: filename))]:\(line) -> \(object)")
         }
     }
@@ -84,7 +94,7 @@ class Log {
     ///   - column: Column number of the log message
     ///   - funcName: Name of the function from where the logging is done
     class func info ( _ object: Any, filename: String = #file, line: Int = #line, column: Int = #column, funcName: String = #function) {
-        if isLoggingEnabled {
+        if isLoggingEnabled && Log.checkPermissionForLevel(event: .i) {
             print("\(Date().toString()) \(LogEvent.i.rawValue)[\(sourceFileName(filePath: filename))]:\(line) -> \(object)")
         }
     }
@@ -98,7 +108,7 @@ class Log {
     ///   - column: Column number of the log message
     ///   - funcName: Name of the function from where the logging is done
     class func debug( _ object: Any, filename: String = #file, line: Int = #line, column: Int = #column, funcName: String = #function) {
-        if isLoggingEnabled {
+        if isLoggingEnabled && Log.checkPermissionForLevel(event: .d) {
             print("\(Date().toString()) \(LogEvent.d.rawValue)[\(sourceFileName(filePath: filename))]:\(line) -> \(object)")
         }
     }
@@ -112,7 +122,7 @@ class Log {
     ///   - column: Column number of the log message
     ///   - funcName: Name of the function from where the logging is done
     class func verbose( _ object: Any, filename: String = #file, line: Int = #line, column: Int = #column, funcName: String = #function) {
-        if isLoggingEnabled {
+        if isLoggingEnabled && Log.checkPermissionForLevel(event: .v) {
             print("\(Date().toString()) \(LogEvent.v.rawValue)[\(sourceFileName(filePath: filename))]:\(line) -> \(object)")
         }
     }
@@ -126,7 +136,7 @@ class Log {
     ///   - column: Column number of the log message
     ///   - funcName: Name of the function from where the logging is done
     class func warning( _ object: Any, filename: String = #file, line: Int = #line, column: Int = #column, funcName: String = #function) {
-        if isLoggingEnabled {
+        if isLoggingEnabled && Log.checkPermissionForLevel(event: .w) {
             print("\(Date().toString()) \(LogEvent.w.rawValue)[\(sourceFileName(filePath: filename))]:\(line) -> \(object)")
         }
     }
@@ -140,7 +150,7 @@ class Log {
     ///   - column: Column number of the log message
     ///   - funcName: Name of the function from where the logging is done
     class func severe( _ object: Any, filename: String = #file, line: Int = #line, column: Int = #column, funcName: String = #function) {
-        if isLoggingEnabled {
+        if isLoggingEnabled && Log.checkPermissionForLevel(event: .s) {
             print("\(Date().toString()) \(LogEvent.s.rawValue)[\(sourceFileName(filePath: filename))]:\(line) -> \(object)")
         }
     }
@@ -157,6 +167,36 @@ class Log {
         let name = fileName.components(separatedBy: ".").first
         
         return name!
+    }
+    
+    // MARK: - Log Levels Configuration
+    
+    public static func configureLoggerLevelsDisplayed(verbose: Bool,
+                                               info: Bool,
+                                               debug: Bool,
+                                               warninig: Bool,
+                                               error: Bool,
+                                               severe: Bool) {
+        var newLogLevelsAllowed = [LogEvent]()
+        if verbose {
+            newLogLevelsAllowed.append(.v)
+        }
+        if info {
+            newLogLevelsAllowed.append(.i)
+        }
+        if debug {
+            newLogLevelsAllowed.append(.d)
+        }
+        if warninig {
+            newLogLevelsAllowed.append(.w)
+        }
+        if error {
+            newLogLevelsAllowed.append(.e)
+        }
+        if severe {
+            newLogLevelsAllowed.append(.s)
+        }
+        Log.logLevelsAllowed = newLogLevelsAllowed
     }
 }
 
