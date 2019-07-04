@@ -85,6 +85,9 @@
 		97036DC022CE06A3005A8322 /* CCRequestMessaging+ProcessEventsAndData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DBF22CE06A3005A8322 /* CCRequestMessaging+ProcessEventsAndData.swift */; };
 		97036DC222CE07BF005A8322 /* CCRequestMessaging+ProcessiOSSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DC122CE07BF005A8322 /* CCRequestMessaging+ProcessiOSSettings.swift */; };
 		97036DC422CE0869005A8322 /* CCRequestMessaging+AnalyzeMessages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DC322CE0869005A8322 /* CCRequestMessaging+AnalyzeMessages.swift */; };
+		97036DCA22CE4C91005A8322 /* CCLocationManager+StoreSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DC922CE4C91005A8322 /* CCLocationManager+StoreSubscriber.swift */; };
+		97036DCC22CE4D50005A8322 /* CCLocationManager+DatabaseOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DCB22CE4D50005A8322 /* CCLocationManager+DatabaseOperations.swift */; };
+		97036DCE22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DCD22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift */; };
 		BC0647AF218757A500555512 /* CCBeaconScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0647AE218757A500555512 /* CCBeaconScanner.swift */; };
 		BC0647B1218757B900555512 /* CCEddystone.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0647B0218757B900555512 /* CCEddystone.swift */; };
 		BC0647B5218757E200555512 /* DispatchTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0647B4218757E200555512 /* DispatchTimer.swift */; };
@@ -203,6 +206,9 @@
 		97036DBF22CE06A3005A8322 /* CCRequestMessaging+ProcessEventsAndData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCRequestMessaging+ProcessEventsAndData.swift"; sourceTree = "<group>"; };
 		97036DC122CE07BF005A8322 /* CCRequestMessaging+ProcessiOSSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCRequestMessaging+ProcessiOSSettings.swift"; sourceTree = "<group>"; };
 		97036DC322CE0869005A8322 /* CCRequestMessaging+AnalyzeMessages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCRequestMessaging+AnalyzeMessages.swift"; sourceTree = "<group>"; };
+		97036DC922CE4C91005A8322 /* CCLocationManager+StoreSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCLocationManager+StoreSubscriber.swift"; sourceTree = "<group>"; };
+		97036DCB22CE4D50005A8322 /* CCLocationManager+DatabaseOperations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCLocationManager+DatabaseOperations.swift"; sourceTree = "<group>"; };
+		97036DCD22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCLocationManager+RangingBeacons.swift"; sourceTree = "<group>"; };
 		BC0647AE218757A500555512 /* CCBeaconScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CCBeaconScanner.swift; path = CCLocation/CCBeaconScanner.swift; sourceTree = SOURCE_ROOT; };
 		BC0647B0218757B900555512 /* CCEddystone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CCEddystone.swift; sourceTree = "<group>"; };
 		BC0647B4218757E200555512 /* DispatchTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchTimer.swift; sourceTree = "<group>"; };
@@ -366,6 +372,31 @@
 			path = LocationReducers;
 			sourceTree = "<group>";
 		};
+		97036DC822CE461B005A8322 /* RequestMessaging */ = {
+			isa = PBXGroup;
+			children = (
+				4FEF0C8A1EEFF58E00CB8AA9 /* CCRequestMessaging.swift */,
+				97036DC122CE07BF005A8322 /* CCRequestMessaging+ProcessiOSSettings.swift */,
+				97036DBF22CE06A3005A8322 /* CCRequestMessaging+ProcessEventsAndData.swift */,
+				9702360F22CCBDAB00D559A8 /* CCRequestMessaging+SendMessages.swift */,
+				97036DC322CE0869005A8322 /* CCRequestMessaging+AnalyzeMessages.swift */,
+				97036DBD22CE05A2005A8322 /* CCRequestMessaging+StoreSubscriber.swift */,
+				9702361122CCC2A100D559A8 /* CCRequestMessaging+DatabaseOperations.swift */,
+			);
+			path = RequestMessaging;
+			sourceTree = "<group>";
+		};
+		97036DCF22CE532F005A8322 /* LocationManager */ = {
+			isa = PBXGroup;
+			children = (
+				4F659BB51F24910100775ABD /* CCLocationManager.swift */,
+				97036DCD22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift */,
+				97036DCB22CE4D50005A8322 /* CCLocationManager+DatabaseOperations.swift */,
+				97036DC922CE4C91005A8322 /* CCLocationManager+StoreSubscriber.swift */,
+			);
+			path = LocationManager;
+			sourceTree = "<group>";
+		};
 		BC0647AD2187578C00555512 /* eddyStone */ = {
 			isa = PBXGroup;
 			children = (
@@ -407,14 +438,8 @@
 				4FA524DA1F4050F90067D2C8 /* MessagingProtocol.pb.swift */,
 				F0AF0C3B1DB3912700E72E76 /* CCLocation.h */,
 				F0AF0C931DB3C80300E72E76 /* CCLocation.swift */,
-				4F659BB51F24910100775ABD /* CCLocationManager.swift */,
-				4FEF0C8A1EEFF58E00CB8AA9 /* CCRequestMessaging.swift */,
-				97036DC122CE07BF005A8322 /* CCRequestMessaging+ProcessiOSSettings.swift */,
-				97036DBF22CE06A3005A8322 /* CCRequestMessaging+ProcessEventsAndData.swift */,
-				9702360F22CCBDAB00D559A8 /* CCRequestMessaging+SendMessages.swift */,
-				97036DC322CE0869005A8322 /* CCRequestMessaging+AnalyzeMessages.swift */,
-				97036DBD22CE05A2005A8322 /* CCRequestMessaging+StoreSubscriber.swift */,
-				9702361122CCC2A100D559A8 /* CCRequestMessaging+DatabaseOperations.swift */,
+				97036DCF22CE532F005A8322 /* LocationManager */,
+				97036DC822CE461B005A8322 /* RequestMessaging */,
 				4F648D662051A38D0043175F /* SQLiteDatabase.swift */,
 				4F648D6A2052F3390043175F /* TimeHandling.swift */,
 				F0B2DE5E1E6D7859005E3B7A /* Constants.swift */,
@@ -597,6 +622,7 @@
 				4F03E1A21F9A1CC90023EEC2 /* CapabilityReducer.swift in Sources */,
 				4F8FFD891F2CC8D50001910A /* TimerState.swift in Sources */,
 				F0B2DE5F1E6D7859005E3B7A /* Constants.swift in Sources */,
+				97036DCA22CE4C91005A8322 /* CCLocationManager+StoreSubscriber.swift in Sources */,
 				4F8FFD9D1F2CF6C90001910A /* ForegroundGEOReducer.swift in Sources */,
 				4FBB8AAC1F31145700DEF04F /* CurrentBeaconReducer.swift in Sources */,
 				4FE19A5722AA4AF4000CE5A8 /* InertialReducer.swift in Sources */,
@@ -647,6 +673,7 @@
 				4F648D672051A38D0043175F /* SQLiteDatabase.swift in Sources */,
 				4FBB8AB61F32089400DEF04F /* CurrentiBeaconMonitoringState.swift in Sources */,
 				4FBB8AB41F311D3400DEF04F /* BackgroundBeaconActions.swift in Sources */,
+				97036DCC22CE4D50005A8322 /* CCLocationManager+DatabaseOperations.swift in Sources */,
 				4F8FFD871F2C809E0001910A /* WebSocketAction.swift in Sources */,
 				4FBB8AAE1F31149300DEF04F /* ForegroundBeaconReducer.swift in Sources */,
 				4FBB8AB21F311D2000DEF04F /* ForegroundBeaconActions.swift in Sources */,
@@ -658,6 +685,7 @@
 				4FF6BA662105EA430082859F /* Logger.swift in Sources */,
 				4F920BFA1F3B1C7F00BD7FEF /* LibraryTimeStateAction.swift in Sources */,
 				4F222B191F90EA4300FB11BD /* BatteryLevelState.swift in Sources */,
+				97036DCE22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift in Sources */,
 				4F920BF81F3B161100BD7FEF /* LibraryTimeState.swift in Sources */,
 				4FBB8A931F30BCF200DEF04F /* BackgroundBeaconState.swift in Sources */,
 				97036DBE22CE05A2005A8322 /* CCRequestMessaging+StoreSubscriber.swift in Sources */,

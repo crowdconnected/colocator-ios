@@ -16,6 +16,7 @@ import CoreBluetooth
 extension CCRequestMessaging {
     
     func processIosSettings (serverMessage:Messaging_ServerMessage, store: Store<LibraryState>){
+        
         Log.info("Got iOS settings message")
         
         if (serverMessage.hasIosSettings && !serverMessage.iosSettings.hasGeoSettings) {
@@ -39,13 +40,8 @@ extension CCRequestMessaging {
         if (serverMessage.hasIosSettings && serverMessage.iosSettings.hasGeoSettings) {
             let geoSettings = serverMessage.iosSettings.geoSettings
             
-            if geoSettings.hasSignificantUpates {
-                
-                if geoSettings.significantUpates {
-                    DispatchQueue.main.async {store.dispatch(IsSignificationLocationChangeAction(isSignificantLocationChangeMonitoringState: true))}
-                } else {
-                    DispatchQueue.main.async {store.dispatch(IsSignificationLocationChangeAction(isSignificantLocationChangeMonitoringState: false))}
-                }
+            if geoSettings.hasSignificantUpates && geoSettings.significantUpates {
+                DispatchQueue.main.async {store.dispatch(IsSignificationLocationChangeAction(isSignificantLocationChangeMonitoringState: true))}
             } else {
                 DispatchQueue.main.async {store.dispatch(IsSignificationLocationChangeAction(isSignificantLocationChangeMonitoringState: false))}
             }
@@ -64,7 +60,6 @@ extension CCRequestMessaging {
         }
         
         if (serverMessage.hasIosSettings && serverMessage.iosSettings.hasBeaconSettings){
-            
             let beaconSettings = serverMessage.iosSettings.beaconSettings
             
             if beaconSettings.hasMonitoring {
@@ -87,7 +82,6 @@ extension CCRequestMessaging {
         }
         
         if (serverMessage.hasIosSettings && serverMessage.iosSettings.hasInertialSettings) {
-            
             var isInertialEnable: Bool?
             var interval: UInt32?
             
@@ -106,8 +100,8 @@ extension CCRequestMessaging {
         }
     }
     
-    
     public func configureBackgroundGEOSettings(geoSettings: Messaging_IosGeoSettings, store: Store<LibraryState>) {
+        
         var activityType: CLActivityType?
         
         var maxRuntime:UInt64?
@@ -167,6 +161,7 @@ extension CCRequestMessaging {
     }
     
     public func configureForegroundGEOSettings(geoSettings: Messaging_IosGeoSettings, store: Store<LibraryState>) {
+        
         var activityType: CLActivityType?
         
         var maxRuntime:UInt64?
@@ -226,35 +221,20 @@ extension CCRequestMessaging {
     }
     
     public func configureMonitoringRegions(beaconSettings: Messaging_IosBeaconSettings, store: Store<LibraryState>) {
-        let monitoringSettings = beaconSettings.monitoring
         
+        let monitoringSettings = beaconSettings.monitoring
         var monitoringRegions: [CLBeaconRegion] = []
         
         for region in monitoringSettings.regions {
-            if region.hasUuid {
-                if region.hasMajor {
-                    if region.hasMinor{
-                        if let uuid = UUID(uuidString: region.uuid) {
-                            monitoringRegions.append(CLBeaconRegion(proximityUUID: uuid , major: CLBeaconMajorValue(region.major), minor: CLBeaconMinorValue(region.minor), identifier: "CC \(region.uuid):\(region.major):\(region.minor)"))
-                        }
-                    } else {
-                        if let uuid = UUID(uuidString: region.uuid) {
-                            monitoringRegions.append(CLBeaconRegion(proximityUUID: uuid , major: CLBeaconMajorValue(region.major), identifier: "CC \(region.uuid):\(region.major)"))
-                        }
-                    }
-                }
-                else {
-                    if let uuid = UUID(uuidString: region.uuid) {
-                        monitoringRegions.append(CLBeaconRegion(proximityUUID: uuid, identifier: "CC \(region.uuid)"))
-                    }
-                }
-            }
+            let extractedRegions = extractBeaconRegionsFrom(region: region)
+            monitoringRegions.append(contentsOf: extractedRegions)
         }
         
         DispatchQueue.main.async {store.dispatch(EnableCurrentiBeaconMonitoringAction(monitoringRegions: monitoringRegions.sorted(by: {$0.identifier < $1.identifier})))}
     }
     
     public func configureBeaconForegroundRangingSettings(beaconSettings: Messaging_IosBeaconSettings, store: Store<LibraryState>) {
+        
         let foregroundRanging = beaconSettings.foregroundRanging
         
         var excludeRegions: [CLBeaconRegion] = []
@@ -268,46 +248,13 @@ extension CCRequestMessaging {
         var eddystoneScan:Bool?
         
         for region in foregroundRanging.regions {
-            if region.hasUuid {
-                if region.hasMajor {
-                    if region.hasMinor{
-                        if let uuid = UUID(uuidString: region.uuid) {
-                            rangingRegions.append(CLBeaconRegion(proximityUUID: uuid , major: CLBeaconMajorValue(region.major), minor: CLBeaconMinorValue(region.minor), identifier: "CC \(region.uuid):\(region.major):\(region.minor)"))
-                        }
-                    } else {
-                        if let uuid = UUID(uuidString: region.uuid) {
-                            rangingRegions.append(CLBeaconRegion(proximityUUID: uuid , major: CLBeaconMajorValue(region.major), identifier: "CC \(region.uuid):\(region.major)"))
-                        }
-                    }
-                }
-                else {
-                    if let uuid = UUID(uuidString: region.uuid) {
-                        rangingRegions.append(CLBeaconRegion(proximityUUID: uuid, identifier: "CC \(region.uuid)"))
-                    }
-                }
-            }
+            let extractedRegions = extractBeaconRegionsFrom(region: region)
+            rangingRegions.append(contentsOf: extractedRegions)
         }
         
-        
         for region in foregroundRanging.filter.excludeRegions {
-            if region.hasUuid {
-                if region.hasMajor {
-                    if region.hasMinor{
-                        if let uuid = UUID(uuidString: region.uuid) {
-                            excludeRegions.append(CLBeaconRegion(proximityUUID: uuid , major: CLBeaconMajorValue(region.major), minor: CLBeaconMinorValue(region.minor), identifier: "CC \(region.uuid):\(region.major):\(region.minor)"))
-                        }
-                    } else {
-                        if let uuid = UUID(uuidString: region.uuid) {
-                            excludeRegions.append(CLBeaconRegion(proximityUUID: uuid , major: CLBeaconMajorValue(region.major), identifier: "CC \(region.uuid):\(region.major)"))
-                        }
-                    }
-                }
-                else {
-                    if let uuid = UUID(uuidString: region.uuid) {
-                        excludeRegions.append(CLBeaconRegion(proximityUUID: uuid, identifier: "CC \(region.uuid)"))
-                    }
-                }
-            }
+            let extractedRegions = extractBeaconRegionsFrom(region: region)
+            excludeRegions.append(contentsOf: extractedRegions)
         }
         
         if foregroundRanging.hasMaxRunTime {
@@ -355,6 +302,7 @@ extension CCRequestMessaging {
     }
     
     public func configureBeaconBackgroundRangingSettings(beaconSettings: Messaging_IosBeaconSettings, store: Store<LibraryState>) {
+        
         let backgroundRanging = beaconSettings.backgroundRanging
         
         var excludeRegions: [CLBeaconRegion] = []
@@ -368,47 +316,14 @@ extension CCRequestMessaging {
         var eddystoneScan: Bool?
         
         for region in backgroundRanging.regions {
-            if region.hasUuid {
-                if region.hasMajor {
-                    if region.hasMinor{
-                        if let uuid = UUID(uuidString: region.uuid) {
-                            rangingRegions.append(CLBeaconRegion(proximityUUID: uuid , major: CLBeaconMajorValue(region.major), minor: CLBeaconMinorValue(region.minor), identifier: "CC \(region.uuid):\(region.major):\(region.minor)"))
-                        }
-                    } else {
-                        if let uuid = UUID(uuidString: region.uuid) {
-                            rangingRegions.append(CLBeaconRegion(proximityUUID: uuid , major: CLBeaconMajorValue(region.major), identifier: "CC \(region.uuid):\(region.major)"))
-                        }
-                    }
-                }
-                else {
-                    if let uuid = UUID(uuidString: region.uuid) {
-                        rangingRegions.append(CLBeaconRegion(proximityUUID: uuid, identifier: "CC \(region.uuid)"))
-                    }
-                }
-            }
+            let extractedRegions = extractBeaconRegionsFrom(region: region)
+            rangingRegions.append(contentsOf: extractedRegions)
         }
         
         for region in backgroundRanging.filter.excludeRegions {
-            if region.hasUuid {
-                if region.hasMajor {
-                    if region.hasMinor{
-                        if let uuid = UUID(uuidString: region.uuid) {
-                            excludeRegions.append(CLBeaconRegion(proximityUUID: uuid , major: CLBeaconMajorValue(region.major), minor: CLBeaconMinorValue(region.minor), identifier: "CC \(region.uuid):\(region.major):\(region.minor)"))
-                        }
-                    } else {
-                        if let uuid = UUID(uuidString: region.uuid) {
-                            excludeRegions.append(CLBeaconRegion(proximityUUID: uuid , major: CLBeaconMajorValue(region.major), identifier: "CC \(region.uuid):\(region.major)"))
-                        }
-                    }
-                }
-                else {
-                    if let uuid = UUID(uuidString: region.uuid) {
-                        excludeRegions.append(CLBeaconRegion(proximityUUID: uuid, identifier: "CC \(region.uuid)"))
-                    }
-                }
-            }
+            let extractedRegions = extractBeaconRegionsFrom(region: region)
+            excludeRegions.append(contentsOf: extractedRegions)
         }
-        
         
         if backgroundRanging.hasMaxRunTime {
             if backgroundRanging.maxRunTime > 0 {
@@ -453,5 +368,32 @@ extension CCRequestMessaging {
                                                                                          filterExcludeRegions: excludeRegions.sorted(by: {$0.identifier < $1.identifier}),
                                                                                          eddystoneScanEnabled: eddystoneScan,
                                                                                          isIBeaconRangingEnabled: isIBeaconRangingEnabled))}
+    }
+    
+    
+    public func extractBeaconRegionsFrom(region: Messaging_BeaconRegion) -> [CLBeaconRegion] {
+        
+        var extractedRegions = [CLBeaconRegion]()
+        
+        if region.hasUuid {
+            if region.hasMajor {
+                if region.hasMinor{
+                    if let uuid = UUID(uuidString: region.uuid) {
+                        extractedRegions.append(CLBeaconRegion(proximityUUID: uuid , major: CLBeaconMajorValue(region.major), minor: CLBeaconMinorValue(region.minor), identifier: "CC \(region.uuid):\(region.major):\(region.minor)"))
+                    }
+                } else {
+                    if let uuid = UUID(uuidString: region.uuid) {
+                        extractedRegions.append(CLBeaconRegion(proximityUUID: uuid , major: CLBeaconMajorValue(region.major), identifier: "CC \(region.uuid):\(region.major)"))
+                    }
+                }
+            }
+            else {
+                if let uuid = UUID(uuidString: region.uuid) {
+                    extractedRegions.append(CLBeaconRegion(proximityUUID: uuid, identifier: "CC \(region.uuid)"))
+                }
+            }
+        }
+        
+        return extractedRegions
     }
 }

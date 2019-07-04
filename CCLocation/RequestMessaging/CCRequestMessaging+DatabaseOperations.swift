@@ -13,6 +13,7 @@ import Foundation
 extension CCRequestMessaging {
     
     func openMessagesDatabase() {
+        
         // Get the library directory
         let dirPaths = NSSearchPathForDirectoriesInDomains (.libraryDirectory, .userDomainMask, true)
         
@@ -46,6 +47,7 @@ extension CCRequestMessaging {
     }
     
     public func insertMessageInLocalDatabase(message: Data) {
+        
         Log.verbose("Pushing new message into message queue")
         
         if let database = self.messagesDB {
@@ -76,6 +78,7 @@ extension CCRequestMessaging {
     }
     
     public func getMessageCount() -> Int {
+        
         var count:Int = -1
         
         do {

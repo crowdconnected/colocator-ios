@@ -67,10 +67,6 @@ extension CCRequestMessaging {
         var clientMessage = Messaging_ClientMessage()
         var bluetoothMessage = Messaging_Bluetooth()
         
-        //        var uuidBytes: [UInt8] = [UInt8](repeating: 0, count: 16)
-        //        uuid.getBytes(&uuidBytes)
-        //        let uuidData = NSData(bytes: &uuidBytes, length: 16)
-        
         bluetoothMessage.identifier = uuidData!
         bluetoothMessage.rssi = Int32(rssi)
         bluetoothMessage.tx = 0

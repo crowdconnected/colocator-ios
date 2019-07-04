@@ -12,7 +12,9 @@ import ReSwift
 // Extension Store Subscriber
 
 extension CCRequestMessaging: StoreSubscriber {
+    
     public func newState(state: CCRequestMessagingState) {
+        
         Log.debug("New state is: \(state)")
         
         if let webSocketState = state.webSocketState {
@@ -30,14 +32,9 @@ extension CCRequestMessaging: StoreSubscriber {
             }
         }
         
-        // if we have a radioSilenceTimer
-        if let newTimerState = state.radiosilenceTimerState {
-            
-            // and if its state has changed
-            if newTimerState != currentRadioSilenceTimerState {
-                
-                actualizeTimerState(newState: newTimerState)
-            }
+        // if we have a radioSilenceTimer and if its state has changed
+        if let newTimerState = state.radiosilenceTimerState, newTimerState != currentRadioSilenceTimerState {
+            actualizeTimerState(newState: newTimerState)
         }
         
         if let newLibraryTimeState = state.libraryTimeState {
@@ -67,6 +64,7 @@ extension CCRequestMessaging: StoreSubscriber {
     }
     
     public func actualizeTimerState(newState: TimerState) {
+        
         currentRadioSilenceTimerState = newState
         
         if newState.timer == .schedule {
@@ -78,14 +76,18 @@ extension CCRequestMessaging: StoreSubscriber {
         
 //        covers case were app starts from terminated and no timer is available yet
         if timeBetweenSendsTimer == nil {
+            
             Log.verbose("RADIOSILENCETIMER timeBetweenSendsTimer == nil, scheduling new timer")
+            
             if timeHandling.isRebootTimeSame(stateStore: stateStore, ccSocket: ccSocket){
                 DispatchQueue.main.async {self.stateStore.dispatch(ScheduleSilencePeriodTimerAction())}
             }
         }
         
         if newState.timer == .invalidate {
+            
             Log.verbose("RADIOSILENCETIMER invalidate timer")
+            
             if timeBetweenSendsTimer != nil{
                 if timeBetweenSendsTimer!.isValid {
                     timeBetweenSendsTimer!.invalidate()
@@ -98,6 +100,7 @@ extension CCRequestMessaging: StoreSubscriber {
     }
     
     public func scheduleTimerWithNewTimerInterval(newState: TimerState) {
+        
         if timeBetweenSendsTimer != nil {
             if timeBetweenSendsTimer!.isValid{
                 timeBetweenSendsTimer!.invalidate()
@@ -111,14 +114,15 @@ extension CCRequestMessaging: StoreSubscriber {
                 Log.verbose("RADIOSILENCETIMER intervalForLastTimer = \(intervalForLastTimer)")
                 
                 if intervalForLastTimer < Double(Double(newTimeInterval) / 1000) {
+                    
                     timeBetweenSendsTimer = Timer.scheduledTimer(timeInterval:TimeInterval(intervalForLastTimer), target: self, selector: #selector(self.sendQueuedClientMessagesTimerFiredOnce), userInfo: nil, repeats: false)
                     DispatchQueue.main.async {self.stateStore.dispatch(TimerRunningAction(startTimeInterval: nil))}
                 } else {
+                    
                     timeBetweenSendsTimer = Timer.scheduledTimer(timeInterval:TimeInterval(Double(newTimeInterval) / 1000), target: self, selector: #selector(self.sendQueuedClientMessagesTimerFired), userInfo: nil, repeats: true)
                     
                     DispatchQueue.main.async {self.stateStore.dispatch(TimerRunningAction(startTimeInterval: TimeHandling.timeIntervalSinceBoot()))}
                 }
-                
             } else {
                 
                 timeBetweenSendsTimer = Timer.scheduledTimer(timeInterval:TimeInterval(Double(newTimeInterval) / 1000), target: self, selector: #selector(self.sendQueuedClientMessagesTimerFired), userInfo: nil, repeats: true)

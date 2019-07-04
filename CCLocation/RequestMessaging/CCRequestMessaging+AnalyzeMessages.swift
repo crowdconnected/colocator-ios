@@ -150,6 +150,7 @@ extension CCRequestMessaging {
     
     public func checkStepsTypeMessages(_ messages: [Messaging_Step],
                                        subMessageCounter: Int) -> (Int, [Messaging_Step], [Messaging_Step]) {
+        
         var clientMessagesToCompile = [Messaging_Step]()
         var messagesToQueue = [Messaging_Step]()
         var subMessageNo = subMessageCounter
@@ -175,6 +176,7 @@ extension CCRequestMessaging {
     
     public func checkBluetoothTypeMessages(_ messages: [Messaging_Bluetooth],
                                            subMessageCounter: Int) -> (Int, [Messaging_Bluetooth], [Messaging_Bluetooth]) {
+        
         var clientMessagesToCompile = [Messaging_Bluetooth]()
         var messagesToQueue = [Messaging_Bluetooth]()
         var subMessageNo = subMessageCounter
@@ -202,6 +204,7 @@ extension CCRequestMessaging {
     
     public func checkiBeaconTypeMessages(_ messages: [Messaging_IBeacon],
                                          subMessageCounter: Int) -> (Int, [Messaging_IBeacon], [Messaging_IBeacon]) {
+        
         var clientMessagesToCompile = [Messaging_IBeacon]()
         var messagesToQueue = [Messaging_IBeacon]()
         var subMessageNo = subMessageCounter
@@ -232,6 +235,7 @@ extension CCRequestMessaging {
     
     public func checkEddystoneTypeMessages(_ messages: [Messaging_EddystoneBeacon],
                                            subMessageCounter: Int) -> (Int, [Messaging_EddystoneBeacon], [Messaging_EddystoneBeacon]) {
+        
         var clientMessagesToCompile = [Messaging_EddystoneBeacon]()
         var messagesToQueue = [Messaging_EddystoneBeacon]()
         var subMessageNo = subMessageCounter
@@ -259,6 +263,7 @@ extension CCRequestMessaging {
     
     public func checkAliasesTypeMessages(_ messages: [Messaging_AliasMessage],
                                          subMessageCounter: Int) -> (Int, [Messaging_AliasMessage], [Messaging_AliasMessage]) {
+        
         var clientMessagesToCompile = [Messaging_AliasMessage]()
         var messagesToQueue = [Messaging_AliasMessage]()
         var subMessageNo = subMessageCounter
@@ -284,6 +289,7 @@ extension CCRequestMessaging {
     
     public func checkMessageIOSCapability(_ message: Messaging_IosCapability,
                                           subMessageCounter: Int) -> (Int, Messaging_IosCapability?, Messaging_IosCapability?) {
+        
         let subMessageNo = subMessageCounter
         var capabilityMessage = Messaging_IosCapability()
         let tempCapabilityMessage = message
@@ -317,6 +323,7 @@ extension CCRequestMessaging {
     
     public func checkMarkerMessage(_ message: Messaging_ClientMessage,
                                    subMessageCounter: Int) -> (Int, Messaging_MarkerMessage?) {
+        
         if (message.hasMarker){
             var markerMessage = Messaging_MarkerMessage()
             
@@ -330,6 +337,7 @@ extension CCRequestMessaging {
     }
     
     public func checkNewBatteryLevelTypeMessage() -> (Messaging_Battery?) {
+        
         var newBatteryMessage: Messaging_Battery? = nil
         if let isNewBatteryLevel = self.stateStore.state.batteryLevelState.isNewBatteryLevel {
             if isNewBatteryLevel {

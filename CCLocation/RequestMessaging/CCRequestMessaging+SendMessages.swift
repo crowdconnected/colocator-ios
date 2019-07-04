@@ -30,7 +30,6 @@ extension CCRequestMessaging {
                     insertMessageInLocalDatabase(message: newMessage)
                 }
             }
-            
         }
         
         workItem = DispatchWorkItem { [weak self] in
@@ -90,6 +89,7 @@ extension CCRequestMessaging {
                     }
                     
                     Log.verbose("Compiled \(subMessageCounter) message(s)")
+                    
                     if (compiledClientMessage.locationMessage.count > 0) {
                         let geoMsg = compiledClientMessage.locationMessage[0]
                         let geoData = try? geoMsg.serializedData()
