@@ -44,181 +44,73 @@ extension CCRequestMessaging {
                 let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self?.checkLocationTypeMessages(tempClientMessage!.locationMessage, subMessageCounter: subMessageCounter) ?? (subMessageCounter, [], [])
                 
                 subMessageCounter = actualizedSubmessageCounter
-                if subMessageCounter > 0 {
-                    compiledClientMessage.locationMessage.append(contentsOf: toCompileMessages)
-                } else {
-                    backToQueueMessages.locationMessage.append(contentsOf: toQueueMessages)
-                }
-                
-                //todo replace all messages type with functions like this
-                
-//                for tempLocationMessage in tempClientMessage!.locationMessage {
-//
-//                    var locationMessage = Messaging_LocationMessage()
-//
-//                    locationMessage.longitude = tempLocationMessage.longitude
-//                    locationMessage.latitude = tempLocationMessage.latitude
-//                    locationMessage.horizontalAccuracy = tempLocationMessage.horizontalAccuracy
-//
-//                    if (tempLocationMessage.hasAltitude){
-//                        locationMessage.altitude = tempLocationMessage.altitude
-//                    }
-//
-//                    locationMessage.timestamp = tempLocationMessage.timestamp
-//
-//                    if (subMessageCounter >= 0) {
-//                        compiledClientMessage.locationMessage.append(locationMessage)
-//                    } else {
-//                        backToQueueMessages.locationMessage.append(locationMessage)
-//                    }
-//
-//                    subMessageCounter += 1
-//                }
+                compiledClientMessage.locationMessage.append(contentsOf: toCompileMessages)
+                backToQueueMessages.locationMessage.append(contentsOf: toQueueMessages)
             }
             
             if (tempClientMessage!.step.count > 0) {
-                for tempStepMessage in tempClientMessage!.step {
-                    
-                    var stepMessage = Messaging_Step()
-                    
-                    stepMessage.timestamp = tempStepMessage.timestamp
-                    stepMessage.angle = tempStepMessage.angle
-                    
-                    if (subMessageCounter >= 0) {
-                        compiledClientMessage.step.append(stepMessage)
-                    } else {
-                        backToQueueMessages.step.append(stepMessage)
-                    }
-                    
-                    subMessageCounter += 1
-                }
+                
+                let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self?.checkStepsTypeMessages(tempClientMessage!.step, subMessageCounter: subMessageCounter) ?? (subMessageCounter, [], [])
+                
+                subMessageCounter = actualizedSubmessageCounter
+                compiledClientMessage.step.append(contentsOf: toCompileMessages)
+                backToQueueMessages.step.append(contentsOf: toQueueMessages)
             }
             
             if (tempClientMessage!.bluetoothMessage.count > 0) {
-                for tempBluetoothMessage in tempClientMessage!.bluetoothMessage {
-                    
-                    var bluetoothMessage = Messaging_Bluetooth()
-                    
-                    bluetoothMessage.identifier = tempBluetoothMessage.identifier
-                    bluetoothMessage.rssi = tempBluetoothMessage.rssi
-                    bluetoothMessage.tx = tempBluetoothMessage.tx
-                    bluetoothMessage.timestamp = tempBluetoothMessage.timestamp
-                    
-                    if (subMessageCounter >= 0) {
-                        compiledClientMessage.bluetoothMessage.append(bluetoothMessage)
-                    } else {
-                        backToQueueMessages.bluetoothMessage.append(bluetoothMessage)
-                    }
-                    
-                    subMessageCounter += 1
-                }
+                
+                let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self?.checkBluetoothTypeMessages(tempClientMessage!.bluetoothMessage, subMessageCounter: subMessageCounter) ?? (subMessageCounter, [], [])
+                
+                subMessageCounter = actualizedSubmessageCounter
+                compiledClientMessage.bluetoothMessage.append(contentsOf: toCompileMessages)
+                backToQueueMessages.bluetoothMessage.append(contentsOf: toQueueMessages)
             }
             
             if (tempClientMessage!.ibeaconMessage.count > 0) {
-                for tempIbeaconMessage in tempClientMessage!.ibeaconMessage {
-                    
-                    var ibeaconMessage = Messaging_IBeacon()
-                    
-                    ibeaconMessage.uuid = tempIbeaconMessage.uuid
-                    ibeaconMessage.major = tempIbeaconMessage.major
-                    ibeaconMessage.minor = tempIbeaconMessage.minor
-                    ibeaconMessage.rssi = tempIbeaconMessage.rssi
-                    ibeaconMessage.accuracy = tempIbeaconMessage.accuracy
-                    ibeaconMessage.timestamp = tempIbeaconMessage.timestamp
-                    ibeaconMessage.proximity = tempIbeaconMessage.proximity
-                    
-                    if (subMessageCounter >= 0) {
-                        compiledClientMessage.ibeaconMessage.append(ibeaconMessage)
-                    } else {
-                        backToQueueMessages.ibeaconMessage.append(ibeaconMessage)
-                    }
-                    
-                    subMessageCounter += 1
-                }
+                
+                let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self?.checkiBeaconTypeMessages(tempClientMessage!.ibeaconMessage, subMessageCounter: subMessageCounter) ?? (subMessageCounter, [], [])
+                
+                subMessageCounter = actualizedSubmessageCounter
+                compiledClientMessage.ibeaconMessage.append(contentsOf: toCompileMessages)
+                backToQueueMessages.ibeaconMessage.append(contentsOf: toQueueMessages)
             }
             
             if (tempClientMessage!.eddystonemessage.count > 0) {
-                for tempEddyStoneMessage in tempClientMessage!.eddystonemessage {
-                    
-                    var eddyStoneMessage = Messaging_EddystoneBeacon()
-                    
-                    eddyStoneMessage.eid = tempEddyStoneMessage.eid
-                    eddyStoneMessage.rssi = tempEddyStoneMessage.rssi
-                    eddyStoneMessage.timestamp = tempEddyStoneMessage.timestamp
-                    eddyStoneMessage.tx = tempEddyStoneMessage.tx
-                    
-                    if (subMessageCounter >= 0) {
-                        compiledClientMessage.eddystonemessage.append(eddyStoneMessage)
-                    } else {
-                        backToQueueMessages.eddystonemessage.append(eddyStoneMessage)
-                    }
-                    
-                    subMessageCounter += 1
-                }
+                
+                let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self?.checkEddystoneTypeMessages(tempClientMessage!.eddystonemessage, subMessageCounter: subMessageCounter) ?? (subMessageCounter, [], [])
+                
+                subMessageCounter = actualizedSubmessageCounter
+                compiledClientMessage.eddystonemessage.append(contentsOf: toCompileMessages)
+                backToQueueMessages.eddystonemessage.append(contentsOf: toQueueMessages)
             }
             
             
             if (tempClientMessage!.alias.count > 0) {
-                for tempAliasMessage in tempClientMessage!.alias {
-                    
-                    var aliasMessage = Messaging_AliasMessage()
-                    
-                    aliasMessage.key = tempAliasMessage.key
-                    aliasMessage.value = tempAliasMessage.value
-                    
-                    if (subMessageCounter >= 0) {
-                        compiledClientMessage.alias.append(aliasMessage)
-                    } else {
-                        backToQueueMessages.alias.append(aliasMessage)
-                    }
-                    
-                    subMessageCounter += 1
-                }
+                
+                let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self?.checkAliasesTypeMessages(tempClientMessage!.alias, subMessageCounter: subMessageCounter) ?? (subMessageCounter, [], [])
+                
+                subMessageCounter = actualizedSubmessageCounter
+                compiledClientMessage.alias.append(contentsOf: toCompileMessages)
+                backToQueueMessages.alias.append(contentsOf: toQueueMessages)
             }
             
             if (tempClientMessage!.hasIosCapability){
-                var capabilityMessage = Messaging_IosCapability()
                 
-                var tempCapabilityMessage = tempClientMessage!.iosCapability
+                let (actualizedSubmessageCounter, toCompileMessage, toQueueMessage) = self?.checkMessageIOSCapability(tempClientMessage!.iosCapability, subMessageCounter: subMessageCounter) ?? (subMessageCounter, nil, nil)
                 
-                if tempCapabilityMessage.hasLocationServices {
-                    capabilityMessage.locationServices = tempCapabilityMessage.locationServices
+                subMessageCounter = actualizedSubmessageCounter
+                if let newCompileMessage = toCompileMessage {
+                    compiledClientMessage.iosCapability = newCompileMessage
                 }
-                
-                if tempCapabilityMessage.hasLowPowerMode {
-                    capabilityMessage.lowPowerMode = tempCapabilityMessage.lowPowerMode
+                if let newQueueMessage = toQueueMessage {
+                    backToQueueMessages.iosCapability = newQueueMessage
                 }
-                
-                if tempCapabilityMessage.hasLocationAuthStatus {
-                    capabilityMessage.locationAuthStatus = tempCapabilityMessage.locationAuthStatus
-                }
-                
-                if tempCapabilityMessage.hasBluetoothHardware {
-                    capabilityMessage.bluetoothHardware = tempCapabilityMessage.bluetoothHardware
-                }
-                
-                if tempCapabilityMessage.hasBatteryState {
-                    capabilityMessage.batteryState = tempCapabilityMessage.batteryState
-                }
-                
-                if (subMessageCounter >= 0) {
-                    compiledClientMessage.iosCapability = capabilityMessage
-                } else {
-                    backToQueueMessages.iosCapability = capabilityMessage
-                }
-                
-                subMessageCounter += 1
             }
             
-            if (tempClientMessage!.hasMarker){
-                var markerMessage = Messaging_MarkerMessage()
-                
-                markerMessage.data = tempClientMessage!.marker.data
-                markerMessage.time = tempClientMessage!.marker.time
-                
-                compiledClientMessage.marker = markerMessage
-                
-                subMessageCounter += 1
+            let (actualizedSubmessageCounter, toCompileMessage) = self?.checkMarkerMessage(tempClientMessage!, subMessageCounter: subMessageCounter) ?? (subMessageCounter, nil)
+            subMessageCounter = actualizedSubmessageCounter
+            if let newCompileMessage = toCompileMessage {
+                  compiledClientMessage.marker = newCompileMessage
             }
             
             if let isNewBatteryLevel = self?.stateStore.state.batteryLevelState.isNewBatteryLevel {
@@ -290,4 +182,186 @@ extension CCRequestMessaging {
     
         return (subMessageNo, clientMessagesToCompile, messagesToQueue)
     }
+    
+    public func checkStepsTypeMessages(_ messages: [Messaging_Step],
+                                       subMessageCounter: Int) -> (Int, [Messaging_Step], [Messaging_Step]) {
+        var clientMessagesToCompile = [Messaging_Step]()
+        var messagesToQueue = [Messaging_Step]()
+        var subMessageNo = subMessageCounter
+        
+        for tempStepMessage in messages {
+
+            var stepMessage = Messaging_Step()
+
+            stepMessage.timestamp = tempStepMessage.timestamp
+            stepMessage.angle = tempStepMessage.angle
+
+            if (subMessageCounter >= 0) {
+                clientMessagesToCompile.append(stepMessage)
+            } else {
+                messagesToQueue.append(stepMessage)
+            }
+
+            subMessageNo += 1
+        }
+        
+        return (subMessageNo, clientMessagesToCompile, messagesToQueue)
+    }
+    
+    public func checkBluetoothTypeMessages(_ messages: [Messaging_Bluetooth],
+                                       subMessageCounter: Int) -> (Int, [Messaging_Bluetooth], [Messaging_Bluetooth]) {
+        var clientMessagesToCompile = [Messaging_Bluetooth]()
+        var messagesToQueue = [Messaging_Bluetooth]()
+        var subMessageNo = subMessageCounter
+        
+        for tempBluetoothMessage in messages {
+            
+            var bluetoothMessage = Messaging_Bluetooth()
+            
+            bluetoothMessage.identifier = tempBluetoothMessage.identifier
+            bluetoothMessage.rssi = tempBluetoothMessage.rssi
+            bluetoothMessage.tx = tempBluetoothMessage.tx
+            bluetoothMessage.timestamp = tempBluetoothMessage.timestamp
+            
+            if (subMessageCounter >= 0) {
+                clientMessagesToCompile.append(bluetoothMessage)
+            } else {
+                messagesToQueue.append(bluetoothMessage)
+            }
+            
+            subMessageNo += 1
+        }
+        
+        return (subMessageNo, clientMessagesToCompile, messagesToQueue)
+    }
+    
+    public func checkiBeaconTypeMessages(_ messages: [Messaging_IBeacon],
+                                           subMessageCounter: Int) -> (Int, [Messaging_IBeacon], [Messaging_IBeacon]) {
+        var clientMessagesToCompile = [Messaging_IBeacon]()
+        var messagesToQueue = [Messaging_IBeacon]()
+        var subMessageNo = subMessageCounter
+        
+        for tempIbeaconMessage in messages {
+            
+            var ibeaconMessage = Messaging_IBeacon()
+            
+            ibeaconMessage.uuid = tempIbeaconMessage.uuid
+            ibeaconMessage.major = tempIbeaconMessage.major
+            ibeaconMessage.minor = tempIbeaconMessage.minor
+            ibeaconMessage.rssi = tempIbeaconMessage.rssi
+            ibeaconMessage.accuracy = tempIbeaconMessage.accuracy
+            ibeaconMessage.timestamp = tempIbeaconMessage.timestamp
+            ibeaconMessage.proximity = tempIbeaconMessage.proximity
+            
+            if (subMessageCounter >= 0) {
+                clientMessagesToCompile.append(ibeaconMessage)
+            } else {
+                messagesToQueue.append(ibeaconMessage)
+            }
+            
+            subMessageNo += 1
+        }
+        
+        return (subMessageNo, clientMessagesToCompile, messagesToQueue)
+    }
+    
+    public func checkEddystoneTypeMessages(_ messages: [Messaging_EddystoneBeacon],
+                                         subMessageCounter: Int) -> (Int, [Messaging_EddystoneBeacon], [Messaging_EddystoneBeacon]) {
+        var clientMessagesToCompile = [Messaging_EddystoneBeacon]()
+        var messagesToQueue = [Messaging_EddystoneBeacon]()
+        var subMessageNo = subMessageCounter
+        
+        for tempEddyStoneMessage in messages {
+            
+            var eddyStoneMessage = Messaging_EddystoneBeacon()
+            
+            eddyStoneMessage.eid = tempEddyStoneMessage.eid
+            eddyStoneMessage.rssi = tempEddyStoneMessage.rssi
+            eddyStoneMessage.timestamp = tempEddyStoneMessage.timestamp
+            eddyStoneMessage.tx = tempEddyStoneMessage.tx
+            
+            if (subMessageCounter >= 0) {
+                clientMessagesToCompile.append(eddyStoneMessage)
+            } else {
+                messagesToQueue.append(eddyStoneMessage)
+            }
+            
+            subMessageNo += 1
+        }
+        
+        return (subMessageNo, clientMessagesToCompile, messagesToQueue)
+    }
+    
+    public func checkAliasesTypeMessages(_ messages: [Messaging_AliasMessage],
+                                           subMessageCounter: Int) -> (Int, [Messaging_AliasMessage], [Messaging_AliasMessage]) {
+        var clientMessagesToCompile = [Messaging_AliasMessage]()
+        var messagesToQueue = [Messaging_AliasMessage]()
+        var subMessageNo = subMessageCounter
+        
+        for tempAliasMessage in messages {
+            
+            var aliasMessage = Messaging_AliasMessage()
+            
+            aliasMessage.key = tempAliasMessage.key
+            aliasMessage.value = tempAliasMessage.value
+            
+            if (subMessageCounter >= 0) {
+                clientMessagesToCompile.append(aliasMessage)
+            } else {
+                messagesToQueue.append(aliasMessage)
+            }
+            
+            subMessageNo += 1
+        }
+        
+        return (subMessageNo, clientMessagesToCompile, messagesToQueue)
+    }
+    
+    public func checkMessageIOSCapability(_ message: Messaging_IosCapability,
+                                         subMessageCounter: Int) -> (Int, Messaging_IosCapability?, Messaging_IosCapability?) {
+        let subMessageNo = subMessageCounter
+        var capabilityMessage = Messaging_IosCapability()
+        let tempCapabilityMessage = message
+        
+        if tempCapabilityMessage.hasLocationServices {
+            capabilityMessage.locationServices = tempCapabilityMessage.locationServices
+        }
+        
+        if tempCapabilityMessage.hasLowPowerMode {
+            capabilityMessage.lowPowerMode = tempCapabilityMessage.lowPowerMode
+        }
+        
+        if tempCapabilityMessage.hasLocationAuthStatus {
+            capabilityMessage.locationAuthStatus = tempCapabilityMessage.locationAuthStatus
+        }
+        
+        if tempCapabilityMessage.hasBluetoothHardware {
+            capabilityMessage.bluetoothHardware = tempCapabilityMessage.bluetoothHardware
+        }
+        
+        if tempCapabilityMessage.hasBatteryState {
+            capabilityMessage.batteryState = tempCapabilityMessage.batteryState
+        }
+        
+        if (subMessageNo >= 0) {
+            return (subMessageNo + 1, capabilityMessage, nil)
+        } else {
+            return (subMessageNo + 1, nil, capabilityMessage)
+        }
+    }
+    
+    public func checkMarkerMessage(_ message: Messaging_ClientMessage,
+                                   subMessageCounter: Int) -> (Int, Messaging_MarkerMessage?) {
+        if (message.hasMarker){
+            var markerMessage = Messaging_MarkerMessage()
+            
+            markerMessage.data = message.marker.data
+            markerMessage.time = message.marker.time
+            
+            return (subMessageCounter + 1, markerMessage)
+        } else {
+            return (subMessageCounter, nil)
+        }
+    }
+    
 }
