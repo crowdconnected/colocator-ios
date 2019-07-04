@@ -75,5 +75,18 @@ extension CCRequestMessaging {
         return popMessages
     }
     
+    public func getMessageCount() -> Int {
+        var count:Int = -1
+        
+        do {
+            count = try self.messagesDB.count(table: CCLocationTables.MESSAGES_TABLE)
+        } catch SQLiteError.Prepare(let error) {
+            Log.error("SQL Prepare Error: \(error)")
+        } catch {
+            Log.error("Error while executing messagesDB.count \(error)")
+        }
+        
+        return count
+    }
 }
 

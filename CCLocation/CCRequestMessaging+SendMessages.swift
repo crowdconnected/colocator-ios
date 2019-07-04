@@ -29,7 +29,7 @@ extension CCRequestMessaging {
             
             if self == nil {
                 //This should not happen
-                Log.error("Self object is nil inside sending message method. Message won't be delivered")
+                Log.error("Self object is nil inside sending message method. Message won't be delivered or queued")
                 return
             }
             
@@ -70,6 +70,8 @@ extension CCRequestMessaging {
         
         DispatchQueue.global(qos: .background).async(execute: workItem)
     }
+    
+    // MARK: - ANALYZE MESSAGE AND ITS TYPE
     
     public func handleMessageType(message: Data,
                                   subMessageInitialNumber: Int = 0,

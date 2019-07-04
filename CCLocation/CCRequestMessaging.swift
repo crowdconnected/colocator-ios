@@ -1039,34 +1039,24 @@ class CCRequestMessaging: NSObject {
                     insertMessageInLocalDatabase(message: newMessage)
                 }
             }
-            
-        }
-        
-        // inline function to get the message count and handle any errors from SQL
-        let messagesCount = {() -> Int in
-            
-            var count:Int = -1
-            
-            do {
-                count = try self.messagesDB.count(table: CCLocationTables.MESSAGES_TABLE)
-            } catch SQLiteError.Prepare(let error) {
-                Log.error("SQL Prepare Error: \(error)")
-            } catch {
-                Log.error("Error while executing messagesDB.count \(error)")
-            }
-            
-            return count
+
         }
         
         workItem = DispatchWorkItem { [weak self] in
             
             if !workItem.isCancelled {
                 
+                if self == nil {
+                    //This should not happen
+                    Log.error("Self object is nil inside sending message method. Message won't be delivered or queued")
+                    return
+                }
+                
                 let maxMessagesToReturn = 100
                 
                 var connectionState = self?.stateStore.state.ccRequestMessagingState.webSocketState?.connectionState
                 
-                while (messagesCount() > 0 && connectionState == .online) {
+                while (self?.getMessageCount() ?? -1 > 0 && connectionState == .online) {
                     
                     if workItem.isCancelled { break }
                     
@@ -1077,33 +1067,16 @@ class CCRequestMessaging: NSObject {
                     
                     var tempMessageData:[Data]?
                     var subMessageCounter:Int = 0
-//                    var tempClientMessage:Messaging_ClientMessage?
                     
-                    // inline function to get the message count and handle any errors from SQL
-                    let messagesCount = {() -> Int in
-                        
-                        var count:Int = -1
-                        
-                        do {
-                            if let messagesDB = self?.messagesDB {
-                                count = try messagesDB.count(table: CCLocationTables.MESSAGES_TABLE)
-                            }
-                        } catch SQLiteError.Prepare(let error) {
-                            Log.error("SQL Prepare Error: \(error)")
-                        } catch {
-                            Log.error("Error while executing messagesDB.count \(error)")
-                        }
-                        
-                        return count
-                    }
+                    let messageNumber = self?.getMessageCount() ?? -1
                     
-                    if (messagesCount() == 0) {
+                    if (messageNumber == 0) {
                         Log.verbose ("No queued messages available to send")
                     }
                     
-                    Log.verbose ("\(messagesCount()) Queued messages are available")
+                    Log.verbose ("\(messageNumber) Queued messages are available")
                     
-                    while (messagesCount() > 0 && subMessageCounter < maxMessagesToReturn) {
+                    while (self?.getMessageCount() ?? -1 > 0 && subMessageCounter < maxMessagesToReturn) {
                         
                         if workItem.isCancelled { break }
                         
@@ -1161,19 +1134,6 @@ class CCRequestMessaging: NSObject {
                         }
                     } else {
                         //DDLogError("Couldn't serialize back to queue data")
-                    }
-                    
-                    if let isNewBatteryLevel = self?.stateStore.state.batteryLevelState.isNewBatteryLevel {
-                        if isNewBatteryLevel {
-                            var batteryMessage = Messaging_Battery()
-                            
-                            if let batteryLevel = self?.stateStore.state.batteryLevelState.batteryLevel {
-                                batteryMessage.battery = batteryLevel
-                                compiledClientMessage.battery = batteryMessage
-                                DispatchQueue.main.async {self?.stateStore.dispatch(BatteryLevelReportedAction())}
-                                //                DDLogVerbose("Battery message build: \(batteryMessage)")
-                            }
-                        }
                     }
                     
                     if let data = try? compiledClientMessage.serializedData(){
@@ -1368,8 +1328,7 @@ extension CCRequestMessaging: TimeHandlingDelegate {
 // MARK:- StoreSubscriber delegate
 extension CCRequestMessaging: StoreSubscriber {
     public func newState(state: CCRequestMessagingState) {
-        
-        //DDLogDebug("new state is: \(state)")
+//        DDLogDebug("new state is: \(state)")
         
         if let webSocketState = state.webSocketState {
             if webSocketState != currentWebSocketState{
@@ -1397,8 +1356,7 @@ extension CCRequestMessaging: StoreSubscriber {
                 if newTimerState.timer == .schedule {
                     
                     if let timeInterval = newTimerState.timeInterval {
-                        
-                        //                        DDLogVerbose("RADIOSILENCETIMER trying to schedule timer with timeInterval = \(timeInterval / 1000)")
+//                        DDLogVerbose("RADIOSILENCETIMER trying to schedule timer with timeInterval = \(timeInterval / 1000)")
                         
                         if timeBetweenSendsTimer != nil {
                             if timeBetweenSendsTimer!.isValid{
@@ -1409,8 +1367,7 @@ extension CCRequestMessaging: StoreSubscriber {
                         if let radioSilenceTimerState = newTimerState.startTimeInterval {
                             
                             let intervalForLastTimer = TimeHandling.timeIntervalSinceBoot() - radioSilenceTimerState
-                            
-                            //                            DDLogVerbose("RADIOSILENCETIMER intervalForLastTimer = \(intervalForLastTimer)")
+//                            DDLogVerbose("RADIOSILENCETIMER intervalForLastTimer = \(intervalForLastTimer)")
                             
                             if intervalForLastTimer < Double(Double(timeInterval) / 1000) {
                                 timeBetweenSendsTimer = Timer.scheduledTimer(timeInterval:TimeInterval(intervalForLastTimer), target: self, selector: #selector(self.sendQueuedClientMessagesTimerFiredOnce), userInfo: nil, repeats: false)
@@ -1431,21 +1388,19 @@ extension CCRequestMessaging: StoreSubscriber {
                 }
                 
                 if newTimerState.timer == .running {
-                    //                    DDLogVerbose("RADIOSILENCETIMER timer is in running state")
+//                    DDLogVerbose("RADIOSILENCETIMER timer is in running state")
                 }
                 
-                // covers case were app starts from terminated and no timer is available yet
+//                covers case were app starts from terminated and no timer is available yet
                 if timeBetweenSendsTimer == nil {
-                    //                    DDLogVerbose("RADIOSILENCETIMER timeBetweenSendsTimer == nil, scheduling new timer")
+//                    DDLogVerbose("RADIOSILENCETIMER timeBetweenSendsTimer == nil, scheduling new timer")
                     if timeHandling.isRebootTimeSame(stateStore: stateStore, ccSocket: ccSocket){
                         DispatchQueue.main.async {self.stateStore.dispatch(ScheduleSilencePeriodTimerAction())}
                     }
                 }
                 
                 if newTimerState.timer == .invalidate {
-                    
-                    //                    DDLogVerbose("RADIOSILENCETIMER invalidate timer")
-                    
+//                    DDLogVerbose("RADIOSILENCETIMER invalidate timer")
                     if timeBetweenSendsTimer != nil{
                         if timeBetweenSendsTimer!.isValid {
                             timeBetweenSendsTimer!.invalidate()
@@ -1459,7 +1414,6 @@ extension CCRequestMessaging: StoreSubscriber {
         }
         
         if let newLibraryTimeState = state.libraryTimeState {
-            
             if newLibraryTimeState != currentLibraryTimerState {
                 
                 currentLibraryTimerState = newLibraryTimeState
