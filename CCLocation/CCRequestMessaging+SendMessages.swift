@@ -19,7 +19,7 @@ extension CCRequestMessaging {
             
             if workItem.isCancelled { return }
             
-            var connectionState = self?.stateStore.state.ccRequestMessagingState.webSocketState?.connectionState
+            let connectionState = self?.stateStore.state.ccRequestMessagingState.webSocketState?.connectionState
             
             if connectionState != .online {
                 Log.verbose("Connection offline. Instant message inserted in db")
@@ -27,102 +27,23 @@ extension CCRequestMessaging {
                 self?.insertMessageInLocalDatabase(message: message)
             }
             
-            connectionState = self?.stateStore.state.ccRequestMessagingState.webSocketState?.connectionState
-            
-            var compiledClientMessage = Messaging_ClientMessage()
-            var backToQueueMessages = Messaging_ClientMessage()
-            
-            var subMessageCounter:Int = 0
-            var tempClientMessage:Messaging_ClientMessage?
-            
-            let tempMessage = message
-            
-            tempClientMessage = try? Messaging_ClientMessage(serializedData: tempMessage)
-            
-            if (tempClientMessage!.locationMessage.count > 0) {
-                
-                let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self?.checkLocationTypeMessages(tempClientMessage!.locationMessage, subMessageCounter: subMessageCounter) ?? (subMessageCounter, [], [])
-                
-                subMessageCounter = actualizedSubmessageCounter
-                compiledClientMessage.locationMessage.append(contentsOf: toCompileMessages)
-                backToQueueMessages.locationMessage.append(contentsOf: toQueueMessages)
+            if self == nil {
+                //This should not happen
+                Log.error("Self object is nil inside sending message method. Message won't be delivered")
+                return
             }
             
-            if (tempClientMessage!.step.count > 0) {
-                
-                let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self?.checkStepsTypeMessages(tempClientMessage!.step, subMessageCounter: subMessageCounter) ?? (subMessageCounter, [], [])
-                
-                subMessageCounter = actualizedSubmessageCounter
-                compiledClientMessage.step.append(contentsOf: toCompileMessages)
-                backToQueueMessages.step.append(contentsOf: toQueueMessages)
-            }
+            var (_, compiledClientMessage, backToQueueMessage) = self?.handleMessageType(message: message) ?? (0, Messaging_ClientMessage(),Messaging_ClientMessage())
             
-            if (tempClientMessage!.bluetoothMessage.count > 0) {
-                
-                let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self?.checkBluetoothTypeMessages(tempClientMessage!.bluetoothMessage, subMessageCounter: subMessageCounter) ?? (subMessageCounter, [], [])
-                
-                subMessageCounter = actualizedSubmessageCounter
-                compiledClientMessage.bluetoothMessage.append(contentsOf: toCompileMessages)
-                backToQueueMessages.bluetoothMessage.append(contentsOf: toQueueMessages)
-            }
-            
-            if (tempClientMessage!.ibeaconMessage.count > 0) {
-                
-                let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self?.checkiBeaconTypeMessages(tempClientMessage!.ibeaconMessage, subMessageCounter: subMessageCounter) ?? (subMessageCounter, [], [])
-                
-                subMessageCounter = actualizedSubmessageCounter
-                compiledClientMessage.ibeaconMessage.append(contentsOf: toCompileMessages)
-                backToQueueMessages.ibeaconMessage.append(contentsOf: toQueueMessages)
-            }
-            
-            if (tempClientMessage!.eddystonemessage.count > 0) {
-                
-                let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self?.checkEddystoneTypeMessages(tempClientMessage!.eddystonemessage, subMessageCounter: subMessageCounter) ?? (subMessageCounter, [], [])
-                
-                subMessageCounter = actualizedSubmessageCounter
-                compiledClientMessage.eddystonemessage.append(contentsOf: toCompileMessages)
-                backToQueueMessages.eddystonemessage.append(contentsOf: toQueueMessages)
-            }
-            
-            
-            if (tempClientMessage!.alias.count > 0) {
-                
-                let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self?.checkAliasesTypeMessages(tempClientMessage!.alias, subMessageCounter: subMessageCounter) ?? (subMessageCounter, [], [])
-                
-                subMessageCounter = actualizedSubmessageCounter
-                compiledClientMessage.alias.append(contentsOf: toCompileMessages)
-                backToQueueMessages.alias.append(contentsOf: toQueueMessages)
-            }
-            
-            if (tempClientMessage!.hasIosCapability){
-                
-                let (actualizedSubmessageCounter, toCompileMessage, toQueueMessage) = self?.checkMessageIOSCapability(tempClientMessage!.iosCapability, subMessageCounter: subMessageCounter) ?? (subMessageCounter, nil, nil)
-                
-                subMessageCounter = actualizedSubmessageCounter
-                if let newCompileMessage = toCompileMessage {
-                    compiledClientMessage.iosCapability = newCompileMessage
-                }
-                if let newQueueMessage = toQueueMessage {
-                    backToQueueMessages.iosCapability = newQueueMessage
-                }
-            }
-            
-            let (actualizedSubmessageCounter, toCompileMessage) = self?.checkMarkerMessage(tempClientMessage!, subMessageCounter: subMessageCounter) ?? (subMessageCounter, nil)
-            subMessageCounter = actualizedSubmessageCounter
-            if let newCompileMessage = toCompileMessage {
-                  compiledClientMessage.marker = newCompileMessage
-            }
-            
-            if let isNewBatteryLevel = self?.stateStore.state.batteryLevelState.isNewBatteryLevel {
-                if isNewBatteryLevel {
-                    var batteryMessage = Messaging_Battery()
+            if let backToQueueData = try? backToQueueMessage.serializedData() {
+                //DDLogDebug("Had to split a client message into two, pushing \(subMessageCounter) unsent messages back to the Queue")
+                if backToQueueData.count > 0 {
+                    //    ccRequest?.messageQueuePushSwiftBridge(backToQueueData)
                     
-                    if let batteryLevel = self?.stateStore.state.batteryLevelState.batteryLevel {
-                        batteryMessage.battery = batteryLevel
-                        compiledClientMessage.battery = batteryMessage
-                        DispatchQueue.main.async {self?.stateStore.dispatch(BatteryLevelReportedAction())}
-                    }
+                    self?.insertMessageInLocalDatabase(message: backToQueueData)
                 }
+            } else {
+                //DDLogError("Couldn't serialize back to queue data")
             }
             
             if let data = try? compiledClientMessage.serializedData(){
@@ -148,6 +69,109 @@ extension CCRequestMessaging {
         }
         
         DispatchQueue.global(qos: .background).async(execute: workItem)
+    }
+    
+    public func handleMessageType(message: Data,
+                                  subMessageInitialNumber: Int = 0,
+                                  compiledMessage: Messaging_ClientMessage = Messaging_ClientMessage(),
+                                  queueMessage: Messaging_ClientMessage = Messaging_ClientMessage()) -> (Int, Messaging_ClientMessage, Messaging_ClientMessage) {
+        
+        var compiledClientMessage = compiledMessage
+        var backToQueueMessages = queueMessage
+        
+        var subMessageCounter: Int = subMessageInitialNumber
+        var tempClientMessage: Messaging_ClientMessage?
+        
+        tempClientMessage = try? Messaging_ClientMessage(serializedData: message)
+        
+        if (tempClientMessage!.locationMessage.count > 0) {
+             //                DDLogVerbose ("Found location messages in queue")
+            
+            let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self.checkLocationTypeMessages(tempClientMessage!.locationMessage, subMessageCounter: subMessageCounter)
+            
+            subMessageCounter = actualizedSubmessageCounter
+            compiledClientMessage.locationMessage.append(contentsOf: toCompileMessages)
+            backToQueueMessages.locationMessage.append(contentsOf: toQueueMessages)
+        }
+        
+        if (tempClientMessage!.step.count > 0) {
+             //                DDLogVerbose ("Found step messages in queue")
+            
+            let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self.checkStepsTypeMessages(tempClientMessage!.step, subMessageCounter: subMessageCounter)
+            
+            subMessageCounter = actualizedSubmessageCounter
+            compiledClientMessage.step.append(contentsOf: toCompileMessages)
+            backToQueueMessages.step.append(contentsOf: toQueueMessages)
+        }
+        
+        if (tempClientMessage!.bluetoothMessage.count > 0) {
+             //                DDLogVerbose ("Found bluetooth messages in queue")
+            
+            let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self.checkBluetoothTypeMessages(tempClientMessage!.bluetoothMessage, subMessageCounter: subMessageCounter)
+            
+            subMessageCounter = actualizedSubmessageCounter
+            compiledClientMessage.bluetoothMessage.append(contentsOf: toCompileMessages)
+            backToQueueMessages.bluetoothMessage.append(contentsOf: toQueueMessages)
+        }
+        
+        if (tempClientMessage!.ibeaconMessage.count > 0) {
+             //                DDLogVerbose ("Found ibeacon messages in queue")
+            
+            let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self.checkiBeaconTypeMessages(tempClientMessage!.ibeaconMessage, subMessageCounter: subMessageCounter)
+            
+            subMessageCounter = actualizedSubmessageCounter
+            compiledClientMessage.ibeaconMessage.append(contentsOf: toCompileMessages)
+            backToQueueMessages.ibeaconMessage.append(contentsOf: toQueueMessages)
+        }
+        
+        if (tempClientMessage!.eddystonemessage.count > 0) {
+             //                DDLogVerbose ("Found eddystone messages in queue")
+            
+            let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self.checkEddystoneTypeMessages(tempClientMessage!.eddystonemessage, subMessageCounter: subMessageCounter)
+            
+            subMessageCounter = actualizedSubmessageCounter
+            compiledClientMessage.eddystonemessage.append(contentsOf: toCompileMessages)
+            backToQueueMessages.eddystonemessage.append(contentsOf: toQueueMessages)
+        }
+        
+        
+        if (tempClientMessage!.alias.count > 0) {
+             //                DDLogVerbose ("Found alias messages in queue")
+            
+            let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self.checkAliasesTypeMessages(tempClientMessage!.alias, subMessageCounter: subMessageCounter)
+            
+            subMessageCounter = actualizedSubmessageCounter
+            compiledClientMessage.alias.append(contentsOf: toCompileMessages)
+            backToQueueMessages.alias.append(contentsOf: toQueueMessages)
+        }
+        
+        if (tempClientMessage!.hasIosCapability){
+             //                DDLogVerbose ("Found iosCapability messages in queue")
+            
+            let (actualizedSubmessageCounter, toCompileMessage, toQueueMessage) = self.checkMessageIOSCapability(tempClientMessage!.iosCapability, subMessageCounter: subMessageCounter)
+            
+            subMessageCounter = actualizedSubmessageCounter
+            if let newCompileMessage = toCompileMessage {
+                compiledClientMessage.iosCapability = newCompileMessage
+            }
+            if let newQueueMessage = toQueueMessage {
+                backToQueueMessages.iosCapability = newQueueMessage
+            }
+        }
+        
+        let (actualizedSubmessageCounter, toCompileMessage) = self.checkMarkerMessage(tempClientMessage!, subMessageCounter: subMessageCounter)
+        subMessageCounter = actualizedSubmessageCounter
+        if let newCompileMessage = toCompileMessage {
+             //                DDLogVerbose ("Found marker messages in queue")
+            compiledClientMessage.marker = newCompileMessage
+        }
+        
+        if let newBatteryMessage = self.checkNewBatteryLevelTypeMessage() {
+             //                DDLogVerbose ("Found new battery level messages in queue")
+            compiledClientMessage.battery = newBatteryMessage
+        }
+        
+        return (subMessageCounter, compiledClientMessage, backToQueueMessages)
     }
     
     public func checkLocationTypeMessages(_ messages: [Messaging_LocationMessage],
@@ -362,6 +386,22 @@ extension CCRequestMessaging {
         } else {
             return (subMessageCounter, nil)
         }
+    }
+    
+    public func checkNewBatteryLevelTypeMessage() -> (Messaging_Battery?) {
+        var newBatteryMessage: Messaging_Battery? = nil
+        if let isNewBatteryLevel = self.stateStore.state.batteryLevelState.isNewBatteryLevel {
+            if isNewBatteryLevel {
+                var batteryMessage = Messaging_Battery()
+                
+                if let batteryLevel = self.stateStore.state.batteryLevelState.batteryLevel {
+                    batteryMessage.battery = batteryLevel
+                    newBatteryMessage = batteryMessage
+                    DispatchQueue.main.async {self.stateStore.dispatch(BatteryLevelReportedAction())}
+                }
+            }
+        }
+        return newBatteryMessage
     }
     
 }
