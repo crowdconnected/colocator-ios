@@ -287,27 +287,6 @@ class CCRequestMessaging: NSObject {
         }
     }
     
-    //- (void) sendAcknowledgement:(NSString*)messageId {
-    //
-    //
-    //    std::string ackString ([(NSString*)messageId UTF8String]);
-    //
-    //    Messaging::ClientMessage *clientMessage = new Messaging::ClientMessage();
-    //
-    //    Messaging::Acknowledgement *ackMessage = new Messaging::Acknowledgement();
-    //
-    //    ackMessage->set_id(ackString);
-    //
-    //    clientMessage->set_allocated_ack(ackMessage);
-    //
-    //    // Some small tomfoolery required to go from C++ std::string to NSString.
-    //    std::string x = clientMessage->DebugString();
-    //    NSString *output = [NSString stringWithCString:x.c_str() encoding:[NSString defaultCStringEncoding]];
-    //    CCFastLog(@"Acknowledgement message: %@", output);
-    //
-    //    [self sendClientMessage:[self getDataForClientMessage:clientMessage] queuable:TRUE];
-    //}
-    
     // MARK: - STATE HANDLING FUNCTIONS
     
     public func webSocketDidOpen() {

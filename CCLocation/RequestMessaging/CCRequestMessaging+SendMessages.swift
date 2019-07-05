@@ -122,25 +122,22 @@ extension CCRequestMessaging {
                         Log.error("Couldn't serialize back to queue data")
                     }
                     
-                    if let data = try? compiledClientMessage.serializedData(){
-                        if (data.count > 0) {
+                    if let data = try? compiledClientMessage.serializedData(), data.count > 0 {
+                        if let stateStore = self?.stateStore,
+                            let ccSocket = self?.ccSocket {
                             
-                            if let stateStore = self?.stateStore {
-                                if let ccSocket = self?.ccSocket {
-                                    if let isRebootTimeSame = self?.timeHandling.isRebootTimeSame(stateStore: stateStore, ccSocket: ccSocket) {
-                                        if isRebootTimeSame {
-                                            if let currentTimePeriod = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {
-                                                compiledClientMessage.sentTime = UInt64(currentTimePeriod * 1000)
-                                                Log.verbose("Added sent time to the client message")
-                                            }
-                                        }
-                                    }
-                                    
-                                    if let dataIncludingSentTime = try? compiledClientMessage.serializedData(){
-                                        Log.verbose("Sending \(dataIncludingSentTime.count) bytes of compiled client message data")
-                                        self?.ccSocket?.sendWebSocketMessage(data: dataIncludingSentTime)
+                            if let isRebootTimeSame = self?.timeHandling.isRebootTimeSame(stateStore: stateStore, ccSocket: ccSocket) {
+                                if isRebootTimeSame {
+                                    if let currentTimePeriod = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {
+                                        compiledClientMessage.sentTime = UInt64(currentTimePeriod * 1000)
+                                        Log.verbose("Added sent time to the client message")
                                     }
                                 }
+                            }
+                            
+                            if let dataIncludingSentTime = try? compiledClientMessage.serializedData(){
+                                Log.verbose("Sending \(dataIncludingSentTime.count) bytes of compiled client message data")
+                                self?.ccSocket?.sendWebSocketMessage(data: dataIncludingSentTime)
                             }
                         }
                     }
@@ -208,7 +205,7 @@ extension CCRequestMessaging {
                         if let dataIncludingSentTime = try? compiledClientMessage.serializedData(){
                             self?.ccSocket?.sendWebSocketMessage(data: dataIncludingSentTime)
                             
-                            Log.verbose("Instant message sent to server")
+                            Log.info("Instant message sent to server")
                         }
                     }
                 }

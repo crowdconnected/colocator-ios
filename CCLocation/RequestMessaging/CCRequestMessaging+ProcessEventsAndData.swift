@@ -131,8 +131,9 @@ extension CCRequestMessaging {
         
         clientMessage.locationMessage.append(locationMessage)
         
+        Log.debug("Location message build: \(clientMessage)")
+        
         if let data = try? clientMessage.serializedData(){
-            //            NSLog("Location message build: \(clientMessage) with size: \(String(describing: data.count))")
             userDefaults.set(counter, forKey: CCRequestMessagingConstants.messageCounter)
             sendOrQueueClientMessage(data: data, messageType: .queueable)
         }
@@ -159,6 +160,8 @@ extension CCRequestMessaging {
         }
         
         clientMessage.step.append(stepMessage)
+        
+        Log.debug("Step message build: \(clientMessage)")
         
         if let data = try? clientMessage.serializedData(){
             sendOrQueueClientMessage(data: data, messageType: .queueable)
@@ -205,6 +208,5 @@ extension CCRequestMessaging {
             }
         }
     }
-    
 }
 

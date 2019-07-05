@@ -31,6 +31,7 @@ func timerReducer (action: Action, state: TimerState?) -> TimerState {
 }
 
 private func getTimerStateFromUserDefaults () -> TimerState? {
+    
     let userDefaults = UserDefaults.standard
     let dictionary = userDefaults.dictionary(forKey: T.userDefaultsTimerReducerKey)
     
@@ -49,6 +50,7 @@ private func getTimerStateFromUserDefaults () -> TimerState? {
 }
 
 public func saveTimerStateToUserDefaults (timerState: TimerState?) {
+    
     guard let timerState = timerState else {
         return
     }
