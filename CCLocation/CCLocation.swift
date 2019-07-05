@@ -116,13 +116,14 @@ public class CCLocation:NSObject {
         }
     }
     
+    /// Filter the log levels that appears in the console
+    ///
     public func setLoggerLevels(verbose: Bool,
                                 info: Bool,
                                 debug: Bool,
                                 warninig: Bool,
                                 error: Bool,
                                 severe: Bool) {
-        // filters all the logs that appear on console depending on the type
         Log.configureLoggerLevelsDisplayed(verbose: verbose,
                                            info: info,
                                            debug: debug,
