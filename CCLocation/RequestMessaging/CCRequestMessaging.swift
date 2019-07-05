@@ -69,7 +69,7 @@ class CCRequestMessaging: NSObject {
         let serverMessage = try Messaging_ServerMessage.init(serializedData: data)
         
         Log.debug("Received a server message: ")
-        Log.debug("\(serverMessage)")
+        Log.info("\(serverMessage)")
         
         processGlobalSettings(serverMessage: serverMessage, store: stateStore)
         processIosSettings(serverMessage: serverMessage, store: stateStore)
@@ -82,7 +82,7 @@ class CCRequestMessaging: NSObject {
     func processGlobalSettings(serverMessage:Messaging_ServerMessage, store: Store<LibraryState>) {
         
         if (serverMessage.hasGlobalSettings) {
-            Log.info("Got global settings message")
+            Log.debug("Got global settings message")
             
             let globalSettings = serverMessage.globalSettings
             

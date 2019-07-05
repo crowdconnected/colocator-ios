@@ -17,7 +17,7 @@ extension CCRequestMessaging {
     
     func processIosSettings (serverMessage:Messaging_ServerMessage, store: Store<LibraryState>){
         
-        Log.info("Got iOS settings message")
+        Log.debug("Got iOS settings message")
         
         if (serverMessage.hasIosSettings && !serverMessage.iosSettings.hasGeoSettings) {
             DispatchQueue.main.async {store.dispatch(DisableBackgroundGEOAction())}
