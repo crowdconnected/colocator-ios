@@ -130,14 +130,21 @@ extension CCRequestMessaging {
                                 if isRebootTimeSame {
                                     if let currentTimePeriod = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {
                                         compiledClientMessage.sentTime = UInt64(currentTimePeriod * 1000)
-                                        Log.verbose("Added sent time to the client message")
+                                        
+                                        if compiledClientMessage.sentTime == 0 {
+                                            Log.error("Client message timestamp 0")
+                                            Log.error(compiledClientMessage)
+                                        }
                                     }
                                 }
                             }
                             
                             if let dataIncludingSentTime = try? compiledClientMessage.serializedData(){
                                 Log.verbose("Sending \(dataIncludingSentTime.count) bytes of compiled client message data")
+                                
                                 self?.ccSocket?.sendWebSocketMessage(data: dataIncludingSentTime)
+                                
+                                Log.info("Client message sent to server")
                             }
                         }
                     }
@@ -198,11 +205,18 @@ extension CCRequestMessaging {
                             if isRebootTimeSame {
                                 if let currentTimePeriod = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {
                                     compiledClientMessage.sentTime = UInt64(currentTimePeriod * 1000)
+                                    
+                                    if compiledClientMessage.sentTime == 0 {
+                                        Log.error("Client message timestamp 0")
+                                        Log.error(compiledClientMessage)
+                                    }
                                 }
                             }
                         }
                         
                         if let dataIncludingSentTime = try? compiledClientMessage.serializedData(){
+                            Log.verbose("Sending \(dataIncludingSentTime.count) bytes of compiled instant message data")
+                            
                             self?.ccSocket?.sendWebSocketMessage(data: dataIncludingSentTime)
                             
                             Log.info("Instant message sent to server")
