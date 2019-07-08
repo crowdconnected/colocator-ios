@@ -18,10 +18,15 @@ extension CCRequestMessaging: StoreSubscriber {
         Log.debug("New state is: \(state)")
         
         if let webSocketState = state.webSocketState {
-            if webSocketState != currentWebSocketState{
+            if webSocketState != currentWebSocketState {
                 currentWebSocketState = webSocketState
                 
                 if webSocketState.connectionState == ConnectionState.online {
+                    
+                    Log.info("New connection has started")
+                    
+                    //Send queued messages to server on new connection without radioSilencer delay
+                    sendQueuedClientMessages(firstMessage: nil)
                     
                     let aliases: Dictionary? = UserDefaults.standard.dictionary(forKey: CCSocketConstants.ALIAS_KEY)
                     
