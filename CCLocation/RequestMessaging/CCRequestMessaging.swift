@@ -68,8 +68,10 @@ class CCRequestMessaging: NSObject {
     public func processServerMessage(data:Data) throws {
         let serverMessage = try Messaging_ServerMessage.init(serializedData: data)
         
-        Log.debug("Received a server message: ")
-        Log.info("\(serverMessage)")
+        let serverMessageJSON = try serverMessage.jsonString()
+        if serverMessageJSON.count > 2 {
+            Log.info("Received a server message: \(serverMessage)")
+        }
         
         processGlobalSettings(serverMessage: serverMessage, store: stateStore)
         processIosSettings(serverMessage: serverMessage, store: stateStore)
@@ -360,7 +362,7 @@ class CCRequestMessaging: NSObject {
     
     // sendQueuedClientMessage for timeBetweenSendsTimer firing
     @objc internal func sendQueuedClientMessagesTimerFired(){
-        Log.info("Flushing queued messages")
+        Log.debug("Flushing queued messages")
         
         // make sure that websocket is actually online before trying to send any messages
         if stateStore.state.ccRequestMessagingState.webSocketState?.connectionState == .online {

@@ -69,7 +69,7 @@ extension CCLocationManager {
         // start eddystone beacon scanning if enabled
         if let isEddystoneScanEnabledUnwrapped = currentBeaconState.isEddystoneScanningEnabled {
             if isEddystoneScanEnabledUnwrapped {
-                eddystoneBeaconScanner.startScanning()
+                eddystoneBeaconScanner?.startScanning()
             }
         }
         
@@ -124,7 +124,7 @@ extension CCLocationManager {
     @objc func stopRangingBeaconsFor (timer: Timer!){
         
         // stop scanning for Eddystone beacons
-        eddystoneBeaconScanner.stopScanning()
+        eddystoneBeaconScanner?.stopScanning()
         
         // stop ranging for iBeacons
         stopRangingiBeacons(forCurrentSettings: false)
@@ -285,8 +285,6 @@ extension CCLocationManager {
             }
         }
     }
-    
-    
     
     func processEddystoneBeaconTable() {
         

@@ -22,7 +22,7 @@ import CoreBluetooth // only needed to get bluetooth state, not needed for ibeac
 class CCLocationManager: NSObject, CLLocationManagerDelegate {
     
     internal let locationManager = CLLocationManager()
-    internal let eddystoneBeaconScanner = BeaconScanner()
+    internal var eddystoneBeaconScanner: BeaconScanner? = nil
     
     internal var currentGEOState: CurrentGEOState!
     internal var currentBeaconState: CurrentBeaconState!
@@ -34,7 +34,9 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
     internal var minOffTimeBeaconTimer: Timer?
     internal var beaconWindowSizeDurationTimer: Timer?
     
-    internal var centralManager:CBCentralManager!
+    internal var centralManager: CBCentralManager?
+    
+    let kOriginGeofenceIdentifier = "UsersOriginLocationGeofence"
     
     internal var iBeaconMessagesDB: SQLiteDatabase!
     internal let iBeaconMessagesDBName = "iBeaconMessages.db"
@@ -95,8 +97,10 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
         centralManager = CBCentralManager(delegate: self,
                                           queue: nil,
                                           options: [CBCentralManagerOptionShowPowerAlertKey:false])
+
         
-        eddystoneBeaconScanner.delegate = self
+        eddystoneBeaconScanner = BeaconScanner()
+        eddystoneBeaconScanner?.delegate = self
         
         // initial dispatch of location state
         DispatchQueue.main.async {stateStore.dispatch(LocationAuthStatusChangedAction(locationAuthStatus: CLLocationManager.authorizationStatus()))}
@@ -180,7 +184,7 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
         stopRangingiBeacons(forCurrentSettings: false)
         stopMonitoringForBeaconRegions()
         locationManager.delegate = nil
-        centralManager.delegate = nil
+        centralManager?.delegate = nil
         centralManager = nil
     }
     
@@ -317,6 +321,25 @@ extension CCLocationManager: BeaconScannerDelegate {
     }
 }
 
+// MARK: - Origin Geofence Extension
+extension CCLocationManager {
+    public func createGeofenceAroundUser() {
+        
+        guard let centerCoordinates = locationManager.location?.coordinate else {
+            return
+        }
+        
+        let originGeofenceRegion = CLCircularRegion(center: centerCoordinates,
+                                                    radius: 100.0,
+                                                    identifier: kOriginGeofenceIdentifier)
+        originGeofenceRegion.notifyOnExit = true
+        originGeofenceRegion.notifyOnEntry = true
+        
+        self.locationManager.startMonitoring(for: originGeofenceRegion)
+        
+        Log.info("Origin geofence created")
+    }
+}
 
 // MARK: - Responding to Region Events
 extension CCLocationManager {
@@ -382,6 +405,13 @@ extension CCLocationManager {
         switch state {
         case .inside:
             Log.verbose(String(format: "Inside region: %@", region.identifier))
+            
+            if region.identifier == kOriginGeofenceIdentifier {
+                Log.info("User is inside origin geofence")
+                
+                locationManager.requestAlwaysAuthorization()
+            }
+            
         case .outside:
             Log.verbose(String(format: "Outside region: %@", region.identifier))
         case .unknown:
@@ -531,11 +561,11 @@ extension CCLocationManager {
         
         switch (status) {
         case .notDetermined:
-            Log.info("CLLocationManager authorization status not determined")
+            Log.debug("CLLocationManager authorization status not determined")
             break
             
         case .restricted:
-             Log.info("CLLocationManager authorization status restricted, can not use location services")
+             Log.debug("CLLocationManager authorization status restricted, can not use location services")
             
             if #available(iOS 9.0, *) {
                 locationManager.allowsBackgroundLocationUpdates = false
@@ -546,7 +576,7 @@ extension CCLocationManager {
             break
             
         case .denied:
-            Log.info("CLLocationManager authorization status denied in user settings, can not use location services, until user enables them")
+            Log.debug("CLLocationManager authorization status denied in user settings, can not use location services, until user enables them")
             // might consider here to ask a question to the user to enable location services again
             
             if #available(iOS 9.0, *) {
@@ -558,7 +588,11 @@ extension CCLocationManager {
             break
             
         case .authorizedAlways:
-            Log.info("CLLocationManager authorization status set to always authorized, we are ready to go")
+            Log.debug("CLLocationManager authorization status set to always authorized, we are ready to go")
+            
+            // Since iOS 13 provides only in use permission though it returns always,
+            // it's a good idea to create geofence so the user should be asked to grant real always location permission
+            createGeofenceAroundUser()
             
             if #available(iOS 9.0, *) {
                 locationManager.allowsBackgroundLocationUpdates = true
@@ -569,7 +603,10 @@ extension CCLocationManager {
             break
             
         case .authorizedWhenInUse:
-            Log.info("CLLocationManager authorization status set to in use, no background updates enabled")
+            Log.debug("CLLocationManager authorization status set to in use, no background updates enabled")
+            
+            // Create geofence so the user should be asked to grant always location permission
+            createGeofenceAroundUser()
             
             if #available(iOS 9.0, *) {
                 locationManager.allowsBackgroundLocationUpdates = false

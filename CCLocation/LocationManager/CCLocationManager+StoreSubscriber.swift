@@ -97,9 +97,9 @@ extension CCLocationManager: StoreSubscriber {
             }
         }
         
-        if let newiBeaconMonitoringState = state.currentiBeaconMonitoringState{
+        if let newiBeaconMonitoringState = state.currentiBeaconMonitoringState {
             
-            if newiBeaconMonitoringState != self.currentiBeaconMonitoringState{
+            if newiBeaconMonitoringState != self.currentiBeaconMonitoringState {
                 self.currentiBeaconMonitoringState = newiBeaconMonitoringState
                 self.updateMonitoringForRegions()
             }
