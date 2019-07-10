@@ -11,10 +11,8 @@ import ReSwift
 func webSocketReducer (action: Action, state: WebSocketState?) -> WebSocketState {
     var state = state ?? WebSocketState(connectionState: nil)
     
-    switch action {
-    case let webSocketAction as WebSocketAction:
-        state.connectionState = webSocketAction.connectionState
-    default: break
+    if let webSocketAction = action as? WebSocketAction {
+         state.connectionState = webSocketAction.connectionState
     }
     
     return state
