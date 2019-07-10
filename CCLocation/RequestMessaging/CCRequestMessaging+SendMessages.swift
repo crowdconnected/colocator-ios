@@ -16,7 +16,7 @@ extension CCRequestMessaging {
         
         var workItem: DispatchWorkItem!
         
-        if (firstMessage != nil){
+        if (firstMessage != nil) {
             
             // If radioSilencer is nil, message is sent to the server instant
             if stateStore.state.ccRequestMessagingState.radiosilenceTimerState?.timeInterval == nil,
@@ -139,7 +139,7 @@ extension CCRequestMessaging {
                                 }
                             }
                             
-                            if let dataIncludingSentTime = try? compiledClientMessage.serializedData(){
+                            if let dataIncludingSentTime = try? compiledClientMessage.serializedData() {
                                 Log.verbose("Sending \(dataIncludingSentTime.count) bytes of compiled client message data")
                                 
                                 self?.ccSocket?.sendWebSocketMessage(data: dataIncludingSentTime)
@@ -151,7 +151,11 @@ extension CCRequestMessaging {
                 }
                 
                 if let index = self?.workItems.index(where: {$0 === workItem!}) {
-                    self?.workItems.remove(at: index)
+                    // Awkward, it happened to throw index out of range error
+                    // Just checking index before trying to remove
+                    if let itemsCount = self?.workItems.count, index < itemsCount {
+                        self?.workItems.remove(at: index)
+                    }
                 }
                 
                 workItem = nil
@@ -197,7 +201,7 @@ extension CCRequestMessaging {
                 Log.error("Couldn't serialize back to queue data")
             }
             
-            if let data = try? compiledClientMessage.serializedData(){
+            if let data = try? compiledClientMessage.serializedData() {
                 if (data.count > 0) {
                     if let stateStore = self?.stateStore,
                          let ccSocket = self?.ccSocket {
@@ -214,7 +218,7 @@ extension CCRequestMessaging {
                             }
                         }
                         
-                        if let dataIncludingSentTime = try? compiledClientMessage.serializedData(){
+                        if let dataIncludingSentTime = try? compiledClientMessage.serializedData() {
                             Log.verbose("Sending \(dataIncludingSentTime.count) bytes of compiled instant message data")
                             
                             self?.ccSocket?.sendWebSocketMessage(data: dataIncludingSentTime)

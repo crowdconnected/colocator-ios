@@ -232,17 +232,17 @@ extension CCLocationManager {
         
         switch (error) {
         case CLError.headingFailure:
-            //Log.error(String(format:"locationManager didFailWithError kCLErrorHeadingFailure occured with description: %@", error.localizedDescription));
+            Log.error(String(format:"locationManager didFailWithError kCLErrorHeadingFailure occured with description: %@", error.localizedDescription))
             break
             
         // as per Apple documentation, locationUnknown error occures when the location service is unable to retrieve a location right away, but keeps trying, simply to ignore and wait for new event
         case CLError.locationUnknown:
-            //Log.error(String(format:"locationManager didFailWithError kCLErrorLocationUnknown occured with description: %@", error.localizedDescription));
+            Log.error(String(format:"locationManager didFailWithError kCLErrorLocationUnknown occured with description: %@", error.localizedDescription))
             break
             
         // as per Apple documentation, denied error occures when the user denies location services, if that happens we should stop location services
         case CLError.denied:
-            //Log.error(String(format:"locationManager didFailWithError kCLErrorDenied occured with description: %@", error.localizedDescription));
+            Log.error(String(format:"locationManager didFailWithError kCLErrorDenied occured with description: %@", error.localizedDescription))
             
             // According to API reference on denied error occures, when users stops location services, so we should stop them as well here
             
@@ -252,7 +252,7 @@ extension CCLocationManager {
             break
             
         default:
-            //Log.error(String(format:"locationManager didFailWithError Unknown location error occured with description: %@", error.localizedDescription));
+            Log.error(String(format:"locationManager didFailWithError Unknown location error occured with description: %@", error.localizedDescription));
             break
         }
     }
@@ -561,11 +561,12 @@ extension CCLocationManager {
         
         switch (status) {
         case .notDetermined:
-            Log.debug("CLLocationManager authorization status not determined")
+            Log.info("CLLocationManager authorization status not determined")
+            
             break
             
         case .restricted:
-             Log.debug("CLLocationManager authorization status restricted, can not use location services")
+             Log.info("CLLocationManager authorization status restricted, can not use location services")
             
             if #available(iOS 9.0, *) {
                 locationManager.allowsBackgroundLocationUpdates = false
@@ -576,7 +577,7 @@ extension CCLocationManager {
             break
             
         case .denied:
-            Log.debug("CLLocationManager authorization status denied in user settings, can not use location services, until user enables them")
+            Log.info("CLLocationManager authorization status denied in user settings, can not use location services, until user enables them")
             // might consider here to ask a question to the user to enable location services again
             
             if #available(iOS 9.0, *) {
@@ -588,7 +589,7 @@ extension CCLocationManager {
             break
             
         case .authorizedAlways:
-            Log.debug("CLLocationManager authorization status set to always authorized, we are ready to go")
+            Log.info("CLLocationManager authorization status set to always authorized, we are ready to go")
             
             // Since iOS 13 provides only in use permission though it returns always,
             // it's a good idea to create geofence so the user should be asked to grant real always location permission
@@ -603,7 +604,7 @@ extension CCLocationManager {
             break
             
         case .authorizedWhenInUse:
-            Log.debug("CLLocationManager authorization status set to in use, no background updates enabled")
+            Log.info("CLLocationManager authorization status set to in use, no background updates enabled")
             
             // Create geofence so the user should be asked to grant always location permission
             createGeofenceAroundUser()
