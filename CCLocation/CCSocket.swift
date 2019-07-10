@@ -41,14 +41,14 @@ class CCSocket:NSObject {
     
     var startTime: Date?
     
-    public static let sharedInstance : CCSocket = {
+    public static let sharedInstance: CCSocket = {
         let instance = CCSocket()
         return instance
     }()
     
-    func start(urlString: String, apiKey: String, ccRequestMessaging: CCRequestMessaging, ccLocationManager: CCLocationManager, ccInertial: CCInertial){
-        
-        if (!running){
+    func start(urlString: String, apiKey: String,
+               ccRequestMessaging: CCRequestMessaging, ccLocationManager: CCLocationManager, ccInertial: CCInertial){
+        if !running {
             running = true
             startTime = Date()
             
@@ -74,16 +74,18 @@ class CCSocket:NSObject {
             self.ccRequestMessaging = ccRequestMessaging
             
             Log.debug("[Colocator] Started Colocator Framework")
+            
             connect(timer: nil)
-
+            
         } else {
             stop()
-            start(urlString: urlString, apiKey: apiKey, ccRequestMessaging: ccRequestMessaging, ccLocationManager: ccLocationManager, ccInertial: ccInertial)
+            start(urlString: urlString, apiKey: apiKey,
+                  ccRequestMessaging: ccRequestMessaging, ccLocationManager: ccLocationManager, ccInertial: ccInertial)
         }
     }
     
     public func stop() {
-        if (running) {
+        if running {
             running = false
             
             webSocket?.delegate = nil
@@ -112,7 +114,6 @@ class CCSocket:NSObject {
         }
     }
     
-    
     public func sendMarker(data: String) {
         if let ccRequestMessaging = self.ccRequestMessaging {
             ccRequestMessaging.processMarker(data: data)
@@ -120,20 +121,18 @@ class CCSocket:NSObject {
     }
     
     @objc public func connect(timer: Timer?) {
-
         var certRef: SecCertificate?
         var certDataRef: CFData?
 
         Log.debug("[Colocator] Establishing connection to Colocator servers ...")
         
-        if (timer == nil) {
+        if timer == nil {
             Log.debug("first connect")
         } else {
             Log.debug("Timer fired")
         }
         
-        if (webSocket == nil) {
-            
+        if webSocket == nil {
             guard let ccWebsocketBaseURL = self.ccWebsocketBaseURL else {
                 return
             }
@@ -170,8 +169,7 @@ class CCSocket:NSObject {
             
             platformConnectionRequest.sr_SSLPinnedCertificates = [certRefUnwrapped]
             
-            if (platformConnectionRequest.url == nil){
-            } else {
+            if platformConnectionRequest.url != nil {
                 self.webSocket = SRWebSocket.init(urlRequest: platformConnectionRequest as URLRequest?)
                 self.webSocket?.delegate = self
             }
@@ -179,47 +177,54 @@ class CCSocket:NSObject {
         }
     }
     
-    @objc public func stopCycler(timer: Timer){
-        if let ccLocationManager = self.ccLocationManager{
+    @objc public func stopCycler(timer: Timer) {
+        if let ccLocationManager = self.ccLocationManager {
             ccLocationManager.stopAllLocationObservations()
         }
         self.maxCycleTimer = nil
     }
     
-    public func delayReconnect(){
-        if (delay == 0){
+    public func delayReconnect() {
+        if delay == 0 {
             delay = CCSocketConstants.MIN_DELAY
         }
         
-        if pingTimer != nil{
+        if pingTimer != nil {
             pingTimer!.invalidate()
         }
 
         Log.debug("Trying to reconnect in \(round((delay / 1000) * 100) / 100) s")
         
-        reconnectTimer = Timer.scheduledTimer(timeInterval: delay/1000, target: self, selector: #selector(self.connect(timer:)), userInfo: nil, repeats: false)
+        reconnectTimer = Timer.scheduledTimer(timeInterval: delay/1000,
+                                              target: self,
+                                              selector: #selector(self.connect(timer:)),
+                                              userInfo: nil,
+                                              repeats: false)
         
-        if (delay * 1.2 < CCSocketConstants.MAX_DELAY){
+        if delay * 1.2 < CCSocketConstants.MAX_DELAY {
             delay = delay * 1.2
         } else {
             delay = CCSocketConstants.MAX_DELAY
         }
         
-        if (maxCycleTimer == nil && firstReconnect) {
-            maxCycleTimer = Timer.scheduledTimer(timeInterval: CCSocketConstants.MAX_CYCLE_DELAY / 1000, target: self, selector: #selector(self.stopCycler(timer:)), userInfo: nil, repeats: false)
+        if maxCycleTimer == nil && firstReconnect {
+            maxCycleTimer = Timer.scheduledTimer(timeInterval: CCSocketConstants.MAX_CYCLE_DELAY / 1000,
+                                                 target: self,
+                                                 selector: #selector(self.stopCycler(timer:)),
+                                                 userInfo: nil,
+                                                 repeats: false)
         }
-        
         firstReconnect = false
     }
     
-    public func setAliases(aliases: Dictionary<String, String>){
-            UserDefaults.standard.set(aliases, forKey: CCSocketConstants.ALIAS_KEY)
-            if let ccRequestMessaging = self.ccRequestMessaging {
-                ccRequestMessaging.processAliases(aliases: aliases)
+    public func setAliases(aliases: Dictionary<String, String>) {
+        UserDefaults.standard.set(aliases, forKey: CCSocketConstants.ALIAS_KEY)
+        if let ccRequestMessaging = self.ccRequestMessaging {
+            ccRequestMessaging.processAliases(aliases: aliases)
         }
     }
     
-    public func setDeviceId(deviceId: String){
+    public func setDeviceId(deviceId: String) {
         self.deviceId = deviceId
         UserDefaults.standard.set(self.deviceId!, forKey: CCSocketConstants.LAST_DEVICE_ID_KEY)
     }
@@ -228,7 +233,7 @@ class CCSocket:NSObject {
         return self.startTime!
     }
         
-    public func sendWebSocketMessage(data: Data){
+    public func sendWebSocketMessage(data: Data) {
         if webSocket != nil {
             webSocket?.send(data)
         }
@@ -241,10 +246,10 @@ class CCSocket:NSObject {
         queryString = id != nil ? String(format: "?id=%@&", id!) : "?"
         
         queryString! += self.deviceDescription()
-        queryString! += self.networkType();
-        queryString! += self.libraryVersion();
+        queryString! += self.networkType()
+        queryString! += self.libraryVersion()
         
-        if (queryString!.isEmpty) {
+        if queryString!.isEmpty {
             queryString = "?error=inQueryStringConstruction"
         } else {
             queryString = queryString!.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
@@ -262,7 +267,7 @@ class CCSocket:NSObject {
         return requestURL
     }
     
-    func deviceDescription() -> String{
+    func deviceDescription() -> String {
         let deviceModel = self.platformString()
         let deviceOs = "iOS"
         let deviceVersion = UIDevice.current.systemVersion
@@ -270,20 +275,23 @@ class CCSocket:NSObject {
         return String(format: "model=%@&os=%@&version=%@", deviceModel, deviceOs, deviceVersion)
     }
     
-    func networkType() -> String{
+    func networkType() -> String {
         var networkType: String = ""
         
-        if (ReachabilityManager.shared.isReachableViaWiFi())    {networkType = "&networkType=WIFI"}
-        if (ReachabilityManager.shared.isReachableViaWan())     {networkType = "&networkType=MOBILE"}
+        if ReachabilityManager.shared.isReachableViaWiFi() {
+            networkType = "&networkType=WIFI"
+        }
+        if ReachabilityManager.shared.isReachableViaWan() {
+            networkType = "&networkType=MOBILE"
+        }
         
         return networkType
     }
     
-    func libraryVersion() -> String{
+    func libraryVersion() -> String {
         let libraryVersion = CCSocketConstants.LIBRARY_VERSION_TO_REPORT
         return String(format: "&libVersion=%@" , libraryVersion)
     }
-    
     
     func platform() -> NSString {
         var size = 0
@@ -293,99 +301,18 @@ class CCSocket:NSObject {
         return String(cString: machine) as NSString
     }
     
-    func platformString() -> String{
+    func platformString() -> String {
         let platform = self.platform()
+        guard let devicePlatform = DevicePlatform(rawValue: String(platform)) else {
+            return platform as String
+        }
         
-        /* iPhone */
-        if (platform.isEqual(to:"iPhone1,1"))    {return "iPhone_1G"}
-        if (platform.isEqual(to:"iPhone1,2"))    {return "iPhone_3G"}
-        if (platform.isEqual(to:"iPhone2,1"))    {return "iPhone_3GS"}
-        if (platform.isEqual(to:"iPhone3,1"))    {return "iPhone_4"}
-        if (platform.isEqual(to:"iPhone3,3"))    {return "Verizon_iPhone_4"}
-        if (platform.isEqual(to:"iPhone4,1"))    {return "iPhone_4S"}
-        if (platform.isEqual(to:"iPhone5,1"))    {return "iPhone_5-GSM"}
-        if (platform.isEqual(to:"iPhone5,2"))    {return "iPhone_5-GSM+CDMA"}
-        if (platform.isEqual(to:"iPhone5,3"))    {return "iPhone_5c-GSM"}
-        if (platform.isEqual(to:"iPhone5,4"))    {return "iPhone_5c-GSM_CDMA"}
-        if (platform.isEqual(to:"iPhone6,1"))    {return "iPhone_5s-GSM"}
-        if (platform.isEqual(to:"iPhone6,2"))    {return "iPhone_5s-GSM_CDMA"}
-        
-        if (platform.isEqual(to:"iPhone7,1"))    {return "iPhone_6_Plus"}
-        if (platform.isEqual(to:"iPhone7,2"))    {return "iPhone_6"}
-        if (platform.isEqual(to:"iPhone8,1"))    {return "iPhone_6s"}
-        if (platform.isEqual(to:"iPhone8,2"))    {return "iPhone_6s_Plus"}
-        if (platform.isEqual(to:"iPhone8,4"))    {return "iPhone_SE"}
-        
-        if (platform.isEqual(to:"iPhone9,1"))    {return "iPhone_7_(Global)"}
-        if (platform.isEqual(to:"iPhone9,3"))    {return "iPhone_7_(GSM)"}
-        if (platform.isEqual(to:"iPhone9,2"))    {return "iPhone_7_Plus_(Global)"}
-        if (platform.isEqual(to:"iPhone9,4"))    {return "iPhone_7_Plus_(GSM)"}
-        
-        if (platform.isEqual(to:"iPhone10,1"))    {return "iPhone_8"}
-        if (platform.isEqual(to:"iPhone10,4"))    {return "iPhone_8"}
-        if (platform.isEqual(to:"iPhone10,2"))    {return "iPhone_8_Plus"}
-        if (platform.isEqual(to:"iPhone10,5"))    {return "iPhone_8_Plus"}
-        
-        if (platform.isEqual(to:"iPhone10,3"))   {return "iPhone_X"}
-        if (platform.isEqual(to:"iPhone10,6"))   {return "iPhone_X"}
-        
-        /* iPod */
-        
-        if (platform.isEqual(to:"iPod1,1"))      {return "iPod_Touch_1G"}
-        if (platform.isEqual(to:"iPod2,1"))      {return "iPod_Touch_2G"}
-        if (platform.isEqual(to:"iPod3,1"))      {return "iPod_Touch_3G"}
-        if (platform.isEqual(to:"iPod4,1"))      {return "iPod_Touch_4G"}
-        if (platform.isEqual(to:"iPod5,1"))      {return "iPod_Touch_5G"}
-        if (platform.isEqual(to:"iPod7,1"))      {return "iPod_Touch_6G"}
-       
-        /* iPad */
-        
-        if (platform.isEqual(to:"iPad1,1"))      {return "iPad"}
-        if (platform.isEqual(to:"iPad2,1"))      {return "iPad_2-WiFi"}
-        if (platform.isEqual(to:"iPad2,2"))      {return "iPad_2-GSM"}
-        if (platform.isEqual(to:"iPad2,3"))      {return "iPad_2-CDMA"}
-        if (platform.isEqual(to:"iPad2,4"))      {return "iPad_2-WiFi"}
-        if (platform.isEqual(to:"iPad2,5"))      {return "iPad_Mini-WiFi"}
-        if (platform.isEqual(to:"iPad2,6"))      {return "iPad_Mini-GSM"}
-        if (platform.isEqual(to:"iPad2,7"))      {return "iPad_Mini-GSM_CDMA)"}
-        if (platform.isEqual(to:"iPad3,1"))      {return "iPad_3-WiFi"}
-        if (platform.isEqual(to:"iPad3,2"))      {return "iPad_3-GSM_CDMA"}
-        if (platform.isEqual(to:"iPad3,3"))      {return "iPad_3-GSM"}
-        if (platform.isEqual(to:"iPad3,4"))      {return "iPad_4-WiFi"}
-        if (platform.isEqual(to:"iPad3,5"))      {return "iPad_4-GSM"}
-        if (platform.isEqual(to:"iPad3,6"))      {return "iPad_4-GSM_CDMA"}
-        if (platform.isEqual(to:"iPad4,1"))      {return "iPad_Air-WiFi"}
-        if (platform.isEqual(to:"iPad4,2"))      {return "iPad_Air-Cellular"}
-        if (platform.isEqual(to:"iPad4,4"))      {return "iPad_mini_2G-WiFi"}
-        if (platform.isEqual(to:"iPad4,5"))      {return "iPad_mini_2G-Cellular"}
-        
-        if (platform.isEqual(to:"iPad4,6"))      {return "iPad_Mini_2"}
-        if (platform.isEqual(to:"iPad4,7"))      {return "iPad_Mini_3"}
-        if (platform.isEqual(to:"iPad4,8"))      {return "iPad_Mini_3"}
-        if (platform.isEqual(to:"iPad4,9"))      {return "iPad_Mini_3"}
-        if (platform.isEqual(to:"iPad5,1"))      {return "iPad_Mini_4_(WiFi)"}
-        if (platform.isEqual(to:"iPad5,2"))      {return "iPad_Mini_4_(LTE)"}
-        if (platform.isEqual(to:"iPad5,3"))      {return "iPad_Air_2"}
-        if (platform.isEqual(to:"iPad5,4"))      {return "iPad_Air_2"}
-        if (platform.isEqual(to:"iPad6,3"))      {return "iPad_Pro_9.7"}
-        if (platform.isEqual(to:"iPad6,4"))      {return "iPad_Pro_9.7"}
-        if (platform.isEqual(to:"iPad6,7"))      {return "iPad_Pro_12.9"}
-        if (platform.isEqual(to:"iPad6,8"))      {return "iPad_Pro_12.9"}
-    
-        if (platform.isEqual(to:"iPad6,11"))     {return "iPad_5G"}
-        if (platform.isEqual(to:"iPad6,12"))     {return "iPad_5G"}
-        if (platform.isEqual(to:"iPad7,1"))      {return "iPad_Pro_12.9_2G"}
-        if (platform.isEqual(to:"iPad7,2"))      {return "iPad_Pro_12.9_2G"}
-        if (platform.isEqual(to:"iPad7,3"))      {return "iPad_Pro_10.5"}
-        if (platform.isEqual(to:"iPad7,4"))      {return "iPad_Pro_10.5"}
-        
-        if (platform.isEqual(to:"i386"))         {return "Simulator"}
-        if (platform.isEqual(to:"x86_64"))       {return "Simulator"}
-        return platform as String;
+        return devicePlatform.title
     }
     
     deinit {
         Log.debug("CCRequestMessaging DEINIT")
+        
         if #available(iOS 10.0, *) {
             Log.debug("[CC] CCRequestMessaging DEINIT")
         } else {
@@ -397,18 +324,31 @@ class CCSocket:NSObject {
 // MARK: CCLocationManagerDelegate
 extension CCSocket: CCLocationManagerDelegate {
     public func receivedEddystoneBeaconInfo(eid: NSString, tx: Int, rssi: Int, timestamp: TimeInterval) {
-    
         let tempString = String(eid).hexa2Bytes
-        
-        ccRequestMessaging?.processEddystoneEvent(eid: NSData(bytes: tempString, length: tempString.count) as Data, tx: tx, rssi: rssi, timestamp: timestamp)
+        ccRequestMessaging?.processEddystoneEvent(eid: NSData(bytes: tempString, length: tempString.count) as Data,
+                                                  tx: tx,
+                                                  rssi: rssi,
+                                                  timestamp: timestamp)
     }
     
     public func receivedGEOLocation(location: CLLocation) {
         ccRequestMessaging?.processLocationEvent(location: location)
     }
     
-    public func receivediBeaconInfo(proximityUUID: UUID, major: Int, minor: Int, proximity: Int, accuracy: Double, rssi: Int, timestamp: TimeInterval) {
-        ccRequestMessaging?.processIBeaconEvent(uuid: proximityUUID, major: major, minor: minor, rssi: rssi, accuracy: accuracy, proximity: proximity, timestamp: timestamp)
+    public func receivediBeaconInfo(proximityUUID: UUID,
+                                    major: Int,
+                                    minor: Int,
+                                    proximity: Int,
+                                    accuracy: Double,
+                                    rssi: Int,
+                                    timestamp: TimeInterval) {
+        ccRequestMessaging?.processIBeaconEvent(uuid: proximityUUID,
+                                                major: major,
+                                                minor: minor,
+                                                rssi: rssi,
+                                                accuracy: accuracy,
+                                                proximity: proximity,
+                                                timestamp: timestamp)
     }
 }
 
@@ -445,9 +385,9 @@ extension CCSocket: SRWebSocketDelegate {
     }
     
     public func webSocket(_ webSocket: SRWebSocket!, didFailWithError error: Error!) {
-        Log.error("[Colocator] :( Connection failed With Error " + error.localizedDescription);
+        Log.error("[Colocator] :( Connection failed With Error " + error.localizedDescription)
         
-        guard let ccRequestMessaging = self.ccRequestMessaging else{
+        guard let ccRequestMessaging = self.ccRequestMessaging else {
             return
         }
         
@@ -464,16 +404,18 @@ extension CCSocket: SRWebSocketDelegate {
     }
     
     public func webSocket(_ webSocket: SRWebSocket!, didReceiveMessage message: Any!) {
-        
         guard let ccRequestMessaging = self.ccRequestMessaging else {
             return
         }
         
         var message_data: Data? = nil
         
-        if (message is String || message is NSString){
+        if message is String || message is NSString {
+            
             message_data = (message as! String).data(using: .utf8)!
-        }else if (message is Data || message is NSData){
+            
+        } else if message is Data || message is NSData {
+            
             message_data = message as? Data
         }
         
@@ -485,7 +427,6 @@ extension CCSocket: SRWebSocketDelegate {
     }
     
     public func webSocket(_ webSocket: SRWebSocket!, didCloseWithCode code: Int, reason: String!, wasClean: Bool) {
-        
         self.webSocket?.delegate = nil
         self.webSocket = nil
         
@@ -496,6 +437,8 @@ extension CCSocket: SRWebSocketDelegate {
 extension StringProtocol {
     var hexa2Bytes: [UInt8] {
         let hexa = Array(self)
-        return stride(from: 0, to: count, by: 2).compactMap { UInt8(String(hexa[$0..<$0.advanced(by: 2)]), radix: 16) }
+        return stride(from: 0, to: count, by: 2).compactMap {
+            UInt8(String(hexa[$0..<$0.advanced(by: 2)]), radix: 16)
+        }
     }
 }
