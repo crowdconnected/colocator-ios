@@ -10,6 +10,10 @@ import Foundation
 
 enum DevicePlatform: String {
     
+    /* Source
+     https://github.com/devicekit/DeviceKit/blob/master/Source/Device.swift.gyb
+     */
+    
     /* iPhone */
     case iPhone11 = "iPhone1,1"
     case iPhone12 = "iPhone1,2"
