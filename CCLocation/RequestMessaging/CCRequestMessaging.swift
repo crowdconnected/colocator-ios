@@ -319,11 +319,11 @@ class CCRequestMessaging: NSObject {
         
         if let connectionStateUnwrapped = connectionState {
             
-            if (connectionStateUnwrapped == .online) {
+            if connectionStateUnwrapped == .online {
                 
                 isConnectionAvailable = true
                 // case for iBeacon + GEO + Marker + Alias + Bluetooth + Latency messages and buffer timer not set
-                if (timeBetweenSends == nil || timeBetweenSends == 0){
+                if timeBetweenSends == nil || timeBetweenSends == 0 {
                     Log.verbose("Websocket is open, buffer timer is not available, sending new and queued messages")
                     self.sendQueuedClientMessages(firstMessage: data)
                 } else {
