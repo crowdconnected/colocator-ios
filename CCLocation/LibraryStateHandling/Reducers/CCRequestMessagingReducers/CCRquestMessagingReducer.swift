@@ -20,7 +20,6 @@ func ccRequestMessagingReducer(action: Action, state: CCRequestMessagingState?) 
     case _ as ReSwiftInit:
         break
 
-    
     // handling timer events
     case let radioSilenceTimerAction as TimeBetweenSendsTimerReceivedAction:
         
@@ -46,8 +45,6 @@ func ccRequestMessagingReducer(action: Action, state: CCRequestMessagingState?) 
                 
         saveTimerStateToUserDefaults(timerState: state.radiosilenceTimerState)
 
-        
-        
     case let timerRunningAction as TimerRunningAction:
         state.radiosilenceTimerState?.timer = CCTimer.running
 
@@ -72,6 +69,5 @@ func ccRequestMessagingReducer(action: Action, state: CCRequestMessagingState?) 
         break
     }
 
-    
     return state
 }

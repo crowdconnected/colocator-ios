@@ -22,6 +22,7 @@ struct CapabilityReducerConstants {
 private typealias C = CapabilityReducerConstants
 
 func capabilityReducer (action: Action, state: CapabilityState?) -> CapabilityState {
+    
     var state = CapabilityState(locationAuthStatus: CLAuthorizationStatus.notDetermined, bluetoothHardware: CBCentralManagerState.unknown, batteryState: UIDevice.BatteryState.unknown, isLowPowerModeEnabled: false, isLocationServicesEnabled: false)
     
     if let loadedCapabilityState = getCapabilityStateFromUserDefaults() {
@@ -53,6 +54,7 @@ func capabilityReducer (action: Action, state: CapabilityState?) -> CapabilitySt
 }
 
 func getCapabilityStateFromUserDefaults () -> CapabilityState? {
+    
     let userDefaults = UserDefaults.standard
     let dictionary = userDefaults.dictionary(forKey: C.userDefaultsCapabilityKey)
     

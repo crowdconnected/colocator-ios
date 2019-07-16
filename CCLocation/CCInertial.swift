@@ -79,7 +79,7 @@ class CCInertial: NSObject {
                             
                             let timeIntervals = TimeInterval(periodBetweenStepCounts / Double(stepsBetweenStepCounts))
                             
-//                            Log.debug("Step count: \(numberOfSteps), previous: \(previousPedometerData.numberOfSteps), Period between step counts: \(periodBetweenStepCounts), Steps in-between: \(stepsBetweenStepCounts), Timeintervals: \(timeIntervals), Previous timestamp: \(previousPedometerData.endDate.timeIntervalSince1970), Current timestamp: \(endDate.timeIntervalSince1970)")
+                            Log.debug("Pedometer: Step count: \(numberOfSteps), previous: \(previousPedometerData.numberOfSteps), Period between step counts: \(periodBetweenStepCounts), Steps in-between: \(stepsBetweenStepCounts), Timeintervals: \(timeIntervals), Previous timestamp: \(previousPedometerData.endDate.timeIntervalSince1970), Current timestamp: \(endDate.timeIntervalSince1970)")
                             
                             for i in  1 ... stepsBetweenStepCounts {
                                 let tempTimePeriod = TimeInterval(Double(i) * timeIntervals)
@@ -87,7 +87,7 @@ class CCInertial: NSObject {
                                 
                                 if let yawDataBuffer = self?.yawDataBuffer {
                                     if let tempYaw = self?.findFirstSmallerYaw(yawArray: yawDataBuffer, timeInterval: tempTimeStamp){
-//                                        Log.debug ("Step count: \(i), Time period: \(tempTimePeriod), Timestamp: \(tempTimeStamp), Yaw value: \(String(describing: tempYaw.yaw))")
+                                        Log.debug ("Pedometer: Step count: \(i), Time period: \(tempTimePeriod), Timestamp: \(tempTimeStamp), Yaw value: \(String(describing: tempYaw.yaw))")
                                         
                                         let stepDate = Date(timeIntervalSince1970: tempTimeStamp)
                                         
@@ -124,7 +124,7 @@ class CCInertial: NSObject {
                 let yawValue = data.attitude.yaw
                 let yawData = YawData(yaw: yawValue, date: Date())
                 
-//               Log.debug("Yaw:\(yawData.yaw), Timestamp: \(yawData.date.timeIntervalSince1970), Interval: \(self.motion.deviceMotionUpdateInterval )")
+                Log.debug("Pedometer: Yaw:\(yawData.yaw), Timestamp: \(yawData.date.timeIntervalSince1970), Interval: \(self.motion.deviceMotionUpdateInterval )")
                 
                 self.yawDataBuffer.append(yawData)
                 
@@ -144,7 +144,7 @@ class CCInertial: NSObject {
     
     private func findFirstSmallerYaw (yawArray:[YawData], timeInterval: TimeInterval) -> YawData?{
         for (index, yaw) in yawArray.reversed().enumerated() {
-            //            Log.debug("Yaw time interval: \(yaw.date.timeIntervalSince1970), Time interval: \(timeInterval)")
+            Log.debug("Pedometer: Yaw time interval: \(yaw.date.timeIntervalSince1970), Time interval: \(timeInterval)")
             if yaw.date.timeIntervalSince1970 < timeInterval {
                 yawDataBuffer.removeSubrange(0 ... (yawArray.count - index - 1))
                 return yaw
@@ -188,11 +188,9 @@ extension CCInertial: StoreSubscriber {
     public func newState(state: LibraryState) {
         if let newInertialState = state.intertialState {
             
-//            Log.debug("new state is: \(newInertialState)")
+            Log.debug("Pedometer: New state is: \(newInertialState)")
             
             if newInertialState != self.currentInertialState {
-//                Log.debug("new state is: \(newInertialState)")
-                
                 if let interval = newInertialState.interval {
                     setInterval(time: Double(interval) / 1000)
                 }

@@ -16,5 +16,6 @@ func webSocketReducer (action: Action, state: WebSocketState?) -> WebSocketState
         state.connectionState = webSocketAction.connectionState
     default: break
     }
+    
     return state
 }
