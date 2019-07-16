@@ -32,13 +32,15 @@ extension CCRequestMessaging {
             
             if !workItem.isCancelled {
                 let maxMessagesToReturn = 100
-                let connectionState = self?.stateStore.state.ccRequestMessagingState.webSocketState?.connectionState
+                var connectionState = self?.stateStore.state.ccRequestMessagingState.webSocketState?.connectionState
                 
                 let messageNumber = self?.getMessageCount() ?? -1
                 Log.verbose ("\(messageNumber) Queued messages are available")
                 
                 while self?.getMessageCount() ?? -1 > 0 && connectionState == .online {
                     if workItem.isCancelled { break }
+                    
+                    connectionState = self?.stateStore.state.ccRequestMessagingState.webSocketState?.connectionState
                     
                     var compiledClientMessage = Messaging_ClientMessage()
                     var backToQueueMessages = Messaging_ClientMessage()
