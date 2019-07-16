@@ -46,7 +46,7 @@ extension CCRequestMessaging {
         }
     }
     
-    public func insertMessageInLocalDatabase(message: Data) {
+    func insertMessageInLocalDatabase(message: Data) {
         
         Log.verbose("Pushing new message into message queue")
         
@@ -61,7 +61,7 @@ extension CCRequestMessaging {
         }
     }
     
-    public func popMessagesFromLocalDatabase(maxMessagesToReturn: Int) -> [Data] {
+    func popMessagesFromLocalDatabase(maxMessagesToReturn: Int) -> [Data] {
         
         var popMessages = [Data]()
         
@@ -77,7 +77,7 @@ extension CCRequestMessaging {
         return popMessages
     }
     
-    public func getMessageCount() -> Int {
+    func getMessageCount() -> Int {
         
         var count:Int = -1
         
