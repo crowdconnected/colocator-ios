@@ -16,8 +16,9 @@ extension CCRequestMessaging {
         if let newMessage = firstMessage {
             if self.getMessageCount() > 0 {
                 insertMessageInLocalDatabase(message: newMessage)
-            } else {
                 sendAllMessagesFromDatabase()
+            } else {
+                sendSingleMessage(firstMessage!)
             }
         } else {
             sendAllMessagesFromDatabase()
@@ -31,10 +32,12 @@ extension CCRequestMessaging {
             
             if !workItem.isCancelled {
                 let maxMessagesToReturn = 100
-                
                 let connectionState = self?.stateStore.state.ccRequestMessagingState.webSocketState?.connectionState
+                
+                let messageNumber = self?.getMessageCount() ?? -1
+                Log.verbose ("\(messageNumber) Queued messages are available")
+                
                 while self?.getMessageCount() ?? -1 > 0 && connectionState == .online {
-                    
                     if workItem.isCancelled { break }
                     
                     var compiledClientMessage = Messaging_ClientMessage()
@@ -42,14 +45,6 @@ extension CCRequestMessaging {
                     
                     var tempMessageData: [Data]?
                     var subMessageCounter: Int = 0
-                    let messageNumber = self?.getMessageCount() ?? -1
-                    
-                    if (messageNumber == 0) {
-                        Log.verbose ("No queued messages available to send")
-                        return
-                    }
-                    
-                    Log.verbose ("\(messageNumber) Queued messages are available")
                     
                     while self?.getMessageCount() ?? -1 > 0
                         && subMessageCounter < maxMessagesToReturn {
@@ -60,18 +55,17 @@ extension CCRequestMessaging {
                         
                         if let unwrappedTempMessageData = tempMessageData {
                             for tempMessage in unwrappedTempMessageData {
-                                
                                 if workItem.isCancelled { break }
                                 
                                 let (newSubMessageCounter,
-                                    newCompiledClientMessage,
-                                        newBackToQueueMessages) = self?.handleMessageType(message: tempMessage,
-                                                                                          subMessageInitialNumber: subMessageCounter,
-                                                                                          compiledMessage: compiledClientMessage,
-                                                                                          queueMessage: backToQueueMessages)
-                                            ?? (subMessageCounter,
-                                                Messaging_ClientMessage(),
-                                                Messaging_ClientMessage())
+                                     newCompiledClientMessage,
+                                     newBackToQueueMessages) = self?.handleMessageType(message: tempMessage,
+                                                                                       subMessageInitialNumber: subMessageCounter,
+                                                                                       compiledMessage: compiledClientMessage,
+                                                                                       queueMessage: backToQueueMessages)
+                                                                ?? (subMessageCounter,
+                                                                    Messaging_ClientMessage(),
+                                                                    Messaging_ClientMessage())
                                 
                                 subMessageCounter = newSubMessageCounter
                                 compiledClientMessage = newCompiledClientMessage
@@ -96,14 +90,9 @@ extension CCRequestMessaging {
                     }
                 }
                 
-                if let index = self?.workItems.index(where: {$0 === workItem!}) {
-                    // Awkward, it happened to throw index out of range error
-                    // Just checking index before trying to remove
-                    if let itemsCount = self?.workItems.count, index < itemsCount {
-                        self?.workItems.remove(at: index)
-                    }
-                }
+                if workItem.isCancelled { return }
                 
+                self?.removeWorkItem(workItem)
                 workItem = nil
             }
         }
@@ -113,17 +102,26 @@ extension CCRequestMessaging {
         DispatchQueue.global(qos: .background).async(execute: workItem)
     }
     
+    private func removeWorkItem(_ item: DispatchWorkItem) {
+        if let index = self.workItems.index(where: {$0 === item}) {
+            // Awkward, it happened to throw index out of range error
+            // Just checking index before trying to remove
+            if index < self.workItems.count {
+                self.workItems.remove(at: index)
+            }
+        }
+    }
+    
     private func logMessageContent(_ message: Messaging_ClientMessage, subMessageCounter: Int) {
         Log.verbose("Compiled \(subMessageCounter) message(s)")
         
-        
-        if (message.locationMessage.count > 0) {
+        if message.locationMessage.count > 0 {
             let geoMsg = message.locationMessage[0]
             let geoData = try? geoMsg.serializedData()
             Log.verbose("Compiled geoMsg: \(geoData?.count ?? -1) and byte array: \(geoData?.hexEncodedString() ?? "NOT AVAILABLE")")
         }
         
-        if (message.bluetoothMessage.count > 0) {
+        if message.bluetoothMessage.count > 0 {
             let blMsg = message.bluetoothMessage[0]
             let blData = try? blMsg.serializedData()
             Log.verbose("Compiled bluetooth message: \(blData?.count ?? -1) and byte array: \(blData?.hexEncodedString() ?? "NOT AVAILABLE"))")
@@ -133,7 +131,7 @@ extension CCRequestMessaging {
             Log.verbose("Sending beacons \(message.ibeaconMessage.count) with \(beacon)")
         }
         
-        if (message.alias.count > 0) {
+        if message.alias.count > 0 {
             let alMsg = message.alias[0]
             let alData = try? alMsg.serializedData()
             Log.verbose("Compiled alias message: \(alData?.count ?? -1)  and byte array: \(alData?.hexEncodedString() ?? "NOT AVAILABLE"))")
@@ -147,10 +145,10 @@ extension CCRequestMessaging {
             if workItem.isCancelled { return }
             
             var (subMessageCounter,
-                compiledClientMessage,
-                backToQueueMessage) = self?.handleMessageType(message: message) ?? (0,
-                                                                                    Messaging_ClientMessage(),
-                                                                                    Messaging_ClientMessage())
+                 compiledClientMessage,
+                 backToQueueMessage) = self?.handleMessageType(message: message) ?? (0,
+                                                                                     Messaging_ClientMessage(),
+                                                                                     Messaging_ClientMessage())
             
             self?.handleMessageBackToQueue(backToQueueMessage, subMessageCounter: subMessageCounter)
             
@@ -193,7 +191,6 @@ extension CCRequestMessaging {
     
     private func sendMessageThroughSocket(_ message: Messaging_ClientMessage) {
         if let messageData = try? message.serializedData() {
-            
             Log.verbose("Sending \(messageData.count) bytes of compiled instant message data")
             
             ccSocket?.sendWebSocketMessage(data: messageData)
