@@ -36,8 +36,6 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
     
     internal var centralManager: CBCentralManager?
     
-    let kOriginGeofenceIdentifier = "UsersOriginLocationGeofence"
-    
     internal var iBeaconMessagesDB: SQLiteDatabase!
     internal let iBeaconMessagesDBName = "iBeaconMessages.db"
     
@@ -321,26 +319,6 @@ extension CCLocationManager: BeaconScannerDelegate {
     }
 }
 
-// MARK: - Origin Geofence Extension
-extension CCLocationManager {
-    public func createGeofenceAroundUser() {
-        
-        guard let centerCoordinates = locationManager.location?.coordinate else {
-            return
-        }
-        
-        let originGeofenceRegion = CLCircularRegion(center: centerCoordinates,
-                                                    radius: 100.0,
-                                                    identifier: kOriginGeofenceIdentifier)
-        originGeofenceRegion.notifyOnExit = true
-        originGeofenceRegion.notifyOnEntry = true
-        
-        self.locationManager.startMonitoring(for: originGeofenceRegion)
-        
-        Log.info("Origin geofence created")
-    }
-}
-
 // MARK: - Responding to Region Events
 extension CCLocationManager {
     public func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
@@ -405,13 +383,6 @@ extension CCLocationManager {
         switch state {
         case .inside:
             Log.verbose(String(format: "Inside region: %@", region.identifier))
-            
-            if region.identifier == kOriginGeofenceIdentifier {
-                Log.info("User is inside origin geofence")
-                
-                locationManager.requestAlwaysAuthorization()
-            }
-            
         case .outside:
             Log.verbose(String(format: "Outside region: %@", region.identifier))
         case .unknown:
@@ -591,10 +562,6 @@ extension CCLocationManager {
         case .authorizedAlways:
             Log.info("CLLocationManager authorization status set to always authorized, we are ready to go")
             
-            // Since iOS 13 provides only in use permission though it returns always,
-            // it's a good idea to create geofence so the user should be asked to grant real always location permission
-            createGeofenceAroundUser()
-            
             if #available(iOS 9.0, *) {
                 locationManager.allowsBackgroundLocationUpdates = true
             } else {
@@ -605,10 +572,7 @@ extension CCLocationManager {
             
         case .authorizedWhenInUse:
             Log.info("CLLocationManager authorization status set to in use, no background updates enabled")
-            
-            // Create geofence so the user should be asked to grant always location permission
-            createGeofenceAroundUser()
-            
+        
             if #available(iOS 9.0, *) {
                 locationManager.allowsBackgroundLocationUpdates = false
             } else {

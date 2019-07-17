@@ -65,7 +65,7 @@ class Log {
                                                .e,
                                                .s]
     static func checkPermissionForLevel(event: LogEvent) -> Bool {
-        logLevelsAllowed.contains(event)
+        return logLevelsAllowed.contains(event)
     }
     
     // MARK: - Loging methods
