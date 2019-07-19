@@ -134,12 +134,14 @@ class CCSocket:NSObject {
         self.webSocket?.open()
     }
     
-    @objc public func stopCycler(timer: Timer) {
+    @objc func stopCycler(timer: Timer) {
         colocatorManager?.stopLocationObservations()
         self.maxCycleTimer = nil
+        
+        Log.debug("Location observations stopped")
     }
     
-    public func delayReconnect() {
+    private func delayReconnect() {
         if delay == 0 {
             delay = CCSocketConstants.MIN_DELAY
         }
@@ -163,6 +165,7 @@ class CCSocket:NSObject {
         }
         
         if maxCycleTimer == nil && firstReconnect {
+            Log.warning("Fired timer for stop collecting data in \(CCSocketConstants.MAX_CYCLE_DELAY / 1000) seconds")
             maxCycleTimer = Timer.scheduledTimer(timeInterval: CCSocketConstants.MAX_CYCLE_DELAY / 1000,
                                                  target: self,
                                                  selector: #selector(self.stopCycler(timer:)),
@@ -172,22 +175,18 @@ class CCSocket:NSObject {
         firstReconnect = false
     }
     
-    public func setDeviceId(deviceId: String) {
+    func setDeviceId(deviceId: String) {
         self.deviceId = deviceId
         UserDefaults.standard.set(self.deviceId!, forKey: CCSocketConstants.LAST_DEVICE_ID_KEY)
     }
-        
-    public func getStartTimeSwiftBridge() -> Date {
-        return self.startTime!
-    }
-        
-    public func sendWebSocketMessage(data: Data) {
+    
+    func sendWebSocketMessage(data: Data) {
         if webSocket != nil {
             webSocket?.send(data)
         }
     }
     
-    public func createWebsocketURL(url: String, id: String?) -> URL? {
+    func createWebsocketURL(url: String, id: String?) -> URL? {
         var requestURL: URL?
         var queryString: String?
             
