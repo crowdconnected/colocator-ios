@@ -83,6 +83,7 @@ class ColocatorManager {
             ccLocationManager = nil
             ccRequestMessaging = nil
             
+            ccSocket?.stop()
             ccSocket?.delegate = nil
             ccSocket = nil
             
