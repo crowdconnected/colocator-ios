@@ -102,39 +102,14 @@ private func getBackgroundiBeaconStateFromUserDefaults () -> BackgroundBeaconSta
 }
 
 private func saveBackgroundiBeaconStateToUserDefaults (iBeaconState: BackgroundBeaconState?) {
-    
     guard let iBeaconState = iBeaconState else {
         return
     }
     
     let userDefaults = UserDefaults.standard
     
-    var dictionary = [String:Int64]()
-    
-    if let maxRuntime = iBeaconState.maxRuntime {
-        dictionary["maxRuntime"] = Int64(maxRuntime)
-    }
-    
-    if let minOffTime = iBeaconState.minOffTime {
-        dictionary["minOffTime"] = Int64(minOffTime)
-    }
-    
-    if let filterWindowSize = iBeaconState.filterWindowSize {
-        dictionary["filterWindowSize"] = Int64(filterWindowSize)
-    }
-    
-    if let filterMaxObservations = iBeaconState.filterMaxObservations {
-        dictionary["filterMaxObservations"] = Int64(filterMaxObservations)
-    }
-    
-    if let eddystoneScan = iBeaconState.isEddystoneScanningEnabled {
-        dictionary["isEddystoneScanEnabled"] = eddystoneScan ? 1 : 0
-    }
-    
-    if let bGiBeaconEnabled = iBeaconState.isIBeaconRangingEnabled {
-        dictionary["bGiBeaconEnabled"] = bGiBeaconEnabled ? 1 : 0
-    }
-    
+    var dictionary = setupCommonBeaconDictionary(forBeaconState: iBeaconState)
+  
     userDefaults.set(dictionary, forKey: C.userDefaultsBackgroundiBeaconKey)
     
     let encodedRegions = NSKeyedArchiver.archivedData(withRootObject: iBeaconState.regions)
