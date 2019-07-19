@@ -24,19 +24,6 @@ fileprivate func compareArrays<T>(lhs: [T], rhs: [T], compare: (_ lhs: T, _ rhs:
 
 
 // MARK: - AutoEquatable for classes, protocols, structs
-// MARK: - BackgroundBeaconState AutoEquatable
-extension BackgroundBeaconState: Equatable {}
-public func == (lhs: BackgroundBeaconState, rhs: BackgroundBeaconState) -> Bool {
-    guard compareOptionals(lhs: lhs.isIBeaconRangingEnabled, rhs: rhs.isIBeaconRangingEnabled, compare: ==) else { return false }
-    guard compareOptionals(lhs: lhs.maxRuntime, rhs: rhs.maxRuntime, compare: ==) else { return false }
-    guard compareOptionals(lhs: lhs.minOffTime, rhs: rhs.minOffTime, compare: ==) else { return false }
-    guard lhs.regions == rhs.regions else { return false }
-    guard compareOptionals(lhs: lhs.filterWindowSize, rhs: rhs.filterWindowSize, compare: ==) else { return false }
-    guard compareOptionals(lhs: lhs.filterMaxObservations, rhs: rhs.filterMaxObservations, compare: ==) else { return false }
-    guard lhs.filterExcludeRegions == rhs.filterExcludeRegions else { return false }
-    guard compareOptionals(lhs: lhs.isEddystoneScanningEnabled, rhs: rhs.isEddystoneScanningEnabled, compare: ==) else { return false }
-    return true
-}
 // MARK: - BackgroundGEOState AutoEquatable
 extension BackgroundGEOState: Equatable {}
 internal func == (lhs: BackgroundGEOState, rhs: BackgroundGEOState) -> Bool {
@@ -129,8 +116,8 @@ public func == (lhs: CurrentiBeaconMonitoringState, rhs: CurrentiBeaconMonitorin
     return true
 }
 // MARK: - ForegroundBeaconState AutoEquatable
-extension ForegroundBeaconState: Equatable {}
-public func == (lhs: ForegroundBeaconState, rhs: ForegroundBeaconState) -> Bool {
+extension BeaconState: Equatable {}
+public func == (lhs: BeaconState, rhs: BeaconState) -> Bool {
     guard compareOptionals(lhs: lhs.isIBeaconRangingEnabled, rhs: rhs.isIBeaconRangingEnabled, compare: ==) else { return false }
     guard compareOptionals(lhs: lhs.maxRuntime, rhs: rhs.maxRuntime, compare: ==) else { return false }
     guard compareOptionals(lhs: lhs.minOffTime, rhs: rhs.minOffTime, compare: ==) else { return false }

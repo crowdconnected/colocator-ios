@@ -46,8 +46,7 @@
 		4FBB8A8B1F2F2EDF00DEF04F /* BackgroundGEOReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8A8A1F2F2EDF00DEF04F /* BackgroundGEOReducer.swift */; };
 		4FBB8A8D1F2F2F6300DEF04F /* BackgroundGEOActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8A8C1F2F2F6300DEF04F /* BackgroundGEOActions.swift */; };
 		4FBB8A8F1F30B92500DEF04F /* ForegroundLocationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8A8E1F30B92500DEF04F /* ForegroundLocationState.swift */; };
-		4FBB8A911F30B9AD00DEF04F /* ForegroundBeaconState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8A901F30B9AD00DEF04F /* ForegroundBeaconState.swift */; };
-		4FBB8A931F30BCF200DEF04F /* BackgroundBeaconState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8A921F30BCF200DEF04F /* BackgroundBeaconState.swift */; };
+		4FBB8A911F30B9AD00DEF04F /* BeaconState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8A901F30B9AD00DEF04F /* BeaconState.swift */; };
 		4FBB8A9E1F30D07B00DEF04F /* CurrentBeaconState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8A9D1F30D07B00DEF04F /* CurrentBeaconState.swift */; };
 		4FBB8AA01F30D23600DEF04F /* CurrentLocationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8A9F1F30D23600DEF04F /* CurrentLocationState.swift */; };
 		4FBB8AA31F30D2CB00DEF04F /* BackgroundLocationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8AA21F30D2CB00DEF04F /* BackgroundLocationState.swift */; };
@@ -166,8 +165,7 @@
 		4FBB8A8A1F2F2EDF00DEF04F /* BackgroundGEOReducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundGEOReducer.swift; sourceTree = "<group>"; };
 		4FBB8A8C1F2F2F6300DEF04F /* BackgroundGEOActions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundGEOActions.swift; sourceTree = "<group>"; };
 		4FBB8A8E1F30B92500DEF04F /* ForegroundLocationState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForegroundLocationState.swift; sourceTree = "<group>"; };
-		4FBB8A901F30B9AD00DEF04F /* ForegroundBeaconState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForegroundBeaconState.swift; sourceTree = "<group>"; };
-		4FBB8A921F30BCF200DEF04F /* BackgroundBeaconState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundBeaconState.swift; sourceTree = "<group>"; };
+		4FBB8A901F30B9AD00DEF04F /* BeaconState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BeaconState.swift; sourceTree = "<group>"; };
 		4FBB8A9B1F30CAE200DEF04F /* SourceryTemplates */ = {isa = PBXFileReference; lastKnownFileType = folder; path = SourceryTemplates; sourceTree = "<group>"; };
 		4FBB8A9D1F30D07B00DEF04F /* CurrentBeaconState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentBeaconState.swift; sourceTree = "<group>"; };
 		4FBB8A9F1F30D23600DEF04F /* CurrentLocationState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentLocationState.swift; sourceTree = "<group>"; };
@@ -334,11 +332,10 @@
 				4FBB8A9D1F30D07B00DEF04F /* CurrentBeaconState.swift */,
 				4FBB8AB51F32089400DEF04F /* CurrentiBeaconMonitoringState.swift */,
 				4FBB8A8E1F30B92500DEF04F /* ForegroundLocationState.swift */,
-				4FBB8A901F30B9AD00DEF04F /* ForegroundBeaconState.swift */,
+				4FBB8A901F30B9AD00DEF04F /* BeaconState.swift */,
 				4F8FFD8E1F2CE0340001910A /* ForegroundGEOState.swift */,
 				4FBB8AA21F30D2CB00DEF04F /* BackgroundLocationState.swift */,
 				4FBB8A881F2F2E7F00DEF04F /* BackgroundGEOState.swift */,
-				4FBB8A921F30BCF200DEF04F /* BackgroundBeaconState.swift */,
 			);
 			path = LocationStates;
 			sourceTree = "<group>";
@@ -663,7 +660,7 @@
 				F0AF0C941DB3C80300E72E76 /* CCLocation.swift in Sources */,
 				4FBB8A891F2F2E7F00DEF04F /* BackgroundGEOState.swift in Sources */,
 				4FBB8A8B1F2F2EDF00DEF04F /* BackgroundGEOReducer.swift in Sources */,
-				4FBB8A911F30B9AD00DEF04F /* ForegroundBeaconState.swift in Sources */,
+				4FBB8A911F30B9AD00DEF04F /* BeaconState.swift in Sources */,
 				4FBB8AA71F3113B000DEF04F /* ForegroundLocationReducer.swift in Sources */,
 				97036DC222CE07BF005A8322 /* CCRequestMessaging+ProcessiOSSettings.swift in Sources */,
 				4F222B1B1F90EDA600FB11BD /* BatteryLevelReducer.swift in Sources */,
@@ -691,7 +688,6 @@
 				4F222B191F90EA4300FB11BD /* BatteryLevelState.swift in Sources */,
 				97036DCE22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift in Sources */,
 				4F920BF81F3B161100BD7FEF /* LibraryTimeState.swift in Sources */,
-				4FBB8A931F30BCF200DEF04F /* BackgroundBeaconState.swift in Sources */,
 				97036DBE22CE05A2005A8322 /* CCRequestMessaging+StoreSubscriber.swift in Sources */,
 				4FAAEA281F46F9C500DF4DA1 /* WakeupReducer.swift in Sources */,
 				4FBB8AA51F31139200DEF04F /* CurrentLocationReducer.swift in Sources */,
