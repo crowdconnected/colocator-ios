@@ -63,14 +63,13 @@ class BeaconID : NSObject {
 }
 
 func ==(lhs: BeaconID, rhs: BeaconID) -> Bool {
-    if lhs == rhs {
-        return true;
-    } else if lhs.beaconType == rhs.beaconType
-        && rhs.beaconID == rhs.beaconID {
-        return true;
+    
+    if lhs.beaconType == rhs.beaconType
+        && lhs.beaconID == rhs.beaconID {
+        return true
     }
     
-    return false;
+    return false
 }
 
 ///
@@ -81,10 +80,10 @@ func ==(lhs: BeaconID, rhs: BeaconID) -> Bool {
 ///
 class EddystoneBeaconInfo : NSObject {
     
-    static let EddystoneUIDFrameTypeID: UInt8 = 0x00
-    static let EddystoneURLFrameTypeID: UInt8 = 0x10
-    static let EddystoneTLMFrameTypeID: UInt8 = 0x20
-    static let EddystoneEIDFrameTypeID: UInt8 = 0x30
+    static let eddystoneUIDFrameTypeID: UInt8 = 0x00
+    static let eddystoneURLFrameTypeID: UInt8 = 0x10
+    static let eddystoneTLMFrameTypeID: UInt8 = 0x20
+    static let eddystoneEIDFrameTypeID: UInt8 = 0x30
     
     enum EddystoneFrameType {
         case UnknownFrameType
@@ -129,13 +128,13 @@ class EddystoneBeaconInfo : NSObject {
                 var frameBytes = [UInt8](repeating: 0, count: count)
                 frameData.getBytes(&frameBytes, length: count)
                 
-                if frameBytes[0] == EddystoneUIDFrameTypeID {
+                if frameBytes[0] == eddystoneUIDFrameTypeID {
                     return EddystoneFrameType.UIDFrameType
-                } else if frameBytes[0] == EddystoneTLMFrameTypeID {
+                } else if frameBytes[0] == eddystoneTLMFrameTypeID {
                     return EddystoneFrameType.TelemetryFrameType
-                } else if frameBytes[0] == EddystoneEIDFrameTypeID {
+                } else if frameBytes[0] == eddystoneEIDFrameTypeID {
                     return EddystoneFrameType.EIDFrameType
-                } else if frameBytes[0] == EddystoneURLFrameTypeID {
+                } else if frameBytes[0] == eddystoneURLFrameTypeID {
                     return EddystoneFrameType.URLFrameType
                 }
             }
@@ -159,7 +158,7 @@ class EddystoneBeaconInfo : NSObject {
             var frameBytes = [UInt8](repeating: 0, count: count)
             frameData.getBytes(&frameBytes, length: count)
             
-            if frameBytes[0] != EddystoneUIDFrameTypeID {
+            if frameBytes[0] != eddystoneUIDFrameTypeID {
                 NSLog("Unexpected non UID Frame passed to BeaconInfoForUIDFrameData.")
                 return nil
             } else if frameBytes.count < 18 {
@@ -181,7 +180,7 @@ class EddystoneBeaconInfo : NSObject {
             var frameBytes = [UInt8](repeating: 0, count: count)
             frameData.getBytes(&frameBytes, length: count)
             
-            if frameBytes[0] != EddystoneEIDFrameTypeID {
+            if frameBytes[0] != eddystoneEIDFrameTypeID {
                 NSLog("Unexpected non EID Frame passed to BeaconInfoForEIDFrameData.")
                 return nil
             } else if frameBytes.count < 10 {

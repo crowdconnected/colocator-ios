@@ -131,8 +131,8 @@ private func saveBackgroundiBeaconStateToUserDefaults (iBeaconState: BackgroundB
         dictionary["isEddystoneScanEnabled"] = eddystoneScan ? 1 : 0
     }
     
-    if let fGiBeaconEnabled = iBeaconState.isIBeaconRangingEnabled {
-        dictionary["bGiBeaconEnabled"] = fGiBeaconEnabled ? 1 : 0
+    if let bGiBeaconEnabled = iBeaconState.isIBeaconRangingEnabled {
+        dictionary["bGiBeaconEnabled"] = bGiBeaconEnabled ? 1 : 0
     }
     
     userDefaults.set(dictionary, forKey: C.userDefaultsBackgroundiBeaconKey)
@@ -146,5 +146,34 @@ private func saveBackgroundiBeaconStateToUserDefaults (iBeaconState: BackgroundB
     userDefaults.set(encodedFilterRegions, forKey: C.userDefaultsBackgroundiBeaconFilterRegionsKey)
     
     userDefaults.synchronize()
+}
+
+func setupCommonBeaconDictionary(forBeaconState iBeaconState: BackgroundBeaconState) -> Dictionary<String, Int64> {
+    var dictionary = [String:Int64]()
     
+    if let maxRuntime = iBeaconState.maxRuntime {
+        dictionary["maxRuntime"] = Int64(maxRuntime)
+    }
+    
+    if let minOffTime = iBeaconState.minOffTime {
+        dictionary["minOffTime"] = Int64(minOffTime)
+    }
+    
+    if let filterWindowSize = iBeaconState.filterWindowSize {
+        dictionary["filterWindowSize"] = Int64(filterWindowSize)
+    }
+    
+    if let filterMaxObservations = iBeaconState.filterMaxObservations {
+        dictionary["filterMaxObservations"] = Int64(filterMaxObservations)
+    }
+    
+    if let eddystoneScan = iBeaconState.isEddystoneScanningEnabled {
+        dictionary["isEddystoneScanEnabled"] = eddystoneScan ? 1 : 0
+    }
+    
+    if let bGiBeaconEnabled = iBeaconState.isIBeaconRangingEnabled {
+        dictionary["bGiBeaconEnabled"] = bGiBeaconEnabled ? 1 : 0
+    }
+    
+    return dictionary
 }

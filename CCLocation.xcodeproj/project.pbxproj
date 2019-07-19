@@ -74,6 +74,7 @@
 		4FF6BA662105EA430082859F /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF6BA652105EA430082859F /* Logger.swift */; };
 		4FFAA5951EF688CD00A2D508 /* LibraryState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFAA5941EF688CD00A2D508 /* LibraryState.swift */; };
 		4FFAA5991EF689ED00A2D508 /* LibraryReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFAA5981EF689ED00A2D508 /* LibraryReducer.swift */; };
+		9700649F22D62B9A00E7F9E9 /* DevicePlatformEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9700649E22D62B9A00E7F9E9 /* DevicePlatformEnum.swift */; };
 		9702361022CCBDAB00D559A8 /* CCRequestMessaging+SendMessages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9702360F22CCBDAB00D559A8 /* CCRequestMessaging+SendMessages.swift */; };
 		9702361222CCC2A100D559A8 /* CCRequestMessaging+DatabaseOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9702361122CCC2A100D559A8 /* CCRequestMessaging+DatabaseOperations.swift */; };
 		9702361722CCF2AB00D559A8 /* ReSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9702361622CCF2AB00D559A8 /* ReSwift.framework */; };
@@ -194,6 +195,7 @@
 		4FF6BA652105EA430082859F /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		4FFAA5941EF688CD00A2D508 /* LibraryState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryState.swift; sourceTree = "<group>"; };
 		4FFAA5981EF689ED00A2D508 /* LibraryReducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryReducer.swift; sourceTree = "<group>"; };
+		9700649E22D62B9A00E7F9E9 /* DevicePlatformEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevicePlatformEnum.swift; sourceTree = "<group>"; };
 		9702360F22CCBDAB00D559A8 /* CCRequestMessaging+SendMessages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCRequestMessaging+SendMessages.swift"; sourceTree = "<group>"; };
 		9702361122CCC2A100D559A8 /* CCRequestMessaging+DatabaseOperations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCRequestMessaging+DatabaseOperations.swift"; sourceTree = "<group>"; };
 		9702361622CCF2AB00D559A8 /* ReSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReSwift.framework; path = "../../Downloads/07 CrowdConnected/00 Code base/GitHub_Library_Releases/colocator-ios/Carthage/Build/iOS/ReSwift.framework"; sourceTree = "<group>"; };
@@ -446,6 +448,7 @@
 				4FF6BA652105EA430082859F /* Logger.swift */,
 				F0AF0C3C1DB3912700E72E76 /* Info.plist */,
 				BC9DEB792124160B0015C5CF /* CCSocket.swift */,
+				9700649E22D62B9A00E7F9E9 /* DevicePlatformEnum.swift */,
 				BC9DEB7B212425680015C5CF /* Reachability.swift */,
 				BC9DEB7D212429B10015C5CF /* ReachabilityManager.swift */,
 				4FE19A5222A90215000CE5A8 /* CCInertial.swift */,
@@ -623,6 +626,7 @@
 				4F8FFD891F2CC8D50001910A /* TimerState.swift in Sources */,
 				F0B2DE5F1E6D7859005E3B7A /* Constants.swift in Sources */,
 				97036DCA22CE4C91005A8322 /* CCLocationManager+StoreSubscriber.swift in Sources */,
+				9700649F22D62B9A00E7F9E9 /* DevicePlatformEnum.swift in Sources */,
 				4F8FFD9D1F2CF6C90001910A /* ForegroundGEOReducer.swift in Sources */,
 				4FBB8AAC1F31145700DEF04F /* CurrentBeaconReducer.swift in Sources */,
 				4FE19A5722AA4AF4000CE5A8 /* InertialReducer.swift in Sources */,

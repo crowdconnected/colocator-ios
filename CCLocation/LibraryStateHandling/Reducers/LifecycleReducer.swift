@@ -11,11 +11,8 @@ import ReSwift
 func lifecycleReducer (action: Action, state: LifecycleState?) -> LifecycleState {
     var state = state ?? LifecycleState()
     
-    switch action {
-        case let lifeCycleAction as LifeCycleAction:
-            state.lifecycleState = lifeCycleAction.lifecycleState
-        
-        default: break
+    if let lifeCycleAction = action as? LifeCycleAction {
+        state.lifecycleState = lifeCycleAction.lifecycleState
     }
 
     return state
