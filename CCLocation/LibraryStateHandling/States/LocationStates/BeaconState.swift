@@ -49,4 +49,15 @@ public struct BeaconState: StateType, AutoEquatable {
         
         self.isEddystoneScanningEnabled = eddystoneScanEnabled
     }
+    
+    static func emptyInit() -> BeaconState {
+        return self.init(beaconRangingEnabled: false,
+                  maxRuntime: nil,
+                  minOffTime: nil,
+                  regions: [],
+                  filterWindowSize: nil,
+                  filterMaxObservations: nil,
+                  filterExcludeRegions: [],
+                  eddystoneScanEnabled: false)
+    }
 }
