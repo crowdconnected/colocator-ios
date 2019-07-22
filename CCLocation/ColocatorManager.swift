@@ -25,8 +25,17 @@ class ColocatorManager {
     var ccInertial: CCInertial?
     var ccSocket: CCSocket?
     
+    var messagesDatabase: SQLiteDatabase!
+    var beaconsDatabase: SQLiteDatabase!
+    var eddystoneBeaconsDatabase:  SQLiteDatabase!
+    
+    private let messagesDBName = "observations.db"
+    private let iBeaconMessagesDBName = "iBeaconMessages.db"
+    private let eddystoneBeaconMessagesDBName = "eddystoneMessages.db"
+    
     public static let sharedInstance: ColocatorManager = {
         let instance = ColocatorManager()
+        instance.openLocalDatabase()
         return instance
     }()
     
@@ -35,7 +44,6 @@ class ColocatorManager {
                ccLocation: CCLocation,
                stateStore: Store<LibraryState>) {
         if !running {
-            
             running = true
             startTime = Date()
             deviceId = UserDefaults.standard.string(forKey: CCSocketConstants.LAST_DEVICE_ID_KEY)
@@ -105,6 +113,91 @@ class ColocatorManager {
     public func sendMarker(data: String) {
         if let ccRequestMessaging = self.ccRequestMessaging {
             ccRequestMessaging.processMarker(data: data)
+        }
+    }
+    
+    func deleteDatabaseContent() {
+        Log.warning("Attempt to delete all the content inside the database")
+        
+        do {
+            try messagesDatabase.deleteMessages(messagesTable: CCLocationTables.MESSAGES_TABLE)
+        } catch {
+            Log.error("Failed to delete messages content in database.")
+        }
+        
+        do {
+            try   beaconsDatabase.deleteBeacons(beaconTable: CCLocationTables.IBEACON_MESSAGES_TABLE)
+        } catch {
+            Log.error("Failed to delete beacons content in database.")
+        }
+        
+        do {
+            try eddystoneBeaconsDatabase.deleteBeacons(beaconTable: CCLocationTables.EDDYSTONE_BEACON_MESSAGES_TABLE)
+        } catch {
+            Log.error("Failed to delete eddystonebeacons content in database.")
+        }
+    }
+    
+    deinit {
+        messagesDatabase.close()
+        beaconsDatabase.close()
+        eddystoneBeaconsDatabase.close()
+    }
+}
+
+//MARK: - Database
+extension ColocatorManager {
+    func openLocalDatabase() {
+        // Get the library directory
+        let dirPaths = NSSearchPathForDirectoriesInDomains (.libraryDirectory, .userDomainMask, true)
+        let docsDir = dirPaths[0]
+        
+        // Build the path to the database messages file
+        let messageDBPath = URL.init(string: docsDir)?.appendingPathComponent(messagesDBName).absoluteString
+        guard let messagesDBPathStringUnwrapped = messageDBPath else {
+            Log.error("Unable to create messages database path")
+            return
+        }
+        
+        do {
+            messagesDatabase = try SQLiteDatabase.open(path: messagesDBPathStringUnwrapped)
+            Log.debug("Successfully opened connection to messages database.")
+        } catch SQLiteError.OpenDatabase(let message) {
+            Log.error("Unable to open observation messages database. \(message)")
+        } catch {
+            Log.error("An unexpected error was thrown, when trying to open a connection to observation messages database")
+        }
+        
+        // Build the path to the database beacons file
+        let beaconsDBPath = URL.init(string: docsDir)?.appendingPathComponent(iBeaconMessagesDBName).absoluteString
+        guard let beaconsDBPathStringUnwrapped = beaconsDBPath else {
+            Log.error("Unable to create messages database path")
+            return
+        }
+        
+        do {
+            beaconsDatabase = try SQLiteDatabase.open(path: beaconsDBPathStringUnwrapped)
+            Log.debug("Successfully opened connection to beacons database.")
+        } catch SQLiteError.OpenDatabase(let message) {
+            Log.error("Unable to open observation beacons database. \(message)")
+        } catch {
+            Log.error("An unexpected error was thrown, when trying to open a connection to observation beacons database")
+        }
+        
+        // Build the path to the database eddystone beacons file
+        let eddystoneBeaconsDBPath = URL.init(string: docsDir)?.appendingPathComponent(eddystoneBeaconMessagesDBName).absoluteString
+        guard let eddystoneBeaconsDBPathStringUnwrapped = eddystoneBeaconsDBPath else {
+            Log.error("Unable to create eddystone beacons database path")
+            return
+        }
+        
+        do {
+            eddystoneBeaconsDatabase = try SQLiteDatabase.open(path: eddystoneBeaconsDBPathStringUnwrapped)
+            Log.debug("Successfully opened connection to eddystone beacons database.")
+        } catch SQLiteError.OpenDatabase(let message) {
+            Log.error("Unable to open observation eddystone beacons database. \(message)")
+        } catch {
+            Log.error("An unexpected error was thrown, when trying to open a connection to eddystone beacons database")
         }
     }
 }
