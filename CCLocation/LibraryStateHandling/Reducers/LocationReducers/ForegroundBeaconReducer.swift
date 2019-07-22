@@ -71,7 +71,7 @@ private func getForegroundiBeaconStateFromUserDefaults () -> BeaconState? {
         fgIBeaconState?.filterWindowSize = iBeaconDictionary["filterWindowSize"] as? UInt64
         fgIBeaconState?.filterMaxObservations = iBeaconDictionary["filterMaxObservations"] as? UInt32
         fgIBeaconState?.isEddystoneScanningEnabled = iBeaconDictionary["isEddystoneScanningEnabled"] as? Bool
-        fgIBeaconState?.isIBeaconRangingEnabled = iBeaconDictionary["iBeaconRangingEnabled"] as? Bool
+        fgIBeaconState?.isIBeaconRangingEnabled = iBeaconDictionary["isIBeaconRangingEnabled"] as? Bool
     }
     
     if let decoded = userDefaults.object(forKey: C.userDefaultsForegroundiBeaconRegionsKey) as? Data {

@@ -52,12 +52,12 @@ public struct BeaconState: StateType, AutoEquatable {
     
     static func emptyInit() -> BeaconState {
         return self.init(beaconRangingEnabled: false,
-                  maxRuntime: nil,
-                  minOffTime: nil,
-                  regions: [],
-                  filterWindowSize: nil,
-                  filterMaxObservations: nil,
-                  filterExcludeRegions: [],
-                  eddystoneScanEnabled: false)
+                         maxRuntime: nil,
+                         minOffTime: nil,
+                         regions: [],
+                         filterWindowSize: nil,
+                         filterMaxObservations: nil,
+                         filterExcludeRegions: [],
+                         eddystoneScanEnabled: false)
     }
 }

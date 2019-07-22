@@ -72,7 +72,7 @@ private func getBackgroundiBeaconStateFromUserDefaults() -> BeaconState? {
         bGIBeaconState?.filterWindowSize = iBeaconDictionary["filterWindowSize"] as? UInt64
         bGIBeaconState?.filterMaxObservations = iBeaconDictionary["filterMaxObservations"] as? UInt32
         bGIBeaconState?.isEddystoneScanningEnabled = iBeaconDictionary["isEddystoneScanningEnabled"] as? Bool
-        bGIBeaconState?.isIBeaconRangingEnabled = iBeaconDictionary["iBeaconRangingEnabled"] as? Bool
+        bGIBeaconState?.isIBeaconRangingEnabled = iBeaconDictionary["isIBeaconRangingEnabled"] as? Bool
     }
     
     if let decoded = userDefaults.object(forKey: C.userDefaultsBackgroundiBeaconRegionsKey) as? Data {
@@ -142,11 +142,11 @@ func setupCommonBeaconDictionary(forBeaconState iBeaconState: BeaconState) -> Di
     }
     
     if let eddystoneScan = iBeaconState.isEddystoneScanningEnabled {
-        dictionary["isEddystoneScanEnabled"] = eddystoneScan ? 1 : 0
+        dictionary["isEddystoneScanningEnabled"] = eddystoneScan ? 1 : 0
     }
     
     if let iBeaconRangingEnabled = iBeaconState.isIBeaconRangingEnabled {
-        dictionary["iBeaconRangingEnabled"] = iBeaconRangingEnabled ? 1 : 0
+        dictionary["isIBeaconRangingEnabled"] = iBeaconRangingEnabled ? 1 : 0
     }
     
     return dictionary
