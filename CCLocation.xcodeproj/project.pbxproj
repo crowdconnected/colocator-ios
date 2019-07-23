@@ -46,8 +46,7 @@
 		4FBB8A8B1F2F2EDF00DEF04F /* BackgroundGEOReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8A8A1F2F2EDF00DEF04F /* BackgroundGEOReducer.swift */; };
 		4FBB8A8D1F2F2F6300DEF04F /* BackgroundGEOActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8A8C1F2F2F6300DEF04F /* BackgroundGEOActions.swift */; };
 		4FBB8A8F1F30B92500DEF04F /* ForegroundLocationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8A8E1F30B92500DEF04F /* ForegroundLocationState.swift */; };
-		4FBB8A911F30B9AD00DEF04F /* ForegroundBeaconState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8A901F30B9AD00DEF04F /* ForegroundBeaconState.swift */; };
-		4FBB8A931F30BCF200DEF04F /* BackgroundBeaconState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8A921F30BCF200DEF04F /* BackgroundBeaconState.swift */; };
+		4FBB8A911F30B9AD00DEF04F /* BeaconState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8A901F30B9AD00DEF04F /* BeaconState.swift */; };
 		4FBB8A9E1F30D07B00DEF04F /* CurrentBeaconState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8A9D1F30D07B00DEF04F /* CurrentBeaconState.swift */; };
 		4FBB8AA01F30D23600DEF04F /* CurrentLocationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8A9F1F30D23600DEF04F /* CurrentLocationState.swift */; };
 		4FBB8AA31F30D2CB00DEF04F /* BackgroundLocationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8AA21F30D2CB00DEF04F /* BackgroundLocationState.swift */; };
@@ -62,7 +61,6 @@
 		4FBB8AB61F32089400DEF04F /* CurrentiBeaconMonitoringState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8AB51F32089400DEF04F /* CurrentiBeaconMonitoringState.swift */; };
 		4FBB8AB81F32092B00DEF04F /* CurrentLocationActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8AB71F32092B00DEF04F /* CurrentLocationActions.swift */; };
 		4FBB8ABA1F320A0F00DEF04F /* CurrentiBeaconMonitoringReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8AB91F320A0F00DEF04F /* CurrentiBeaconMonitoringReducer.swift */; };
-		4FBB8ABE1F325EDD00DEF04F /* AutoEquatable.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8ABD1F325EDD00DEF04F /* AutoEquatable.generated.swift */; };
 		4FBB8AC01F34D1E400DEF04F /* CurrentBeaconSettingsActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8ABF1F34D1E300DEF04F /* CurrentBeaconSettingsActions.swift */; };
 		4FBB8AC21F3711B600DEF04F /* CCRequestMessagingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8AC11F3711B600DEF04F /* CCRequestMessagingState.swift */; };
 		4FBB8AC51F37120300DEF04F /* CCRquestMessagingReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8AC41F37120300DEF04F /* CCRquestMessagingReducer.swift */; };
@@ -90,6 +88,7 @@
 		97036DCC22CE4D50005A8322 /* CCLocationManager+DatabaseOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DCB22CE4D50005A8322 /* CCLocationManager+DatabaseOperations.swift */; };
 		97036DCE22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DCD22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift */; };
 		970ACF3B22D894DD00317525 /* ColocatorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 970ACF3A22D894DD00317525 /* ColocatorManager.swift */; };
+		9770817C22E718DF0074D8E6 /* AutoEquatable.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9770817B22E718DF0074D8E6 /* AutoEquatable.generated.swift */; };
 		BC0647AF218757A500555512 /* CCBeaconScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0647AE218757A500555512 /* CCBeaconScanner.swift */; };
 		BC0647B1218757B900555512 /* CCEddystone.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0647B0218757B900555512 /* CCEddystone.swift */; };
 		BC0647B5218757E200555512 /* DispatchTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0647B4218757E200555512 /* DispatchTimer.swift */; };
@@ -167,8 +166,7 @@
 		4FBB8A8A1F2F2EDF00DEF04F /* BackgroundGEOReducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundGEOReducer.swift; sourceTree = "<group>"; };
 		4FBB8A8C1F2F2F6300DEF04F /* BackgroundGEOActions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundGEOActions.swift; sourceTree = "<group>"; };
 		4FBB8A8E1F30B92500DEF04F /* ForegroundLocationState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForegroundLocationState.swift; sourceTree = "<group>"; };
-		4FBB8A901F30B9AD00DEF04F /* ForegroundBeaconState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForegroundBeaconState.swift; sourceTree = "<group>"; };
-		4FBB8A921F30BCF200DEF04F /* BackgroundBeaconState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundBeaconState.swift; sourceTree = "<group>"; };
+		4FBB8A901F30B9AD00DEF04F /* BeaconState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BeaconState.swift; sourceTree = "<group>"; };
 		4FBB8A9B1F30CAE200DEF04F /* SourceryTemplates */ = {isa = PBXFileReference; lastKnownFileType = folder; path = SourceryTemplates; sourceTree = "<group>"; };
 		4FBB8A9D1F30D07B00DEF04F /* CurrentBeaconState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentBeaconState.swift; sourceTree = "<group>"; };
 		4FBB8A9F1F30D23600DEF04F /* CurrentLocationState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentLocationState.swift; sourceTree = "<group>"; };
@@ -184,7 +182,6 @@
 		4FBB8AB51F32089400DEF04F /* CurrentiBeaconMonitoringState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentiBeaconMonitoringState.swift; sourceTree = "<group>"; };
 		4FBB8AB71F32092B00DEF04F /* CurrentLocationActions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentLocationActions.swift; sourceTree = "<group>"; };
 		4FBB8AB91F320A0F00DEF04F /* CurrentiBeaconMonitoringReducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentiBeaconMonitoringReducer.swift; sourceTree = "<group>"; };
-		4FBB8ABD1F325EDD00DEF04F /* AutoEquatable.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AutoEquatable.generated.swift; path = SourceryAutogenerated/AutoEquatable.generated.swift; sourceTree = "<group>"; };
 		4FBB8ABF1F34D1E300DEF04F /* CurrentBeaconSettingsActions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentBeaconSettingsActions.swift; sourceTree = "<group>"; };
 		4FBB8AC11F3711B600DEF04F /* CCRequestMessagingState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CCRequestMessagingState.swift; sourceTree = "<group>"; };
 		4FBB8AC41F37120300DEF04F /* CCRquestMessagingReducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CCRquestMessagingReducer.swift; sourceTree = "<group>"; };
@@ -213,6 +210,7 @@
 		97036DCB22CE4D50005A8322 /* CCLocationManager+DatabaseOperations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCLocationManager+DatabaseOperations.swift"; sourceTree = "<group>"; };
 		97036DCD22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCLocationManager+RangingBeacons.swift"; sourceTree = "<group>"; };
 		970ACF3A22D894DD00317525 /* ColocatorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColocatorManager.swift; sourceTree = "<group>"; };
+		9770817B22E718DF0074D8E6 /* AutoEquatable.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutoEquatable.generated.swift; sourceTree = "<group>"; };
 		BC0647AE218757A500555512 /* CCBeaconScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CCBeaconScanner.swift; path = CCLocation/CCBeaconScanner.swift; sourceTree = SOURCE_ROOT; };
 		BC0647B0218757B900555512 /* CCEddystone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CCEddystone.swift; sourceTree = "<group>"; };
 		BC0647B4218757E200555512 /* DispatchTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchTimer.swift; sourceTree = "<group>"; };
@@ -336,11 +334,10 @@
 				4FBB8A9D1F30D07B00DEF04F /* CurrentBeaconState.swift */,
 				4FBB8AB51F32089400DEF04F /* CurrentiBeaconMonitoringState.swift */,
 				4FBB8A8E1F30B92500DEF04F /* ForegroundLocationState.swift */,
-				4FBB8A901F30B9AD00DEF04F /* ForegroundBeaconState.swift */,
+				4FBB8A901F30B9AD00DEF04F /* BeaconState.swift */,
 				4F8FFD8E1F2CE0340001910A /* ForegroundGEOState.swift */,
 				4FBB8AA21F30D2CB00DEF04F /* BackgroundLocationState.swift */,
 				4FBB8A881F2F2E7F00DEF04F /* BackgroundGEOState.swift */,
-				4FBB8A921F30BCF200DEF04F /* BackgroundBeaconState.swift */,
 			);
 			path = LocationStates;
 			sourceTree = "<group>";
@@ -452,6 +449,7 @@
 				4FA524DA1F4050F90067D2C8 /* MessagingProtocol.pb.swift */,
 				BC0647AD2187578C00555512 /* eddyStone */,
 				4FE620AB211B4D8100DF8DB2 /* LibraryStateHandling */,
+				9770817B22E718DF0074D8E6 /* AutoEquatable.generated.swift */,
 				F0AF0C3B1DB3912700E72E76 /* CCLocation.h */,
 				F0AF0C931DB3C80300E72E76 /* CCLocation.swift */,
 				970ACF3A22D894DD00317525 /* ColocatorManager.swift */,
@@ -628,6 +626,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9770817C22E718DF0074D8E6 /* AutoEquatable.generated.swift in Sources */,
 				4FBB8AA91F3113C400DEF04F /* BackgroundLocationReducer.swift in Sources */,
 				4F8FFD9F1F2D30900001910A /* LifcycleActions.swift in Sources */,
 				4FBB8AC21F3711B600DEF04F /* CCRequestMessagingState.swift in Sources */,
@@ -669,12 +668,11 @@
 				4FE19A5B22AA513E000CE5A8 /* InertialActions.swift in Sources */,
 				4F659BB61F24910100775ABD /* CCLocationManager.swift in Sources */,
 				97036DC022CE06A3005A8322 /* CCRequestMessaging+ProcessEventsAndData.swift in Sources */,
-				4FBB8ABE1F325EDD00DEF04F /* AutoEquatable.generated.swift in Sources */,
 				4F8FFD971F2CE8FA0001910A /* CurrentGEOReducer.swift in Sources */,
 				F0AF0C941DB3C80300E72E76 /* CCLocation.swift in Sources */,
 				4FBB8A891F2F2E7F00DEF04F /* BackgroundGEOState.swift in Sources */,
 				4FBB8A8B1F2F2EDF00DEF04F /* BackgroundGEOReducer.swift in Sources */,
-				4FBB8A911F30B9AD00DEF04F /* ForegroundBeaconState.swift in Sources */,
+				4FBB8A911F30B9AD00DEF04F /* BeaconState.swift in Sources */,
 				4FBB8AA71F3113B000DEF04F /* ForegroundLocationReducer.swift in Sources */,
 				97036DC222CE07BF005A8322 /* CCRequestMessaging+ProcessiOSSettings.swift in Sources */,
 				4F222B1B1F90EDA600FB11BD /* BatteryLevelReducer.swift in Sources */,
@@ -703,7 +701,6 @@
 				4F222B191F90EA4300FB11BD /* BatteryLevelState.swift in Sources */,
 				97036DCE22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift in Sources */,
 				4F920BF81F3B161100BD7FEF /* LibraryTimeState.swift in Sources */,
-				4FBB8A931F30BCF200DEF04F /* BackgroundBeaconState.swift in Sources */,
 				97036DBE22CE05A2005A8322 /* CCRequestMessaging+StoreSubscriber.swift in Sources */,
 				4FAAEA281F46F9C500DF4DA1 /* WakeupReducer.swift in Sources */,
 				4FBB8AA51F31139200DEF04F /* CurrentLocationReducer.swift in Sources */,
