@@ -1,4 +1,4 @@
-// Generated using Sourcery 0.7.2 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 0.16.2 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 
 // swiftlint:disable file_length
@@ -48,6 +48,19 @@ extension BatteryLevelState: Equatable {}
 public func == (lhs: BatteryLevelState, rhs: BatteryLevelState) -> Bool {
     guard compareOptionals(lhs: lhs.batteryLevel, rhs: rhs.batteryLevel, compare: ==) else { return false }
     guard compareOptionals(lhs: lhs.isNewBatteryLevel, rhs: rhs.isNewBatteryLevel, compare: ==) else { return false }
+    return true
+}
+// MARK: - BeaconState AutoEquatable
+extension BeaconState: Equatable {}
+public func == (lhs: BeaconState, rhs: BeaconState) -> Bool {
+    guard compareOptionals(lhs: lhs.isIBeaconRangingEnabled, rhs: rhs.isIBeaconRangingEnabled, compare: ==) else { return false }
+    guard compareOptionals(lhs: lhs.maxRuntime, rhs: rhs.maxRuntime, compare: ==) else { return false }
+    guard compareOptionals(lhs: lhs.minOffTime, rhs: rhs.minOffTime, compare: ==) else { return false }
+    guard lhs.regions == rhs.regions else { return false }
+    guard compareOptionals(lhs: lhs.filterWindowSize, rhs: rhs.filterWindowSize, compare: ==) else { return false }
+    guard compareOptionals(lhs: lhs.filterMaxObservations, rhs: rhs.filterMaxObservations, compare: ==) else { return false }
+    guard lhs.filterExcludeRegions == rhs.filterExcludeRegions else { return false }
+    guard compareOptionals(lhs: lhs.isEddystoneScanningEnabled, rhs: rhs.isEddystoneScanningEnabled, compare: ==) else { return false }
     return true
 }
 // MARK: - CCRequestMessagingState AutoEquatable
@@ -113,19 +126,6 @@ public func == (lhs: CurrentLocationState, rhs: CurrentLocationState) -> Bool {
 extension CurrentiBeaconMonitoringState: Equatable {}
 public func == (lhs: CurrentiBeaconMonitoringState, rhs: CurrentiBeaconMonitoringState) -> Bool {
     guard lhs.monitoringRegions == rhs.monitoringRegions else { return false }
-    return true
-}
-// MARK: - ForegroundBeaconState AutoEquatable
-extension BeaconState: Equatable {}
-public func == (lhs: BeaconState, rhs: BeaconState) -> Bool {
-    guard compareOptionals(lhs: lhs.isIBeaconRangingEnabled, rhs: rhs.isIBeaconRangingEnabled, compare: ==) else { return false }
-    guard compareOptionals(lhs: lhs.maxRuntime, rhs: rhs.maxRuntime, compare: ==) else { return false }
-    guard compareOptionals(lhs: lhs.minOffTime, rhs: rhs.minOffTime, compare: ==) else { return false }
-    guard lhs.regions == rhs.regions else { return false }
-    guard compareOptionals(lhs: lhs.filterWindowSize, rhs: rhs.filterWindowSize, compare: ==) else { return false }
-    guard compareOptionals(lhs: lhs.filterMaxObservations, rhs: rhs.filterMaxObservations, compare: ==) else { return false }
-    guard lhs.filterExcludeRegions == rhs.filterExcludeRegions else { return false }
-    guard compareOptionals(lhs: lhs.isEddystoneScanningEnabled, rhs: rhs.isEddystoneScanningEnabled, compare: ==) else { return false }
     return true
 }
 // MARK: - ForegroundGEOState AutoEquatable
