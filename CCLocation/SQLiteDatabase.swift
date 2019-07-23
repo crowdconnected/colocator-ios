@@ -308,7 +308,7 @@ extension SQLiteDatabase {
         messagesBuffer.append(ccMessage)
         Log.debug("DB: insertMessage: \(ccMessage.observation.count) \(ccMessage.observation.hexEncodedString())")
         
-        let databaseMessagesCount =  UserDefaults.standard.value(forKey: kDatabaseMessagesCountKey) as? Int ?? 0
+        let databaseMessagesCount =  UserDefaults.standard.value(forKey: "DatabaseMessagesCountKEY") as? Int ?? 0
         UserDefaults.standard.set(databaseMessagesCount + 1, forKey: "DatabaseMessagesCountKEY")
     }
     
@@ -383,6 +383,9 @@ extension SQLiteDatabase {
 
 extension SQLiteDatabase {
     func popMessages(num: Int) throws -> [Data]  {
+        
+        let databaseMessagesCount =  UserDefaults.standard.value(forKey: "DatabaseMessagesCountKEY") as? Int ?? 0
+        UserDefaults.standard.set(databaseMessagesCount - 1, forKey: "DatabaseMessagesCountKEY")
         
         let data = try serialMessageDatabaseQueue.sync { () -> [Data] in
             
