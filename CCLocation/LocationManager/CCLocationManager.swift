@@ -49,6 +49,8 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
     public init(stateStore: Store<LibraryState>) {
         super.init()
         
+        UserDefaults.standard.set(true, forKey: "CollectLocationDataKEY")
+        
         self.stateStore = stateStore
         
         currentGEOState = CurrentGEOState(isInForeground: nil,
@@ -177,6 +179,8 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
     
     public func stopAllLocationObservations () {
 
+        UserDefaults.standard.set(false, forKey: "CollectLocationDataKEY")
+        
         locationManager.stopUpdatingLocation()
         stopReceivingSignificantLocationChanges()
         stopRangingiBeacons(forCurrentSettings: false)
