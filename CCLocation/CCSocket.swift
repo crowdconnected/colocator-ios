@@ -166,6 +166,7 @@ class CCSocket:NSObject {
         
         if maxCycleTimer == nil && firstReconnect {
             Log.warning("Fired timer for stop collecting data in \(CCSocketConstants.MAX_CYCLE_DELAY / 1000) seconds")
+
             maxCycleTimer = Timer.scheduledTimer(timeInterval: CCSocketConstants.MAX_CYCLE_DELAY / 1000,
                                                  target: self,
                                                  selector: #selector(self.stopCycler(timer:)),
@@ -213,7 +214,7 @@ class CCSocket:NSObject {
         
         return requestURL
     }
-    
+
     deinit {
         Log.debug("CCRequestMessaging DEINIT")
         
@@ -277,7 +278,7 @@ extension CCSocket: SRWebSocketDelegate {
         var messageData: Data? = nil
         
         if message is String || message is NSString {
-            
+           
             messageData = (message as! String).data(using: .utf8)!
             
         } else if message is Data || message is NSData {
