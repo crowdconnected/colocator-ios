@@ -26,90 +26,55 @@ extension CCRequestMessaging {
     }
     
     private func sendAllMessagesFromDatabase() {
-        var workItem: DispatchWorkItem!
-        
-        workItem = DispatchWorkItem { [weak self] in
+        DispatchQueue.global(qos: .background).async { [weak self] in
+            let maxMessagesToReturn = 100
+            var connectionState = self?.stateStore.state.ccRequestMessagingState.webSocketState?.connectionState
             
-            if !workItem.isCancelled {
-                let maxMessagesToReturn = 100
-                var connectionState = self?.stateStore.state.ccRequestMessagingState.webSocketState?.connectionState
+            let messageNumber = self?.getMessageCount() ?? -1
+            Log.verbose ("\(messageNumber) Queued messages are available")
+            
+            while self?.getMessageCount() ?? -1 > 0 && connectionState == .online {
+                connectionState = self?.stateStore.state.ccRequestMessagingState.webSocketState?.connectionState
                 
-                let messageNumber = self?.getMessageCount() ?? -1
-                Log.verbose ("\(messageNumber) Queued messages are available")
+                var compiledClientMessage = Messaging_ClientMessage()
+                var backToQueueMessages = Messaging_ClientMessage()
                 
-                while self?.getMessageCount() ?? -1 > 0 && connectionState == .online {
-                    if workItem.isCancelled { break }
-                    
-                    connectionState = self?.stateStore.state.ccRequestMessagingState.webSocketState?.connectionState
-                    
-                    var compiledClientMessage = Messaging_ClientMessage()
-                    var backToQueueMessages = Messaging_ClientMessage()
-                    
-                    var tempMessageData: [Data]?
-                    var subMessageCounter: Int = 0
-                    
-                    while self?.getMessageCount() ?? -1 > 0
-                        && subMessageCounter < maxMessagesToReturn {
-                        
-                        if workItem.isCancelled { break }
+                var tempMessageData: [Data]?
+                var subMessageCounter: Int = 0
+                
+                while self?.getMessageCount() ?? -1 > 0
+                    && subMessageCounter < maxMessagesToReturn {
                         
                         tempMessageData = self?.popMessagesFromLocalDatabase(maxMessagesToReturn: maxMessagesToReturn)
                         
                         if let unwrappedTempMessageData = tempMessageData {
                             for tempMessage in unwrappedTempMessageData {
-                                if workItem.isCancelled { break }
-                                
+                               
                                 let (newSubMessageCounter,
                                      newCompiledClientMessage,
                                      newBackToQueueMessages) = self?.handleMessageType(message: tempMessage,
                                                                                        subMessageInitialNumber: subMessageCounter,
                                                                                        compiledMessage: compiledClientMessage,
                                                                                        queueMessage: backToQueueMessages)
-                                                                ?? (subMessageCounter,
-                                                                    Messaging_ClientMessage(),
-                                                                    Messaging_ClientMessage())
+                                                            ?? (subMessageCounter,
+                                                                Messaging_ClientMessage(),
+                                                                Messaging_ClientMessage())
                                 
                                 subMessageCounter = newSubMessageCounter
                                 compiledClientMessage = newCompiledClientMessage
                                 backToQueueMessages = newBackToQueueMessages
                             }
                         }
-                    }
-                    
-                    if workItem.isCancelled { break }
-                    
-                    self?.logMessageContent(compiledClientMessage, subMessageCounter: subMessageCounter)
-                    
-                    if workItem.isCancelled { break }
-                    
-                    self?.handleMessageBackToQueue(backToQueueMessages, subMessageCounter: subMessageCounter)
-                    
-                    if workItem.isCancelled { return }
-                    
-                    if let data = try? compiledClientMessage.serializedData(), data.count > 0 {
-                        self?.setupSentTime(forMessage: &compiledClientMessage)
-                        self?.sendMessageThroughSocket(compiledClientMessage)
-                    }
                 }
                 
-                if workItem.isCancelled { return }
+                self?.logMessageContent(compiledClientMessage, subMessageCounter: subMessageCounter)
                 
-                self?.removeWorkItem(workItem)
-                workItem = nil
-            }
-        }
-        
-        workItems.append(workItem)
-        
-        DispatchQueue.global(qos: .background).async(execute: workItem)
-    }
-    
-    private func removeWorkItem(_ item: DispatchWorkItem) {
-        if let index = self.workItems.index(where: {$0 === item}) {
-            // Awkward, it happened to throw index out of range error
-            // Just checking index before trying to remove
-            if index < self.workItems.count {
-                self.workItems.remove(at: index)
+                self?.handleMessageBackToQueue(backToQueueMessages)
+                
+                if let data = try? compiledClientMessage.serializedData(), data.count > 0 {
+                    self?.setupSentTime(forMessage: &compiledClientMessage)
+                    self?.sendMessageThroughSocket(compiledClientMessage)
+                }
             }
         }
     }
@@ -141,36 +106,27 @@ extension CCRequestMessaging {
     }
     
     private func sendSingleMessage(_ message: Data) {
-        var workItem: DispatchWorkItem!
-        
-        workItem = DispatchWorkItem { [weak self] in
-            if workItem.isCancelled { return }
-            
-            var (subMessageCounter,
+        DispatchQueue.global(qos: .background).async { [weak self] in
+            var (_,
                  compiledClientMessage,
                  backToQueueMessage) = self?.handleMessageType(message: message) ?? (0,
                                                                                      Messaging_ClientMessage(),
                                                                                      Messaging_ClientMessage())
             
-            self?.handleMessageBackToQueue(backToQueueMessage, subMessageCounter: subMessageCounter)
-            
-            if workItem.isCancelled { return }
-            
+            self?.handleMessageBackToQueue(backToQueueMessage)
+        
             if let data = try? compiledClientMessage.serializedData(), data.count > 0 {
                 self?.setupSentTime(forMessage: &compiledClientMessage)
                 self?.sendMessageThroughSocket(compiledClientMessage)
             }
         }
-        
-        DispatchQueue.global(qos: .background).async(execute: workItem)
     }
     
-    private func handleMessageBackToQueue(_ message: Messaging_ClientMessage, subMessageCounter: Int) {
+    private func handleMessageBackToQueue(_ message: Messaging_ClientMessage) {
         if let backToQueueData = try? message.serializedData() {
-            Log.debug("Had to split a client message into two, pushing \(subMessageCounter) unsent messages back to the Queue")
-            
             if backToQueueData.count > 0 {
                 insertMessageInLocalDatabase(message: backToQueueData)
+                Log.debug("Had to split a client message into two, pushing \(backToQueueData.count) unsent messages back to the Queue")
             }
         } else {
             Log.error("Couldn't serialize back to queue data")
