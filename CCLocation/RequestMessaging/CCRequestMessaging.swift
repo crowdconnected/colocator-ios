@@ -29,8 +29,6 @@ class CCRequestMessaging: NSObject {
     var currentLibraryTimerState: LibraryTimeState?
     var currentCapabilityState: CapabilityState?
     
-    var workItems: [DispatchWorkItem] = []
-    
     internal var messagesDB: SQLiteDatabase!
     internal let messagesDBName = "observations.db"
     
@@ -479,13 +477,6 @@ class CCRequestMessaging: NSObject {
         killTimeBetweenSendsTimer()
         
         timeHandling.delegate = nil
-        
-        for workItem in workItems {
-            workItem.cancel()
-            Log.verbose("Cancelling work item")
-        }
-        
-        workItems.removeAll()
         
         messagesDB.close()
         messagesDB = nil
