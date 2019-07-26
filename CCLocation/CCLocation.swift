@@ -14,32 +14,32 @@ internal struct Constants {
     static let DEFAULT_END_POINT_PARTIAL_URL = ".colocator.net:443/socket"
 }
 
-public protocol CCLocationDelegate: class {
-    func ccLocationDidConnect()
-    func ccLocationDidFailWithError(error: Error)
+@objc public protocol CCLocationDelegate: class {
+    @objc func ccLocationDidConnect()
+    @objc func ccLocationDidFailWithError(error: Error)
 }
 
-public class CCLocation:NSObject {
+@objc public class CCLocation: NSObject {
     
-    public weak var delegate: CCLocationDelegate?
+    @objc public weak var delegate: CCLocationDelegate?
     
     var stateStore: Store<LibraryState>?
     var libraryStarted: Bool?
     var colocatorManager: ColocatorManager?
     
-    public static let sharedInstance : CCLocation = {
+    @objc public static let sharedInstance : CCLocation = {
         let instance = CCLocation()
         instance.libraryStarted = false
         return instance
     }()
     
-    public static func askMotionPermissions () {
+    @objc public static func askMotionPermissions () {
         CMPedometer().stopUpdates()
     }
     
     /// Start the Colocator library with credentials
     ///
-    public func start (apiKey: String, urlString: String? = nil) {
+    @objc public func start(apiKey: String, urlString: String? = nil) {
         if libraryStarted == false {
             libraryStarted = true
             
@@ -70,7 +70,7 @@ public class CCLocation:NSObject {
     
     /// Stop the Colocator library
     ///
-    public func stop (){
+    @objc public func stop() {
         if libraryStarted == true {
             libraryStarted = false
             stateStore = nil
@@ -84,12 +84,12 @@ public class CCLocation:NSObject {
     
     /// Filter the log levels that appears in the console
     ///
-    public func setLoggerLevels(verbose: Bool,
-                                info: Bool,
-                                debug: Bool,
-                                warninig: Bool,
-                                error: Bool,
-                                severe: Bool) {
+    @objc public func setLoggerLevels(verbose: Bool,
+                                      info: Bool,
+                                      debug: Bool,
+                                      warninig: Bool,
+                                      error: Bool,
+                                      severe: Bool) {
         Log.configureLoggerLevelsDisplayed(verbose: verbose,
                                            info: info,
                                            debug: debug,
@@ -98,15 +98,15 @@ public class CCLocation:NSObject {
                                            severe: severe)
     }
     
-    public func getDeviceId() -> String? {
+    @objc public func getDeviceId() -> String? {
         return CCSocket.sharedInstance.deviceId
     }
     
-    public func sendMarker(message: String) {
+    @objc public func sendMarker(message: String) {
         colocatorManager?.sendMarker(data: message)
     }
     
-    public func setAliases(aliases:Dictionary<String, String>) {
+    @objc public func setAliases(aliases:Dictionary<String, String>) {
         colocatorManager?.setAliases(aliases: aliases)
     }
 }
