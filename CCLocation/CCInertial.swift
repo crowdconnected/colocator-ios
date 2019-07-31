@@ -85,7 +85,7 @@ class CCInertial: NSObject {
             let yawValue = data.attitude.yaw
             let yawData = YawData(yaw: yawValue, date: Date())
             
-            Log.debug("""
+            Log.verbose("""
                 Pedometer: Yaw: \(yawData.yaw)
                 Timestamp: \(yawData.date.timeIntervalSince1970)
                 Interval: \(self.motion.deviceMotionUpdateInterval )
@@ -109,7 +109,7 @@ class CCInertial: NSObject {
     
     private func findFirstSmallerYaw(yawArray: [YawData], timeInterval: TimeInterval) -> YawData? {
         for (index, yaw) in yawArray.reversed().enumerated() {
-            Log.debug("""
+            Log.verbose("""
                 Pedometer: Yaw time interval: \(yaw.date.timeIntervalSince1970)
                 Time interval: \(timeInterval)
                 """)
@@ -180,8 +180,8 @@ class CCInertial: NSObject {
                 """)
             
             handleAndReceiveEachStep(totalSteps: stepsBetweenStepCounts,
-                                     oneStepTimeInterval: oneStepTimeInterval,
-                                     previousPedometerData: tempPreviousPedometerData)
+                                          oneStepTimeInterval: oneStepTimeInterval,
+                                          previousPedometerData: tempPreviousPedometerData)
             previousPedometerData = PedometerData (endDate: pedometerData.endDate,
                                                    numberOfSteps: numberOfSteps)
         }
@@ -190,12 +190,14 @@ class CCInertial: NSObject {
     private func handleAndReceiveEachStep(totalSteps: Int,
                                           oneStepTimeInterval: TimeInterval,
                                           previousPedometerData: PedometerData) {
+        Log.debug("Handle \(totalSteps) steps")
         for i in  1 ... totalSteps {
             let tempTimePeriod = TimeInterval(Double(i) * oneStepTimeInterval)
             let tempTimeStamp = previousPedometerData.endDate.timeIntervalSince1970 + tempTimePeriod
             
             guard let tempYaw = findFirstSmallerYaw(yawArray: yawDataBuffer, timeInterval: tempTimeStamp) else {
-                return
+                Log.warning("Temp yaw is nil. Steps won't be sent to server")
+                continue
             }
             
             Log.debug ("""
@@ -207,7 +209,10 @@ class CCInertial: NSObject {
             
             let stepDate = Date(timeIntervalSince1970: tempTimeStamp)
             let angle = rad2deg(tempYaw.yaw)
-            delegate?.receivedStep(date: stepDate, angle: angle)
+            if delegate == nil {
+                Log.warning("Delegate for CCInertial is nil. Steps won't be sent to server")
+            }
+            self.delegate?.receivedStep(date: stepDate, angle: angle)
         }
     }
     
