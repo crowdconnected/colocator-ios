@@ -46,6 +46,8 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
     
     weak var stateStore: Store<LibraryState>!
     
+    var isWaitingForSignificantUpdates = false
+    
     public init(stateStore: Store<LibraryState>) {
         super.init()
         
@@ -134,6 +136,7 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
     
     @objc func stopLocationUpdates () {
         locationManager.stopUpdatingLocation()
+        isWaitingForSignificantUpdates = true
         
         if (maxRunGEOTimer != nil) {
             maxRunGEOTimer?.invalidate()
@@ -223,6 +226,11 @@ extension CCLocationManager {
             //            }
             
             delegate?.receivedGEOLocation(location: location)
+        }
+        
+        if isWaitingForSignificantUpdates {
+            isWaitingForSignificantUpdates = false
+            handleGEOState(currentGEOState)
         }
     }
     
