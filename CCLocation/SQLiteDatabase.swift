@@ -306,10 +306,7 @@ extension SQLiteDatabase {
 extension SQLiteDatabase {
     func insertMessage(ccMessage: CCMessage) throws {
         messagesBuffer.append(ccMessage)
-        Log.debug("DB: insertMessage: \(ccMessage.observation.count) \(ccMessage.observation.hexEncodedString())")
-        
-        let databaseMessagesCount =  UserDefaults.standard.value(forKey: "DatabaseMessagesCountKEY") as? Int ?? 0
-        UserDefaults.standard.set(databaseMessagesCount + 1, forKey: "DatabaseMessagesCountKEY")
+        Log.verbose("DB: insertMessage: \(ccMessage.observation.count) \(ccMessage.observation.hexEncodedString())")
     }
     
     @objc func insertBundledMessages() throws {
@@ -383,10 +380,6 @@ extension SQLiteDatabase {
 
 extension SQLiteDatabase {
     func popMessages(num: Int) throws -> [Data]  {
-        
-        let databaseMessagesCount =  UserDefaults.standard.value(forKey: "DatabaseMessagesCountKEY") as? Int ?? 0
-        UserDefaults.standard.set(databaseMessagesCount - 1, forKey: "DatabaseMessagesCountKEY")
-        
         let data = try serialMessageDatabaseQueue.sync { () -> [Data] in
             
             var clientMessageData: Data
@@ -529,8 +522,6 @@ extension SQLiteDatabase {
         }
         
         try saveResetAutoincrement(table: messagesTable)
-        
-        UserDefaults.standard.set(0, forKey: "DatabaseMessagesCountKEY")
     }
 }
 
