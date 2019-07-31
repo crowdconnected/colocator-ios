@@ -196,7 +196,7 @@ class CCInertial: NSObject {
             let tempTimeStamp = previousPedometerData.endDate.timeIntervalSince1970 + tempTimePeriod
             
             guard let tempYaw = findFirstSmallerYaw(yawArray: yawDataBuffer, timeInterval: tempTimeStamp) else {
-                Log.warning("Temp yaw is nil. Steps won't be sent to server")
+                Log.debug("Temp yaw is nil. Steps won't be sent to server")
                 continue
             }
             
@@ -209,9 +209,6 @@ class CCInertial: NSObject {
             
             let stepDate = Date(timeIntervalSince1970: tempTimeStamp)
             let angle = rad2deg(tempYaw.yaw)
-            if delegate == nil {
-                Log.warning("Delegate for CCInertial is nil. Steps won't be sent to server")
-            }
             self.delegate?.receivedStep(date: stepDate, angle: angle)
         }
     }
