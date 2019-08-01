@@ -439,9 +439,9 @@ class CCRequestMessaging: NSObject {
         
         NotificationCenter.default.addObserver(self, selector: #selector(batteryStateDidChange), name: UIDevice.batteryStateDidChangeNotification, object: nil)
         
-        //        if #available(iOS 9.0, *) {
-        //            NotificationCenter.default.addObserver(self, selector: #selector(powerModeDidChange), name: NSNotification.Name.NSProcessInfoPowerStateDidChange, object: nil)
-        //        }
+        if #available(iOS 9.0, *) {
+            NotificationCenter.default.addObserver(self, selector: #selector(powerModeDidChange), name: NSNotification.Name.NSProcessInfoPowerStateDidChange, object: nil)
+        }
     }
     
     func version() -> String {
@@ -463,10 +463,9 @@ class CCRequestMessaging: NSObject {
         DispatchQueue.main.async {self.stateStore.dispatch(BatteryStateChangedAction(batteryState: batteryState))}
     }
     
-    func powerModeDidChange(notification: Notification) {
+    @objc func powerModeDidChange(notification: Notification) {
         if #available(iOS 9.0, *) {
             let isLowPowerMode = ProcessInfo.processInfo.isLowPowerModeEnabled
-            
             DispatchQueue.main.async {self.stateStore.dispatch(IsLowPowerModeEnabledAction(isLowPowerModeEnabled: isLowPowerMode))}
         }
     }
