@@ -47,6 +47,7 @@ extension CCLocationManager: StoreSubscriber {
                 } else {
                     Log.verbose("GEOTIMER startUpdatingLocation no offTime available")
                     locationManager.startUpdatingLocation()
+                    isContinuousGEOCollectionActive = true
                     
                     Log.verbose("Enabled GEO settings are activityType:\(locationManager.activityType), desiredAccuracy: \(locationManager.desiredAccuracy), distanceFilter: \(locationManager.distanceFilter), pausesUpdates: \(locationManager.pausesLocationUpdatesAutomatically)")
                     
