@@ -46,7 +46,9 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
     
     weak var stateStore: Store<LibraryState>!
     
-    var isWaitingForSignificantUpdates = false
+    // Initial value has to be true, otherwise after force quiting the app, the location manager will never start collecting all the data again
+    var isWaitingForSignificantUpdates = true
+    
     var isContinuousGEOCollectionActive = true
     
     public init(stateStore: Store<LibraryState>) {
