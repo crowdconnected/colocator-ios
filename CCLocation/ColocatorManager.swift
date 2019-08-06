@@ -102,6 +102,27 @@ class ColocatorManager {
         }
     }
     
+    public func addAlias(key: String, value: String) {
+        let alias = [key: value]
+        updateAliasesInUserDefaults(alias)
+        if let ccRequestMessaging = self.ccRequestMessaging {
+            ccRequestMessaging.processAliases(aliases: alias)
+        }
+    }
+    
+    private func updateAliasesInUserDefaults(_ alias: Dictionary<String, String>) {
+        let defaults = UserDefaults.standard
+        
+        var newAliasesDictionary: Dictionary<String, String> = [:]
+        if let oldAliases = defaults.value(forKey: CCSocketConstants.ALIAS_KEY) as? Dictionary<String, String> {
+            newAliasesDictionary = oldAliases
+        }
+        for (key, value) in alias {
+            newAliasesDictionary.updateValue(value, forKey: key)
+        }
+        defaults.setValue(newAliasesDictionary, forKey: CCSocketConstants.ALIAS_KEY)
+    }
+    
     public func sendMarker(data: String) {
         if let ccRequestMessaging = self.ccRequestMessaging {
             ccRequestMessaging.processMarker(data: data)
