@@ -109,6 +109,40 @@ internal struct Constants {
     @objc public func setAliases(aliases:Dictionary<String, String>) {
         colocatorManager?.setAliases(aliases: aliases)
     }
+    
+    @objc public func handleBackgroundRefresh(clientKey key: String, completion: @escaping (Bool) -> Void) {
+        let endpointUrlString = "https://en23kessvxam43o.m.pipedream.net"
+        var urlComponents = URLComponents(string: endpointUrlString)
+        urlComponents?.queryItems = [URLQueryItem(name: "clientKey", value: key)]
+        
+        guard let requestURL = urlComponents?.url  else {
+            completion(false)
+            return
+        }
+        let request = URLRequest(url: requestURL)
+        
+        URLSession.shared.dataTask(with: request) { (data, response, err) in
+            guard err == nil, let dataResponse = data else {
+                completion(false)
+                return
+            }
+            
+            do {
+                let jsonResponse = try JSONSerialization.jsonObject(with: dataResponse, options: []) as? [String: Any]
+                let clientStatus = jsonResponse?["clientStatus"] as? Bool
+                
+                if clientStatus == true {
+                    self.start(apiKey: key)
+                    completion(true)
+                } else {
+                    completion(false)
+                }
+            } catch let parsingError {
+                completion(false)
+                print("Error", parsingError)
+            }
+        }.resume()
+    }
 }
 
 extension CCLocation: CCSocketDelegate {
