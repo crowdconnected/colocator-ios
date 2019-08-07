@@ -176,7 +176,6 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
     }
     
     public func stopAllLocationObservations () {
-
         locationManager.stopUpdatingLocation()
         stopReceivingSignificantLocationChanges()
         stopRangingiBeacons(forCurrentSettings: false)
