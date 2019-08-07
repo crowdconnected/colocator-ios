@@ -24,16 +24,13 @@ func libraryTimeReducer (action: Action, state: LibraryTimeState?) -> LibraryTim
     
     var state = state ?? libraryTimeState
     
-    switch action {
-    case let newTruetimeReceivedAction as NewTruetimeReceivedAction:
+    if let newTruetimeReceivedAction = action as? NewTruetimeReceivedAction {
         state.lastTrueTime = newTruetimeReceivedAction.lastTrueTime
         state.bootTimeIntervalAtLastTrueTime = newTruetimeReceivedAction.bootTimeIntervalAtLastTrueTime
         state.systemTimeAtLastTrueTime = newTruetimeReceivedAction.systemTimeAtLastTrueTime
         state.lastRebootTime = newTruetimeReceivedAction.lastRebootTime
         
         saveLibraryTimeToUserDefaults(libraryTimeState: state)
-        
-    default: break
     }
     
     return state

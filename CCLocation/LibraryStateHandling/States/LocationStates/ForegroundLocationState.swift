@@ -10,5 +10,5 @@ import ReSwift
 
 public struct ForegroundLocationState: StateType, AutoEquatable {
     let foregroundGEOState: ForegroundGEOState?
-    let foregroundBeaconState: ForegroundBeaconState?
+    let foregroundBeaconState: BeaconState?
 }

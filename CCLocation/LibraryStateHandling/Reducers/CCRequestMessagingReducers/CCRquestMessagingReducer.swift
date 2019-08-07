@@ -9,6 +9,7 @@
 import ReSwift
 
 func ccRequestMessagingReducer(action: Action, state: CCRequestMessagingState?) -> CCRequestMessagingState {
+    
     var state = CCRequestMessagingState (
         webSocketState: webSocketReducer(action: action, state: state?.webSocketState),
         radiosilenceTimerState: timerReducer(action: action, state: state?.radiosilenceTimerState),
@@ -20,58 +21,63 @@ func ccRequestMessagingReducer(action: Action, state: CCRequestMessagingState?) 
     case _ as ReSwiftInit:
         break
 
-    
-    // handling timer events
+    // Handling timer events
     case let radioSilenceTimerAction as TimeBetweenSendsTimerReceivedAction:
-        
         if let timeInterval = radioSilenceTimerAction.timeInMilliseconds {
-            if state.radiosilenceTimerState!.timeInterval != timeInterval {
-                state.radiosilenceTimerState!.timeInterval = timeInterval
-                
-                state.radiosilenceTimerState!.timer = CCTimer.invalidate
-                
-                if state.radiosilenceTimerState!.timeInterval != nil {
-                    state.radiosilenceTimerState!.timer = CCTimer.schedule
-                }
-                
-            } else {
-                //do nothing
-            }
+            updateRadioSilenceTimeInterval(forState: &state, withValue: timeInterval)
         } else {
-            state.radiosilenceTimerState?.timer = CCTimer.invalidate
-            state.radiosilenceTimerState?.timeInterval = nil
-            state.radiosilenceTimerState?.startTimeInterval = nil
-            
+            resetAndInvalidateRadioSilenceTimer(forState: &state)
         }
                 
         saveTimerStateToUserDefaults(timerState: state.radiosilenceTimerState)
-
-        
+        break
         
     case let timerRunningAction as TimerRunningAction:
         state.radiosilenceTimerState?.timer = CCTimer.running
 
-        // only set a new timer when the start time interval is nil, this is an intentional case for the starttimer
+        // Only set a new timer when the start time interval is nil, this is an intentional case for the starttimer
         if timerRunningAction.startTimeInterval != nil {
             state.radiosilenceTimerState?.startTimeInterval = timerRunningAction.startTimeInterval
         } else {
             state.radiosilenceTimerState?.startTimeInterval = nil
         }
-
+        break
+        
     case _ as TimerStoppedAction:
         state.radiosilenceTimerState?.timer = CCTimer.stopped
+        break
         
     case _ as ScheduleSilencePeriodTimerAction:
         
-        // only schedule, if we actually have a time interval available
-        if (state.radiosilenceTimerState?.timeInterval != nil) {
+        // Only schedule if we actually have a time interval available
+        if state.radiosilenceTimerState?.timeInterval != nil {
             state.radiosilenceTimerState?.timer = CCTimer.schedule
         }
+        break
         
     default:
         break
     }
 
-    
     return state
+}
+
+func updateRadioSilenceTimeInterval(forState state: inout CCRequestMessagingState, withValue newValue: UInt64) {
+    
+    if state.radiosilenceTimerState!.timeInterval != newValue {
+        
+        state.radiosilenceTimerState!.timeInterval = newValue
+        state.radiosilenceTimerState!.timer = CCTimer.invalidate
+        
+        if state.radiosilenceTimerState!.timeInterval != nil {
+            state.radiosilenceTimerState!.timer = CCTimer.schedule
+        }
+    }
+}
+
+func resetAndInvalidateRadioSilenceTimer(forState state: inout CCRequestMessagingState) {
+    
+    state.radiosilenceTimerState?.timer = CCTimer.invalidate
+    state.radiosilenceTimerState?.timeInterval = nil
+    state.radiosilenceTimerState?.startTimeInterval = nil
 }

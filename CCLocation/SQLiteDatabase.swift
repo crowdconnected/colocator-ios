@@ -154,7 +154,7 @@ extension SQLiteDatabase {
             
             try saveResetAutoincrement(table: CCLocationTables.IBEACON_MESSAGES_TABLE)
             
-            Log.verbose("Flushing iBeacon buffer with \(ibeaconBeaconBuffer.count)")
+            Log.info("Flushing iBeacon buffer with \(ibeaconBeaconBuffer.count)")
             
             guard sqlite3_exec(dbPointer, "BEGIN IMMEDIATE TRANSACTION", nil, nil, nil) == SQLITE_OK else  {
                 throw SQLiteError.Exec(message: errorMessage)
@@ -199,7 +199,7 @@ extension SQLiteDatabase {
                 
                 let deleteSql = "DELETE FROM \(CCLocationTables.IBEACON_MESSAGES_TABLE) WHERE ID IN (SELECT ID FROM \(CCLocationTables.IBEACON_MESSAGES_TABLE) ORDER BY ID LIMIT \(deleteDiff));"
                 
-//                Log.debug("\(deleteSql)")
+                Log.debug("DB: \(deleteSql)")
                 
                 let deleteStatement = try prepareStatement(sql: deleteSql)
                 
@@ -237,7 +237,7 @@ extension SQLiteDatabase {
             
             let total_count = try count(table: CCLocationTables.EDDYSTONE_BEACON_MESSAGES_TABLE)
             
-            Log.verbose("Flushing eddystone beacon buffer with \(eddystoneBeaconBuffer.count)")
+            Log.info("Flushing eddystone beacon buffer with \(eddystoneBeaconBuffer.count)")
             
             try saveResetAutoincrement(table: CCLocationTables.EDDYSTONE_BEACON_MESSAGES_TABLE)
             
@@ -278,7 +278,7 @@ extension SQLiteDatabase {
                 
                 let deleteSql = "DELETE FROM \(CCLocationTables.EDDYSTONE_BEACON_MESSAGES_TABLE) WHERE ID IN (SELECT ID FROM \(CCLocationTables.EDDYSTONE_BEACON_MESSAGES_TABLE) ORDER BY ID LIMIT \(deleteDiff));"
                 
-//                Log.debug("\(deleteSql)")
+                Log.debug("DB: \(deleteSql)")
                 
                 let deleteStatement = try prepareStatement(sql: deleteSql)
                 
@@ -306,7 +306,7 @@ extension SQLiteDatabase {
 extension SQLiteDatabase {
     func insertMessage(ccMessage: CCMessage) throws {
         messagesBuffer.append(ccMessage)
-//        Log.debug("insertMessage: \(ccMessage.observation.count) \(ccMessage.observation.hexEncodedString())")
+        Log.verbose("DB: insertMessage: \(ccMessage.observation.count) \(ccMessage.observation.hexEncodedString())")
     }
     
     @objc func insertBundledMessages() throws {
@@ -354,7 +354,7 @@ extension SQLiteDatabase {
                 
                 let deleteSql = "DELETE FROM \(CCLocationTables.MESSAGES_TABLE) WHERE ID IN (SELECT ID FROM \(CCLocationTables.MESSAGES_TABLE) ORDER BY ID LIMIT \(deleteDiff));"
                 
-//                Log.debug("\(deleteSql)")
+                Log.debug("DB: \(deleteSql)")
                 
                 let deleteStatement = try prepareStatement(sql: deleteSql)
                 
@@ -380,7 +380,6 @@ extension SQLiteDatabase {
 
 extension SQLiteDatabase {
     func popMessages(num: Int) throws -> [Data]  {
-        
         let data = try serialMessageDatabaseQueue.sync { () -> [Data] in
             
             var clientMessageData: Data
@@ -486,11 +485,10 @@ extension SQLiteDatabase {
     }
 }
 
-
+// MARK: - Deleting methods
 
 extension SQLiteDatabase {
     func deleteBeacons(beaconTable: String) throws {
-        
         let deleteMessagesSQL = "DELETE FROM \(beaconTable);"
         
         guard let deleteMessagesStatement = try? prepareStatement(sql: deleteMessagesSQL) else {
@@ -506,6 +504,24 @@ extension SQLiteDatabase {
         }
         
         try saveResetAutoincrement(table: beaconTable)
+    }
+    
+    func deleteMessages(messagesTable: String) throws {
+        let deleteMessagesSQL = "DELETE FROM \(messagesTable);"
+        
+        guard let deleteMessagesStatement = try? prepareStatement(sql: deleteMessagesSQL) else {
+            throw SQLiteError.Prepare(message: errorMessage)
+        }
+        
+        defer {
+            sqlite3_finalize(deleteMessagesStatement)
+        }
+        
+        guard sqlite3_step(deleteMessagesStatement) == SQLITE_DONE else {
+            throw SQLiteError.Step(message: errorMessage)
+        }
+        
+        try saveResetAutoincrement(table: messagesTable)
     }
 }
 

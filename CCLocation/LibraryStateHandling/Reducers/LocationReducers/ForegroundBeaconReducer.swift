@@ -17,10 +17,8 @@ private struct ForegroundBeaconReducerConstants {
 
 private typealias C = ForegroundBeaconReducerConstants
 
-func foregroundBeaconReducer (action: Action, state: ForegroundBeaconState?) -> ForegroundBeaconState {
-    
-    var fGiBeaconState = ForegroundBeaconState(fGiBeaconEnabled: false, maxRuntime: nil, minOffTime: nil, regions: [], filterWindowSize: nil, filterMaxObservations: nil, filterExcludeRegions: [], eddystoneScanEnabled: false)
-    
+func foregroundBeaconReducer(action: Action, state: BeaconState?) -> BeaconState {
+    var fGiBeaconState = BeaconState.emptyInit()
     
     if let loadedfGiBeaconState = getForegroundiBeaconStateFromUserDefaults() {
         fGiBeaconState = loadedfGiBeaconState
@@ -58,15 +56,14 @@ func foregroundBeaconReducer (action: Action, state: ForegroundBeaconState?) -> 
     return state
 }
 
-private func getForegroundiBeaconStateFromUserDefaults () -> ForegroundBeaconState? {
+private func getForegroundiBeaconStateFromUserDefaults () -> BeaconState? {
     let userDefaults = UserDefaults.standard
     
-    var fgIBeaconState:ForegroundBeaconState?
+    var fgIBeaconState:BeaconState?
     
-    if let iBeaconDictionary = userDefaults.dictionary(forKey: C.userDefaultsForegroundiBeaconKey){
-        
+    if let iBeaconDictionary = userDefaults.dictionary(forKey: C.userDefaultsForegroundiBeaconKey) {
         if fgIBeaconState == nil {
-            fgIBeaconState = ForegroundBeaconState(fGiBeaconEnabled: false, maxRuntime: nil, minOffTime: nil, regions: [], filterWindowSize: nil, filterMaxObservations: nil, filterExcludeRegions: [], eddystoneScanEnabled: false)
+            fgIBeaconState = BeaconState.emptyInit()
         }
         
         fgIBeaconState?.maxRuntime = iBeaconDictionary["maxRuntime"] as? UInt64
@@ -74,27 +71,27 @@ private func getForegroundiBeaconStateFromUserDefaults () -> ForegroundBeaconSta
         fgIBeaconState?.filterWindowSize = iBeaconDictionary["filterWindowSize"] as? UInt64
         fgIBeaconState?.filterMaxObservations = iBeaconDictionary["filterMaxObservations"] as? UInt32
         fgIBeaconState?.isEddystoneScanningEnabled = iBeaconDictionary["isEddystoneScanningEnabled"] as? Bool
-        fgIBeaconState?.isIBeaconRangingEnabled = iBeaconDictionary["fGiBeaconEnabled"] as? Bool
+        fgIBeaconState?.isIBeaconRangingEnabled = iBeaconDictionary["isIBeaconRangingEnabled"] as? Bool
     }
     
     if let decoded = userDefaults.object(forKey: C.userDefaultsForegroundiBeaconRegionsKey) as? Data {
-        
         if fgIBeaconState == nil {
-            fgIBeaconState = ForegroundBeaconState(fGiBeaconEnabled: false, maxRuntime: nil, minOffTime: nil, regions: [], filterWindowSize: nil, filterMaxObservations: nil, filterExcludeRegions: [], eddystoneScanEnabled: false)
+            fgIBeaconState = BeaconState.emptyInit()
         }
         
-        let decodediBeaconRegions = NSKeyedUnarchiver.unarchiveObject(with: decoded) as? [CLBeaconRegion] ?? [CLBeaconRegion]()
+        let decodediBeaconRegions = NSKeyedUnarchiver.unarchiveObject(with: decoded) as? [CLBeaconRegion]
+                                    ?? [CLBeaconRegion]()
         
         fgIBeaconState?.regions = decodediBeaconRegions
     }
     
     if let decoded = userDefaults.object(forKey: C.userDefaultsForegroundiBeaconFilterRegionsKey) as? Data {
-        
         if fgIBeaconState == nil {
-            fgIBeaconState = ForegroundBeaconState(fGiBeaconEnabled: false, maxRuntime: nil, minOffTime: nil, regions: [], filterWindowSize: nil, filterMaxObservations: nil, filterExcludeRegions: [], eddystoneScanEnabled: false)
+            fgIBeaconState = BeaconState.emptyInit()
         }
         
-        let decodediBeaconFilteredRegions = NSKeyedUnarchiver.unarchiveObject(with: decoded) as? [CLBeaconRegion] ?? [CLBeaconRegion]()
+        let decodediBeaconFilteredRegions = NSKeyedUnarchiver.unarchiveObject(with: decoded) as? [CLBeaconRegion]
+                                            ?? [CLBeaconRegion]()
         
         fgIBeaconState?.filterExcludeRegions = decodediBeaconFilteredRegions
     }
@@ -102,39 +99,14 @@ private func getForegroundiBeaconStateFromUserDefaults () -> ForegroundBeaconSta
     return fgIBeaconState
 }
 
-private func saveForegroundiBeaconStateToUserDefaults (iBeaconState: ForegroundBeaconState?) {
-    
+private func saveForegroundiBeaconStateToUserDefaults(iBeaconState: BeaconState?) {
     guard let iBeaconState = iBeaconState else {
         return
     }
     
     let userDefaults = UserDefaults.standard
     
-    var dictionary = [String:Int64]()
-    
-    if let maxRuntime = iBeaconState.maxRuntime {
-        dictionary["maxRuntime"] = Int64(maxRuntime)
-    }
-    
-    if let minOffTime = iBeaconState.minOffTime {
-        dictionary["minOffTime"] = Int64(minOffTime)
-    }
-    
-    if let filterWindowSize = iBeaconState.filterWindowSize {
-        dictionary["filterWindowSize"] = Int64(filterWindowSize)
-    }
-    
-    if let filterMaxObservations = iBeaconState.filterMaxObservations {
-        dictionary["filterMaxObservations"] = Int64(filterMaxObservations)
-    }
-    
-    if let eddystoneScan = iBeaconState.isEddystoneScanningEnabled {
-        dictionary["isEddystoneScanEnabled"] = eddystoneScan ? 1 : 0
-    }
-    
-    if let fGiBeaconEnabled = iBeaconState.isIBeaconRangingEnabled {
-        dictionary["fGiBeaconEnabled"] = fGiBeaconEnabled ? 1 : 0
-    }
+    let dictionary = setupCommonBeaconDictionary(forBeaconState: iBeaconState)
     
     userDefaults.set(dictionary, forKey: C.userDefaultsForegroundiBeaconKey)
     

@@ -18,24 +18,24 @@ class TimeHandling {
 
     public weak var delegate: TimeHandlingDelegate?
 
-    let trueTimeClient : TrueTimeClient
-    var isFetchingTrueTime : Bool = false
+    let trueTimeClient: TrueTimeClient
+    var isFetchingTrueTime: Bool = false
 
     init() {
         trueTimeClient = TrueTimeClient.sharedInstance
         trueTimeClient.start()
     }
     
-    public static let shared : TimeHandling = {
+    public static let shared: TimeHandling = {
         let instance = TimeHandling()
         return instance
-    } ()
+    }()
     
     static func getCurrentTimePeriodSince1970(stateStore: Store<LibraryState>) -> TimeInterval? {
         let currentTime = timeIntervalSinceBoot()
 //        Log.verbose("TIME INTERVAL SINCE BOOT: \(currentTime)")
 
-        if let bootTimeAtLastTrueTime = stateStore.state.ccRequestMessagingState.libraryTimeState?.bootTimeIntervalAtLastTrueTime{
+        if let bootTimeAtLastTrueTime = stateStore.state.ccRequestMessagingState.libraryTimeState?.bootTimeIntervalAtLastTrueTime {
             
             let timeIntervalPast = currentTime - bootTimeAtLastTrueTime
             
@@ -74,7 +74,10 @@ class TimeHandling {
                 NSLog("[Colocator] True time: " + referenceTime.now().description)
                 let lastRebootTime: Date = referenceTime.now().addingTimeInterval(TimeHandling.timeIntervalSinceBoot())
                 
-                self.delegate?.newTrueTimeAvailable(trueTime: referenceTime.now(), timeIntervalSinceBootTime: TimeHandling.timeIntervalSinceBoot(), systemTime: Date.init(), lastRebootTime: lastRebootTime)
+                self.delegate?.newTrueTimeAvailable(trueTime: referenceTime.now(),
+                                                    timeIntervalSinceBootTime: TimeHandling.timeIntervalSinceBoot(),
+                                                    systemTime: Date.init(),
+                                                    lastRebootTime: lastRebootTime)
                 
                 self.isFetchingTrueTime = false
             }, failure: { (error) in
@@ -107,7 +110,7 @@ class TimeHandling {
             
             let isSame = abs(beetweenBootsTimeInterval - beetweenSystemsTimeInterval) < 30
             
-            //DDLogDebug("Comparing bootTimeIntervalDiff \(String(describing: beetweenBootsTimeInterval)) with systemTimeInterval \(String(describing: beetweenSystemsTimeInterval)) result = \(isSame)")
+            Log.verbose("Comparing bootTimeIntervalDiff \(String(describing: beetweenBootsTimeInterval)) with systemTimeInterval \(String(describing: beetweenSystemsTimeInterval)) result = \(isSame)")
             
             // if there has been some drift or similar fetch a new true time
             if !isSame {

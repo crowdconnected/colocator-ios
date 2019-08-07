@@ -16,8 +16,6 @@
 		4F648D672051A38D0043175F /* SQLiteDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F648D662051A38D0043175F /* SQLiteDatabase.swift */; };
 		4F648D6B2052F3390043175F /* TimeHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F648D6A2052F3390043175F /* TimeHandling.swift */; };
 		4F659BB61F24910100775ABD /* CCLocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F659BB51F24910100775ABD /* CCLocationManager.swift */; };
-		4F8DF0DC1EDDB15F00165F18 /* SocketRocket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8DF0DB1EDDB15F00165F18 /* SocketRocket.framework */; };
-		4F8F3EEC22162B9400C226FD /* ReSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FFAA5921EF6868900A2D508 /* ReSwift.framework */; };
 		4F8FFD761F292DD00001910A /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8FFD741F292D950001910A /* libsqlite3.tbd */; };
 		4F8FFD7F1F2C74940001910A /* LifecycleState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F8FFD7E1F2C74940001910A /* LifecycleState.swift */; };
 		4F8FFD811F2C75E90001910A /* LifecycleReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F8FFD801F2C75E90001910A /* LifecycleReducer.swift */; };
@@ -39,8 +37,6 @@
 		4F920BF81F3B161100BD7FEF /* LibraryTimeState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F920BF71F3B161100BD7FEF /* LibraryTimeState.swift */; };
 		4F920BFA1F3B1C7F00BD7FEF /* LibraryTimeStateAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F920BF91F3B1C7F00BD7FEF /* LibraryTimeStateAction.swift */; };
 		4F920BFC1F3B1D6400BD7FEF /* LibraryTimeReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F920BFB1F3B1D6400BD7FEF /* LibraryTimeReducer.swift */; };
-		4F9D9E951EEAF977007A8B75 /* SwiftProtobuf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FEA866A1EE0636200CEAEB9 /* SwiftProtobuf.framework */; };
-		4F9D9E971EEAF9CE007A8B75 /* SocketRocket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8DF0DB1EDDB15F00165F18 /* SocketRocket.framework */; };
 		4FA524DB1F4050F90067D2C8 /* MessagingProtocol.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA524DA1F4050F90067D2C8 /* MessagingProtocol.pb.swift */; };
 		4FA524DE1F4109940067D2C8 /* certificate.der in Resources */ = {isa = PBXBuildFile; fileRef = 4FA524DD1F4109940067D2C8 /* certificate.der */; };
 		4FAAEA261F46F90600DF4DA1 /* WakeupState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FAAEA251F46F90500DF4DA1 /* WakeupState.swift */; };
@@ -50,8 +46,7 @@
 		4FBB8A8B1F2F2EDF00DEF04F /* BackgroundGEOReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8A8A1F2F2EDF00DEF04F /* BackgroundGEOReducer.swift */; };
 		4FBB8A8D1F2F2F6300DEF04F /* BackgroundGEOActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8A8C1F2F2F6300DEF04F /* BackgroundGEOActions.swift */; };
 		4FBB8A8F1F30B92500DEF04F /* ForegroundLocationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8A8E1F30B92500DEF04F /* ForegroundLocationState.swift */; };
-		4FBB8A911F30B9AD00DEF04F /* ForegroundBeaconState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8A901F30B9AD00DEF04F /* ForegroundBeaconState.swift */; };
-		4FBB8A931F30BCF200DEF04F /* BackgroundBeaconState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8A921F30BCF200DEF04F /* BackgroundBeaconState.swift */; };
+		4FBB8A911F30B9AD00DEF04F /* BeaconState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8A901F30B9AD00DEF04F /* BeaconState.swift */; };
 		4FBB8A9E1F30D07B00DEF04F /* CurrentBeaconState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8A9D1F30D07B00DEF04F /* CurrentBeaconState.swift */; };
 		4FBB8AA01F30D23600DEF04F /* CurrentLocationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8A9F1F30D23600DEF04F /* CurrentLocationState.swift */; };
 		4FBB8AA31F30D2CB00DEF04F /* BackgroundLocationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8AA21F30D2CB00DEF04F /* BackgroundLocationState.swift */; };
@@ -66,22 +61,34 @@
 		4FBB8AB61F32089400DEF04F /* CurrentiBeaconMonitoringState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8AB51F32089400DEF04F /* CurrentiBeaconMonitoringState.swift */; };
 		4FBB8AB81F32092B00DEF04F /* CurrentLocationActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8AB71F32092B00DEF04F /* CurrentLocationActions.swift */; };
 		4FBB8ABA1F320A0F00DEF04F /* CurrentiBeaconMonitoringReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8AB91F320A0F00DEF04F /* CurrentiBeaconMonitoringReducer.swift */; };
-		4FBB8ABE1F325EDD00DEF04F /* AutoEquatable.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8ABD1F325EDD00DEF04F /* AutoEquatable.generated.swift */; };
 		4FBB8AC01F34D1E400DEF04F /* CurrentBeaconSettingsActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8ABF1F34D1E300DEF04F /* CurrentBeaconSettingsActions.swift */; };
 		4FBB8AC21F3711B600DEF04F /* CCRequestMessagingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8AC11F3711B600DEF04F /* CCRequestMessagingState.swift */; };
 		4FBB8AC51F37120300DEF04F /* CCRquestMessagingReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8AC41F37120300DEF04F /* CCRquestMessagingReducer.swift */; };
-		4FD05EFC1F25F83000EC1CC8 /* TrueTime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FD05EFB1F25F82F00EC1CC8 /* TrueTime.framework */; };
-		4FD6F9161F2608DA00079FA2 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FD6F9151F2608DA00079FA2 /* Result.framework */; };
 		4FE19A5322A90215000CE5A8 /* CCInertial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FE19A5222A90215000CE5A8 /* CCInertial.swift */; };
 		4FE19A5522AA49DE000CE5A8 /* InertialState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FE19A5422AA49DE000CE5A8 /* InertialState.swift */; };
 		4FE19A5722AA4AF4000CE5A8 /* InertialReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FE19A5622AA4AF4000CE5A8 /* InertialReducer.swift */; };
 		4FE19A5B22AA513E000CE5A8 /* InertialActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FE19A5A22AA513E000CE5A8 /* InertialActions.swift */; };
-		4FEA866B1EE0636200CEAEB9 /* SwiftProtobuf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FEA866A1EE0636200CEAEB9 /* SwiftProtobuf.framework */; };
 		4FEF0C8B1EEFF58E00CB8AA9 /* CCRequestMessaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF0C8A1EEFF58E00CB8AA9 /* CCRequestMessaging.swift */; };
 		4FF6BA662105EA430082859F /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF6BA652105EA430082859F /* Logger.swift */; };
-		4FFAA5931EF6868900A2D508 /* ReSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FFAA5921EF6868900A2D508 /* ReSwift.framework */; };
 		4FFAA5951EF688CD00A2D508 /* LibraryState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFAA5941EF688CD00A2D508 /* LibraryState.swift */; };
 		4FFAA5991EF689ED00A2D508 /* LibraryReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFAA5981EF689ED00A2D508 /* LibraryReducer.swift */; };
+		9700649F22D62B9A00E7F9E9 /* DevicePlatformEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9700649E22D62B9A00E7F9E9 /* DevicePlatformEnum.swift */; };
+		9702361022CCBDAB00D559A8 /* CCRequestMessaging+SendMessages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9702360F22CCBDAB00D559A8 /* CCRequestMessaging+SendMessages.swift */; };
+		9702361222CCC2A100D559A8 /* CCRequestMessaging+DatabaseOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9702361122CCC2A100D559A8 /* CCRequestMessaging+DatabaseOperations.swift */; };
+		9702361722CCF2AB00D559A8 /* ReSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9702361622CCF2AB00D559A8 /* ReSwift.framework */; };
+		9702361E22CCF34500D559A8 /* SwiftProtobuf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9702361A22CCF34500D559A8 /* SwiftProtobuf.framework */; };
+		9702361F22CCF34500D559A8 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9702361B22CCF34500D559A8 /* Result.framework */; };
+		9702362022CCF34500D559A8 /* SocketRocket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9702361C22CCF34500D559A8 /* SocketRocket.framework */; };
+		9702362122CCF34500D559A8 /* TrueTime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9702361D22CCF34500D559A8 /* TrueTime.framework */; };
+		97036DBE22CE05A2005A8322 /* CCRequestMessaging+StoreSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DBD22CE05A2005A8322 /* CCRequestMessaging+StoreSubscriber.swift */; };
+		97036DC022CE06A3005A8322 /* CCRequestMessaging+ProcessEventsAndData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DBF22CE06A3005A8322 /* CCRequestMessaging+ProcessEventsAndData.swift */; };
+		97036DC222CE07BF005A8322 /* CCRequestMessaging+ProcessiOSSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DC122CE07BF005A8322 /* CCRequestMessaging+ProcessiOSSettings.swift */; };
+		97036DC422CE0869005A8322 /* CCRequestMessaging+AnalyzeMessages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DC322CE0869005A8322 /* CCRequestMessaging+AnalyzeMessages.swift */; };
+		97036DCA22CE4C91005A8322 /* CCLocationManager+StoreSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DC922CE4C91005A8322 /* CCLocationManager+StoreSubscriber.swift */; };
+		97036DCC22CE4D50005A8322 /* CCLocationManager+DatabaseOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DCB22CE4D50005A8322 /* CCLocationManager+DatabaseOperations.swift */; };
+		97036DCE22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DCD22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift */; };
+		970ACF3B22D894DD00317525 /* ColocatorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 970ACF3A22D894DD00317525 /* ColocatorManager.swift */; };
+		9770817C22E718DF0074D8E6 /* AutoEquatable.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9770817B22E718DF0074D8E6 /* AutoEquatable.generated.swift */; };
 		BC0647AF218757A500555512 /* CCBeaconScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0647AE218757A500555512 /* CCBeaconScanner.swift */; };
 		BC0647B1218757B900555512 /* CCEddystone.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0647B0218757B900555512 /* CCEddystone.swift */; };
 		BC0647B5218757E200555512 /* DispatchTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0647B4218757E200555512 /* DispatchTimer.swift */; };
@@ -129,7 +136,6 @@
 		4F648D662051A38D0043175F /* SQLiteDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLiteDatabase.swift; sourceTree = "<group>"; };
 		4F648D6A2052F3390043175F /* TimeHandling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeHandling.swift; sourceTree = "<group>"; };
 		4F659BB51F24910100775ABD /* CCLocationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CCLocationManager.swift; sourceTree = "<group>"; };
-		4F8DF0DB1EDDB15F00165F18 /* SocketRocket.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SocketRocket.framework; path = Carthage/Build/iOS/SocketRocket.framework; sourceTree = "<group>"; };
 		4F8FFD741F292D950001910A /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		4F8FFD7E1F2C74940001910A /* LifecycleState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LifecycleState.swift; sourceTree = "<group>"; };
 		4F8FFD801F2C75E90001910A /* LifecycleReducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LifecycleReducer.swift; sourceTree = "<group>"; };
@@ -160,8 +166,7 @@
 		4FBB8A8A1F2F2EDF00DEF04F /* BackgroundGEOReducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundGEOReducer.swift; sourceTree = "<group>"; };
 		4FBB8A8C1F2F2F6300DEF04F /* BackgroundGEOActions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundGEOActions.swift; sourceTree = "<group>"; };
 		4FBB8A8E1F30B92500DEF04F /* ForegroundLocationState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForegroundLocationState.swift; sourceTree = "<group>"; };
-		4FBB8A901F30B9AD00DEF04F /* ForegroundBeaconState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForegroundBeaconState.swift; sourceTree = "<group>"; };
-		4FBB8A921F30BCF200DEF04F /* BackgroundBeaconState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundBeaconState.swift; sourceTree = "<group>"; };
+		4FBB8A901F30B9AD00DEF04F /* BeaconState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BeaconState.swift; sourceTree = "<group>"; };
 		4FBB8A9B1F30CAE200DEF04F /* SourceryTemplates */ = {isa = PBXFileReference; lastKnownFileType = folder; path = SourceryTemplates; sourceTree = "<group>"; };
 		4FBB8A9D1F30D07B00DEF04F /* CurrentBeaconState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentBeaconState.swift; sourceTree = "<group>"; };
 		4FBB8A9F1F30D23600DEF04F /* CurrentLocationState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentLocationState.swift; sourceTree = "<group>"; };
@@ -177,22 +182,35 @@
 		4FBB8AB51F32089400DEF04F /* CurrentiBeaconMonitoringState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentiBeaconMonitoringState.swift; sourceTree = "<group>"; };
 		4FBB8AB71F32092B00DEF04F /* CurrentLocationActions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentLocationActions.swift; sourceTree = "<group>"; };
 		4FBB8AB91F320A0F00DEF04F /* CurrentiBeaconMonitoringReducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentiBeaconMonitoringReducer.swift; sourceTree = "<group>"; };
-		4FBB8ABD1F325EDD00DEF04F /* AutoEquatable.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AutoEquatable.generated.swift; path = SourceryAutogenerated/AutoEquatable.generated.swift; sourceTree = "<group>"; };
 		4FBB8ABF1F34D1E300DEF04F /* CurrentBeaconSettingsActions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentBeaconSettingsActions.swift; sourceTree = "<group>"; };
 		4FBB8AC11F3711B600DEF04F /* CCRequestMessagingState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CCRequestMessagingState.swift; sourceTree = "<group>"; };
 		4FBB8AC41F37120300DEF04F /* CCRquestMessagingReducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CCRquestMessagingReducer.swift; sourceTree = "<group>"; };
-		4FD05EFB1F25F82F00EC1CC8 /* TrueTime.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = TrueTime.framework; path = Carthage/Build/iOS/TrueTime.framework; sourceTree = "<group>"; };
-		4FD6F9151F2608DA00079FA2 /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Result.framework; path = Carthage/Build/iOS/Result.framework; sourceTree = "<group>"; };
 		4FE19A5222A90215000CE5A8 /* CCInertial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CCInertial.swift; sourceTree = "<group>"; };
 		4FE19A5422AA49DE000CE5A8 /* InertialState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InertialState.swift; sourceTree = "<group>"; };
 		4FE19A5622AA4AF4000CE5A8 /* InertialReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InertialReducer.swift; sourceTree = "<group>"; };
 		4FE19A5A22AA513E000CE5A8 /* InertialActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InertialActions.swift; sourceTree = "<group>"; };
-		4FEA866A1EE0636200CEAEB9 /* SwiftProtobuf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftProtobuf.framework; path = Carthage/Build/iOS/SwiftProtobuf.framework; sourceTree = "<group>"; };
 		4FEF0C8A1EEFF58E00CB8AA9 /* CCRequestMessaging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CCRequestMessaging.swift; sourceTree = "<group>"; };
 		4FF6BA652105EA430082859F /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
-		4FFAA5921EF6868900A2D508 /* ReSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReSwift.framework; path = Carthage/Build/iOS/ReSwift.framework; sourceTree = "<group>"; };
 		4FFAA5941EF688CD00A2D508 /* LibraryState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryState.swift; sourceTree = "<group>"; };
 		4FFAA5981EF689ED00A2D508 /* LibraryReducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryReducer.swift; sourceTree = "<group>"; };
+		9700649E22D62B9A00E7F9E9 /* DevicePlatformEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevicePlatformEnum.swift; sourceTree = "<group>"; };
+		9702360F22CCBDAB00D559A8 /* CCRequestMessaging+SendMessages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCRequestMessaging+SendMessages.swift"; sourceTree = "<group>"; };
+		9702361122CCC2A100D559A8 /* CCRequestMessaging+DatabaseOperations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCRequestMessaging+DatabaseOperations.swift"; sourceTree = "<group>"; };
+		9702361622CCF2AB00D559A8 /* ReSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReSwift.framework; path = "../../Downloads/07 CrowdConnected/00 Code base/GitHub_Library_Releases/colocator-ios/Carthage/Build/iOS/ReSwift.framework"; sourceTree = "<group>"; };
+		9702361822CCF31300D559A8 /* colocator-ios */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "colocator-ios"; path = "../../Downloads/07 CrowdConnected/00 Code base/GitHub_Library_Releases/colocator-ios"; sourceTree = "<group>"; };
+		9702361A22CCF34500D559A8 /* SwiftProtobuf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftProtobuf.framework; path = "../../Downloads/07 CrowdConnected/00 Code base/GitHub_Library_Releases/colocator-ios/Carthage/Build/iOS/SwiftProtobuf.framework"; sourceTree = "<group>"; };
+		9702361B22CCF34500D559A8 /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Result.framework; path = "../../Downloads/07 CrowdConnected/00 Code base/GitHub_Library_Releases/colocator-ios/Carthage/Build/iOS/Result.framework"; sourceTree = "<group>"; };
+		9702361C22CCF34500D559A8 /* SocketRocket.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SocketRocket.framework; path = "../../Downloads/07 CrowdConnected/00 Code base/GitHub_Library_Releases/colocator-ios/Carthage/Build/iOS/SocketRocket.framework"; sourceTree = "<group>"; };
+		9702361D22CCF34500D559A8 /* TrueTime.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = TrueTime.framework; path = "../../Downloads/07 CrowdConnected/00 Code base/GitHub_Library_Releases/colocator-ios/Carthage/Build/iOS/TrueTime.framework"; sourceTree = "<group>"; };
+		97036DBD22CE05A2005A8322 /* CCRequestMessaging+StoreSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCRequestMessaging+StoreSubscriber.swift"; sourceTree = "<group>"; };
+		97036DBF22CE06A3005A8322 /* CCRequestMessaging+ProcessEventsAndData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCRequestMessaging+ProcessEventsAndData.swift"; sourceTree = "<group>"; };
+		97036DC122CE07BF005A8322 /* CCRequestMessaging+ProcessiOSSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCRequestMessaging+ProcessiOSSettings.swift"; sourceTree = "<group>"; };
+		97036DC322CE0869005A8322 /* CCRequestMessaging+AnalyzeMessages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCRequestMessaging+AnalyzeMessages.swift"; sourceTree = "<group>"; };
+		97036DC922CE4C91005A8322 /* CCLocationManager+StoreSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCLocationManager+StoreSubscriber.swift"; sourceTree = "<group>"; };
+		97036DCB22CE4D50005A8322 /* CCLocationManager+DatabaseOperations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCLocationManager+DatabaseOperations.swift"; sourceTree = "<group>"; };
+		97036DCD22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCLocationManager+RangingBeacons.swift"; sourceTree = "<group>"; };
+		970ACF3A22D894DD00317525 /* ColocatorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColocatorManager.swift; sourceTree = "<group>"; };
+		9770817B22E718DF0074D8E6 /* AutoEquatable.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutoEquatable.generated.swift; sourceTree = "<group>"; };
 		BC0647AE218757A500555512 /* CCBeaconScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CCBeaconScanner.swift; path = CCLocation/CCBeaconScanner.swift; sourceTree = SOURCE_ROOT; };
 		BC0647B0218757B900555512 /* CCEddystone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CCEddystone.swift; sourceTree = "<group>"; };
 		BC0647B4218757E200555512 /* DispatchTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchTimer.swift; sourceTree = "<group>"; };
@@ -215,13 +233,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9702361E22CCF34500D559A8 /* SwiftProtobuf.framework in Frameworks */,
+				9702361F22CCF34500D559A8 /* Result.framework in Frameworks */,
+				9702362022CCF34500D559A8 /* SocketRocket.framework in Frameworks */,
+				9702362122CCF34500D559A8 /* TrueTime.framework in Frameworks */,
+				9702361722CCF2AB00D559A8 /* ReSwift.framework in Frameworks */,
 				4F8FFD761F292DD00001910A /* libsqlite3.tbd in Frameworks */,
 				F0AF0C5D1DB3ADA400E72E76 /* Foundation.framework in Frameworks */,
-				4FD6F9161F2608DA00079FA2 /* Result.framework in Frameworks */,
-				4FD05EFC1F25F83000EC1CC8 /* TrueTime.framework in Frameworks */,
-				4F8DF0DC1EDDB15F00165F18 /* SocketRocket.framework in Frameworks */,
-				4FFAA5931EF6868900A2D508 /* ReSwift.framework in Frameworks */,
-				4FEA866B1EE0636200CEAEB9 /* SwiftProtobuf.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -229,10 +247,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F9D9E971EEAF9CE007A8B75 /* SocketRocket.framework in Frameworks */,
-				4F9D9E951EEAF977007A8B75 /* SwiftProtobuf.framework in Frameworks */,
 				F0AF0C421DB3912700E72E76 /* CCLocation.framework in Frameworks */,
-				4F8F3EEC22162B9400C226FD /* ReSwift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -319,11 +334,10 @@
 				4FBB8A9D1F30D07B00DEF04F /* CurrentBeaconState.swift */,
 				4FBB8AB51F32089400DEF04F /* CurrentiBeaconMonitoringState.swift */,
 				4FBB8A8E1F30B92500DEF04F /* ForegroundLocationState.swift */,
-				4FBB8A901F30B9AD00DEF04F /* ForegroundBeaconState.swift */,
+				4FBB8A901F30B9AD00DEF04F /* BeaconState.swift */,
 				4F8FFD8E1F2CE0340001910A /* ForegroundGEOState.swift */,
 				4FBB8AA21F30D2CB00DEF04F /* BackgroundLocationState.swift */,
 				4FBB8A881F2F2E7F00DEF04F /* BackgroundGEOState.swift */,
-				4FBB8A921F30BCF200DEF04F /* BackgroundBeaconState.swift */,
 			);
 			path = LocationStates;
 			sourceTree = "<group>";
@@ -359,6 +373,42 @@
 			path = LocationReducers;
 			sourceTree = "<group>";
 		};
+		97036DC822CE461B005A8322 /* RequestMessaging */ = {
+			isa = PBXGroup;
+			children = (
+				4FEF0C8A1EEFF58E00CB8AA9 /* CCRequestMessaging.swift */,
+				97036DC122CE07BF005A8322 /* CCRequestMessaging+ProcessiOSSettings.swift */,
+				97036DBF22CE06A3005A8322 /* CCRequestMessaging+ProcessEventsAndData.swift */,
+				9702360F22CCBDAB00D559A8 /* CCRequestMessaging+SendMessages.swift */,
+				97036DC322CE0869005A8322 /* CCRequestMessaging+AnalyzeMessages.swift */,
+				97036DBD22CE05A2005A8322 /* CCRequestMessaging+StoreSubscriber.swift */,
+				9702361122CCC2A100D559A8 /* CCRequestMessaging+DatabaseOperations.swift */,
+			);
+			path = RequestMessaging;
+			sourceTree = "<group>";
+		};
+		97036DCF22CE532F005A8322 /* LocationManager */ = {
+			isa = PBXGroup;
+			children = (
+				4F659BB51F24910100775ABD /* CCLocationManager.swift */,
+				97036DCD22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift */,
+				97036DCB22CE4D50005A8322 /* CCLocationManager+DatabaseOperations.swift */,
+				97036DC922CE4C91005A8322 /* CCLocationManager+StoreSubscriber.swift */,
+			);
+			path = LocationManager;
+			sourceTree = "<group>";
+		};
+		970ACF3D22D8B7F300317525 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				9700649E22D62B9A00E7F9E9 /* DevicePlatformEnum.swift */,
+				BC9DEB7B212425680015C5CF /* Reachability.swift */,
+				F0B2DE5E1E6D7859005E3B7A /* Constants.swift */,
+				BC9DEB7D212429B10015C5CF /* ReachabilityManager.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
 		BC0647AD2187578C00555512 /* eddyStone */ = {
 			isa = PBXGroup;
 			children = (
@@ -391,26 +441,26 @@
 		F0AF0C3A1DB3912700E72E76 /* CCLocation */ = {
 			isa = PBXGroup;
 			children = (
-				BC0647AD2187578C00555512 /* eddyStone */,
-				4FE620AB211B4D8100DF8DB2 /* LibraryStateHandling */,
+				F0AF0C3C1DB3912700E72E76 /* Info.plist */,
 				4FA524DD1F4109940067D2C8 /* certificate.der */,
-				4FBB8ABD1F325EDD00DEF04F /* AutoEquatable.generated.swift */,
 				4FBB8A9B1F30CAE200DEF04F /* SourceryTemplates */,
+				4FBB8ABD1F325EDD00DEF04F /* AutoEquatable.generated.swift */,
 				4F5019A11F24ED0F002F467F /* MessagingProtocol.proto */,
 				4FA524DA1F4050F90067D2C8 /* MessagingProtocol.pb.swift */,
+				BC0647AD2187578C00555512 /* eddyStone */,
+				4FE620AB211B4D8100DF8DB2 /* LibraryStateHandling */,
+				9770817B22E718DF0074D8E6 /* AutoEquatable.generated.swift */,
 				F0AF0C3B1DB3912700E72E76 /* CCLocation.h */,
 				F0AF0C931DB3C80300E72E76 /* CCLocation.swift */,
-				4F659BB51F24910100775ABD /* CCLocationManager.swift */,
-				4FEF0C8A1EEFF58E00CB8AA9 /* CCRequestMessaging.swift */,
+				970ACF3A22D894DD00317525 /* ColocatorManager.swift */,
+				BC9DEB792124160B0015C5CF /* CCSocket.swift */,
+				4FE19A5222A90215000CE5A8 /* CCInertial.swift */,
+				97036DCF22CE532F005A8322 /* LocationManager */,
+				97036DC822CE461B005A8322 /* RequestMessaging */,
 				4F648D662051A38D0043175F /* SQLiteDatabase.swift */,
 				4F648D6A2052F3390043175F /* TimeHandling.swift */,
-				F0B2DE5E1E6D7859005E3B7A /* Constants.swift */,
 				4FF6BA652105EA430082859F /* Logger.swift */,
-				F0AF0C3C1DB3912700E72E76 /* Info.plist */,
-				BC9DEB792124160B0015C5CF /* CCSocket.swift */,
-				BC9DEB7B212425680015C5CF /* Reachability.swift */,
-				BC9DEB7D212429B10015C5CF /* ReachabilityManager.swift */,
-				4FE19A5222A90215000CE5A8 /* CCInertial.swift */,
+				970ACF3D22D8B7F300317525 /* Helpers */,
 			);
 			path = CCLocation;
 			sourceTree = "<group>";
@@ -427,12 +477,13 @@
 		F0AF0C541DB395BB00E72E76 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9702361B22CCF34500D559A8 /* Result.framework */,
+				9702361C22CCF34500D559A8 /* SocketRocket.framework */,
+				9702361A22CCF34500D559A8 /* SwiftProtobuf.framework */,
+				9702361D22CCF34500D559A8 /* TrueTime.framework */,
+				9702361822CCF31300D559A8 /* colocator-ios */,
+				9702361622CCF2AB00D559A8 /* ReSwift.framework */,
 				4F8FFD741F292D950001910A /* libsqlite3.tbd */,
-				4FD6F9151F2608DA00079FA2 /* Result.framework */,
-				4FD05EFB1F25F82F00EC1CC8 /* TrueTime.framework */,
-				4FFAA5921EF6868900A2D508 /* ReSwift.framework */,
-				4FEA866A1EE0636200CEAEB9 /* SwiftProtobuf.framework */,
-				4F8DF0DB1EDDB15F00165F18 /* SocketRocket.framework */,
 				F0AF0C5C1DB3ADA400E72E76 /* Foundation.framework */,
 			);
 			name = Frameworks;
@@ -502,7 +553,7 @@
 				TargetAttributes = {
 					F0AF0C371DB3912700E72E76 = {
 						CreatedOnToolsVersion = 8.0;
-						DevelopmentTeam = 3QY737HLE2;
+						DevelopmentTeam = 67K9GDZYLG;
 						LastSwiftMigration = 1010;
 						ProvisioningStyle = Automatic;
 					};
@@ -575,6 +626,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9770817C22E718DF0074D8E6 /* AutoEquatable.generated.swift in Sources */,
 				4FBB8AA91F3113C400DEF04F /* BackgroundLocationReducer.swift in Sources */,
 				4F8FFD9F1F2D30900001910A /* LifcycleActions.swift in Sources */,
 				4FBB8AC21F3711B600DEF04F /* CCRequestMessagingState.swift in Sources */,
@@ -583,6 +635,8 @@
 				4F03E1A21F9A1CC90023EEC2 /* CapabilityReducer.swift in Sources */,
 				4F8FFD891F2CC8D50001910A /* TimerState.swift in Sources */,
 				F0B2DE5F1E6D7859005E3B7A /* Constants.swift in Sources */,
+				97036DCA22CE4C91005A8322 /* CCLocationManager+StoreSubscriber.swift in Sources */,
+				9700649F22D62B9A00E7F9E9 /* DevicePlatformEnum.swift in Sources */,
 				4F8FFD9D1F2CF6C90001910A /* ForegroundGEOReducer.swift in Sources */,
 				4FBB8AAC1F31145700DEF04F /* CurrentBeaconReducer.swift in Sources */,
 				4FE19A5722AA4AF4000CE5A8 /* InertialReducer.swift in Sources */,
@@ -604,31 +658,36 @@
 				4FFAA5991EF689ED00A2D508 /* LibraryReducer.swift in Sources */,
 				4FBB8AA31F30D2CB00DEF04F /* BackgroundLocationState.swift in Sources */,
 				4FAAEA2A1F46FA7A00DF4DA1 /* WakeupActions.swift in Sources */,
+				9702361222CCC2A100D559A8 /* CCRequestMessaging+DatabaseOperations.swift in Sources */,
 				4FAAEA261F46F90600DF4DA1 /* WakeupState.swift in Sources */,
 				4F8FFD9B1F2CF6640001910A /* ForegroundGEOActions.swift in Sources */,
 				4FBB8AB81F32092B00DEF04F /* CurrentLocationActions.swift in Sources */,
 				4FBB8ABA1F320A0F00DEF04F /* CurrentiBeaconMonitoringReducer.swift in Sources */,
+				97036DC422CE0869005A8322 /* CCRequestMessaging+AnalyzeMessages.swift in Sources */,
 				4FBB8AA01F30D23600DEF04F /* CurrentLocationState.swift in Sources */,
 				4FE19A5B22AA513E000CE5A8 /* InertialActions.swift in Sources */,
 				4F659BB61F24910100775ABD /* CCLocationManager.swift in Sources */,
-				4FBB8ABE1F325EDD00DEF04F /* AutoEquatable.generated.swift in Sources */,
+				97036DC022CE06A3005A8322 /* CCRequestMessaging+ProcessEventsAndData.swift in Sources */,
 				4F8FFD971F2CE8FA0001910A /* CurrentGEOReducer.swift in Sources */,
 				F0AF0C941DB3C80300E72E76 /* CCLocation.swift in Sources */,
 				4FBB8A891F2F2E7F00DEF04F /* BackgroundGEOState.swift in Sources */,
 				4FBB8A8B1F2F2EDF00DEF04F /* BackgroundGEOReducer.swift in Sources */,
-				4FBB8A911F30B9AD00DEF04F /* ForegroundBeaconState.swift in Sources */,
+				4FBB8A911F30B9AD00DEF04F /* BeaconState.swift in Sources */,
 				4FBB8AA71F3113B000DEF04F /* ForegroundLocationReducer.swift in Sources */,
+				97036DC222CE07BF005A8322 /* CCRequestMessaging+ProcessiOSSettings.swift in Sources */,
 				4F222B1B1F90EDA600FB11BD /* BatteryLevelReducer.swift in Sources */,
 				4FE19A5322A90215000CE5A8 /* CCInertial.swift in Sources */,
 				4FEF0C8B1EEFF58E00CB8AA9 /* CCRequestMessaging.swift in Sources */,
 				4FBB8A8D1F2F2F6300DEF04F /* BackgroundGEOActions.swift in Sources */,
 				4F8FFD7F1F2C74940001910A /* LifecycleState.swift in Sources */,
+				970ACF3B22D894DD00317525 /* ColocatorManager.swift in Sources */,
 				4F8FFD811F2C75E90001910A /* LifecycleReducer.swift in Sources */,
 				4FBB8AC51F37120300DEF04F /* CCRquestMessagingReducer.swift in Sources */,
 				4F222B1E1F90F17F00FB11BD /* BatteryLevelActions.swift in Sources */,
 				4F648D672051A38D0043175F /* SQLiteDatabase.swift in Sources */,
 				4FBB8AB61F32089400DEF04F /* CurrentiBeaconMonitoringState.swift in Sources */,
 				4FBB8AB41F311D3400DEF04F /* BackgroundBeaconActions.swift in Sources */,
+				97036DCC22CE4D50005A8322 /* CCLocationManager+DatabaseOperations.swift in Sources */,
 				4F8FFD871F2C809E0001910A /* WebSocketAction.swift in Sources */,
 				4FBB8AAE1F31149300DEF04F /* ForegroundBeaconReducer.swift in Sources */,
 				4FBB8AB21F311D2000DEF04F /* ForegroundBeaconActions.swift in Sources */,
@@ -640,11 +699,13 @@
 				4FF6BA662105EA430082859F /* Logger.swift in Sources */,
 				4F920BFA1F3B1C7F00BD7FEF /* LibraryTimeStateAction.swift in Sources */,
 				4F222B191F90EA4300FB11BD /* BatteryLevelState.swift in Sources */,
+				97036DCE22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift in Sources */,
 				4F920BF81F3B161100BD7FEF /* LibraryTimeState.swift in Sources */,
-				4FBB8A931F30BCF200DEF04F /* BackgroundBeaconState.swift in Sources */,
+				97036DBE22CE05A2005A8322 /* CCRequestMessaging+StoreSubscriber.swift in Sources */,
 				4FAAEA281F46F9C500DF4DA1 /* WakeupReducer.swift in Sources */,
 				4FBB8AA51F31139200DEF04F /* CurrentLocationReducer.swift in Sources */,
 				BC9DEB7A2124160B0015C5CF /* CCSocket.swift in Sources */,
+				9702361022CCBDAB00D559A8 /* CCRequestMessaging+SendMessages.swift in Sources */,
 				4F03E1A41F9D30BF0023EEC2 /* CapabilityActions.swift in Sources */,
 				4F8FFD991F2CEC9E0001910A /* CurrentGEOSettingsAction.swift in Sources */,
 				4F8FFD8D1F2CCC670001910A /* TimerAction.swift in Sources */,
@@ -796,7 +857,7 @@
 				CODE_SIGN_IDENTITY = "";
 				CURRENT_PROJECT_VERSION = 2.1.0;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = 3QY737HLE2;
+				DEVELOPMENT_TEAM = 67K9GDZYLG;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 2.1.0;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -830,7 +891,7 @@
 				CODE_SIGN_IDENTITY = "";
 				CURRENT_PROJECT_VERSION = 2.1.0;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = 3QY737HLE2;
+				DEVELOPMENT_TEAM = 67K9GDZYLG;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 2.1.0;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";

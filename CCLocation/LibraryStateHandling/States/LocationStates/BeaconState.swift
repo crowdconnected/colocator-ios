@@ -1,5 +1,5 @@
 //
-//  BackgroundiBeaconState.swift
+//  ForegroundiBeaconState.swift
 //  CCLocation
 //
 //  Created by Ralf Kernchen on 01/08/2017.
@@ -9,7 +9,7 @@
 import ReSwift
 import CoreLocation
 
-public struct BackgroundBeaconState: StateType, AutoEquatable {
+public struct BeaconState: StateType, AutoEquatable {
     var isIBeaconRangingEnabled: Bool?
     
     var maxRuntime: UInt64?
@@ -22,7 +22,7 @@ public struct BackgroundBeaconState: StateType, AutoEquatable {
     
     var isEddystoneScanningEnabled: Bool?
     
-    init(bGiBeaconEnabled: Bool,
+    init(beaconRangingEnabled: Bool,
          maxRuntime: UInt64?,
          minOffTime: UInt64?,
          regions: [CLBeaconRegion]?,
@@ -31,7 +31,7 @@ public struct BackgroundBeaconState: StateType, AutoEquatable {
          filterExcludeRegions: [CLBeaconRegion]?,
          eddystoneScanEnabled: Bool?) {
         
-        self.isIBeaconRangingEnabled = false
+        self.isIBeaconRangingEnabled = beaconRangingEnabled
         
         self.maxRuntime = maxRuntime
         self.minOffTime = minOffTime
@@ -48,5 +48,16 @@ public struct BackgroundBeaconState: StateType, AutoEquatable {
         }
         
         self.isEddystoneScanningEnabled = eddystoneScanEnabled
+    }
+    
+    static func emptyInit() -> BeaconState {
+        return self.init(beaconRangingEnabled: false,
+                         maxRuntime: nil,
+                         minOffTime: nil,
+                         regions: [],
+                         filterWindowSize: nil,
+                         filterMaxObservations: nil,
+                         filterExcludeRegions: [],
+                         eddystoneScanEnabled: false)
     }
 }
