@@ -226,13 +226,12 @@ extension CCInertial: StoreSubscriber {
             return
         }
         
-        Log.debug("Pedometer: New state is: \(newInertialState)")
-        
         if newInertialState != currentInertialState {
             if let interval = newInertialState.interval {
                 setInterval(time: Double(interval) / 1000)
             }
-
+            Log.debug("Pedometer: New state is: \(newInertialState)")
+            
             updateCurrentInertialStateActivity(newState: newInertialState)
             currentInertialState = newInertialState
         }
