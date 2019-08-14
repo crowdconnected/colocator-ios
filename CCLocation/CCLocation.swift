@@ -121,6 +121,7 @@ internal struct Constants {
         }
         let request = URLRequest(url: requestURL)
         
+        Log.info("Background Refresh Event detected - Checking client status for \(key.uppercased()) ...")
         URLSession.shared.dataTask(with: request) { (data, response, err) in
             guard err == nil, let dataResponse = data else {
                 completion(false)
