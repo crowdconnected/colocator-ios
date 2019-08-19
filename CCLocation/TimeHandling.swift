@@ -71,7 +71,7 @@ class TimeHandling {
             isFetchingTrueTime = true
             
             trueTimeClient.fetchIfNeeded(success: { (referenceTime) in
-                Log.verbose("[Colocator] True time: " + referenceTime.now().description)
+                NSLog("[Colocator] True time: " + referenceTime.now().description)
                 let lastRebootTime: Date = referenceTime.now().addingTimeInterval(TimeHandling.timeIntervalSinceBoot())
                 
                 self.delegate?.newTrueTimeAvailable(trueTime: referenceTime.now(),

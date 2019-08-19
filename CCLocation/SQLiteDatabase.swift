@@ -306,7 +306,7 @@ extension SQLiteDatabase {
 extension SQLiteDatabase {
     func insertMessage(ccMessage: CCMessage) throws {
         messagesBuffer.append(ccMessage)
-        Log.debug("DB: insertMessage: \(ccMessage.observation.count) \(ccMessage.observation.hexEncodedString())")
+        Log.verbose("DB: insertMessage: \(ccMessage.observation.count) \(ccMessage.observation.hexEncodedString())")
     }
     
     @objc func insertBundledMessages() throws {
@@ -380,7 +380,6 @@ extension SQLiteDatabase {
 
 extension SQLiteDatabase {
     func popMessages(num: Int) throws -> [Data]  {
-        
         let data = try serialMessageDatabaseQueue.sync { () -> [Data] in
             
             var clientMessageData: Data
@@ -486,11 +485,10 @@ extension SQLiteDatabase {
     }
 }
 
-
+// MARK: - Deleting methods
 
 extension SQLiteDatabase {
     func deleteBeacons(beaconTable: String) throws {
-        
         let deleteMessagesSQL = "DELETE FROM \(beaconTable);"
         
         guard let deleteMessagesStatement = try? prepareStatement(sql: deleteMessagesSQL) else {
@@ -506,6 +504,24 @@ extension SQLiteDatabase {
         }
         
         try saveResetAutoincrement(table: beaconTable)
+    }
+    
+    func deleteMessages(messagesTable: String) throws {
+        let deleteMessagesSQL = "DELETE FROM \(messagesTable);"
+        
+        guard let deleteMessagesStatement = try? prepareStatement(sql: deleteMessagesSQL) else {
+            throw SQLiteError.Prepare(message: errorMessage)
+        }
+        
+        defer {
+            sqlite3_finalize(deleteMessagesStatement)
+        }
+        
+        guard sqlite3_step(deleteMessagesStatement) == SQLITE_DONE else {
+            throw SQLiteError.Step(message: errorMessage)
+        }
+        
+        try saveResetAutoincrement(table: messagesTable)
     }
 }
 
