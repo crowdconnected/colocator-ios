@@ -46,6 +46,11 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
     
     weak var stateStore: Store<LibraryState>!
     
+    // Initial value has to be true, otherwise after force quiting the app, the location manager will never start collecting all the data again
+    var isWaitingForSignificantUpdates = true
+    
+    var isContinuousGEOCollectionActive = true
+    
     public init(stateStore: Store<LibraryState>) {
         super.init()
         
@@ -135,6 +140,10 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
     @objc func stopLocationUpdates () {
         locationManager.stopUpdatingLocation()
         
+        Log.verbose("Waiting for significant updates only")
+        isWaitingForSignificantUpdates = true
+        isContinuousGEOCollectionActive = false
+        
         if (maxRunGEOTimer != nil) {
             maxRunGEOTimer?.invalidate()
             maxRunGEOTimer = nil
@@ -176,7 +185,6 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
     }
     
     public func stopAllLocationObservations () {
-
         locationManager.stopUpdatingLocation()
         stopReceivingSignificantLocationChanges()
         stopRangingiBeacons(forCurrentSettings: false)
@@ -223,6 +231,18 @@ extension CCLocationManager {
             //            }
             
             delegate?.receivedGEOLocation(location: location)
+        }
+        
+        // Significant updates doesn't trigger a wake up state
+        // If GEO data collection is not continuously, then check current state and update location manager behavior
+        if isWaitingForSignificantUpdates {
+            if isContinuousGEOCollectionActive == false {
+                Log.verbose("Renew current GEO state at significant update")
+                handleGEOState(currentGEOState)
+                if isContinuousGEOCollectionActive {
+                    isWaitingForSignificantUpdates = false
+                }
+            }
         }
     }
     
