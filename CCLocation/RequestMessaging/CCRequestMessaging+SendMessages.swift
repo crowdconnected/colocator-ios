@@ -153,7 +153,7 @@ extension CCRequestMessaging {
             
             ccSocket?.sendWebSocketMessage(data: messageData)
             
-            Log.info("Message sent to server")
+            Log.info("Sent message to server")
         }
     }
 }
