@@ -15,7 +15,7 @@ import CoreBluetooth
 
 extension CCRequestMessaging {
     
-    func processIosSettings (serverMessage:Messaging_ServerMessage, store: Store<LibraryState>){
+    func processIosSettings (serverMessage: Messaging_ServerMessage, store: Store<LibraryState>){
         
         Log.debug("Got iOS settings message")
         
@@ -24,6 +24,7 @@ extension CCRequestMessaging {
             DispatchQueue.main.async {store.dispatch(DisableForegroundGEOAction())}
             DispatchQueue.main.async {store.dispatch(IsSignificationLocationChangeAction(isSignificantLocationChangeMonitoringState: false))}
             DispatchQueue.main.async {store.dispatch(DisableCurrrentGEOAction())}
+            DispatchQueue.main.async {store.dispatch(DisableGeofencesMonitoringAction())}
         }
         
         if (serverMessage.hasIosSettings && !serverMessage.iosSettings.hasBeaconSettings) {
@@ -56,6 +57,13 @@ extension CCRequestMessaging {
                 configureForegroundGEOSettings(geoSettings: geoSettings, store: store)
             } else {
                 DispatchQueue.main.async {store.dispatch(DisableForegroundGEOAction())}
+            }
+            
+            if !geoSettings.iosCircularGeoFences.isEmpty {
+                configureCircularGeoFencesSettings(geoSettings: geoSettings, store: store)
+            } else {
+                Log.warning("\nDisable geofence monitoring")
+                DispatchQueue.main.async {store.dispatch(DisableGeofencesMonitoringAction()) }
             }
         }
         
@@ -220,6 +228,27 @@ extension CCRequestMessaging {
         DispatchQueue.main.async {store.dispatch(enableForegroundGEOAction)}
     }
     
+    public func configureCircularGeoFencesSettings(geoSettings: Messaging_IosGeoSettings, store: Store<LibraryState>) {
+        let geoFenceSettings = geoSettings.iosCircularGeoFences
+        var geoFences = [CLCircularRegion]()
+        
+        for geofence in geoFenceSettings {
+            if let clCircularRegion = extractGeofenceFromSettings(geofence) {
+                geoFences.append(clCircularRegion)
+            }
+        }
+        
+        Log.warning("\nEnable geofence monitoring for \(geoFences.count) circular regions")
+        
+        // DEBUG
+        // Geofences update method isn't called once the changes are received
+        // No newState method from CCLocationManager called
+        
+        DispatchQueue.main.async {
+            store.dispatch(EnableGeofencesMonitoringAction(geofences: geoFences.sorted(by: {$0.identifier < $1.identifier})))
+        }
+    }
+       
     public func configureMonitoringRegions(beaconSettings: Messaging_IosBeaconSettings, store: Store<LibraryState>) {
         
         let monitoringSettings = beaconSettings.monitoring
@@ -370,6 +399,26 @@ extension CCRequestMessaging {
                                                                                          isIBeaconRangingEnabled: isIBeaconRangingEnabled))}
     }
     
+    public func extractGeofenceFromSettings(_ geofenceRegion: Messaging_IosCircularGeoFence) -> CLCircularRegion? {
+   
+        if geofenceRegion.hasLatitude &&
+            geofenceRegion.hasLongitude &&
+            geofenceRegion.hasRadius {
+            let coordinates = CLLocationCoordinate2D(latitude: geofenceRegion.latitude,
+                                                     longitude: geofenceRegion.longitude)
+            
+            //TODO add identifier here
+            let identifier = "CC_geofence_\(UUID())"
+            let geofence = CLCircularRegion(center: coordinates,
+                                        radius: geofenceRegion.radius,
+                                        identifier: identifier)
+            geofence.notifyOnEntry = true
+            geofence.notifyOnExit = true
+            
+            return geofence
+        }
+      return nil
+    }
     
     public func extractBeaconRegionsFrom(region: Messaging_BeaconRegion) -> [CLBeaconRegion] {
         

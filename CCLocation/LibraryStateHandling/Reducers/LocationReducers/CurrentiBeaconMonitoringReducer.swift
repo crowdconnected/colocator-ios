@@ -32,5 +32,4 @@ private func getCurrentStateFromUserDefaults () -> CurrentiBeaconMonitoringState
 }
 
 private func saveCurrentStateToUserDefaults (currentGEOState: CurrentiBeaconMonitoringState){
-    
 }

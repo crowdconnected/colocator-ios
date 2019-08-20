@@ -14,72 +14,7 @@ import ReSwift
 
 extension CCLocationManager: StoreSubscriber {
     
-    func handleGEOState(_ newGEOState: CurrentGEOState) {
-        if let isStandardGEOEnabled = newGEOState.isStandardGEOEnabled {
-            if isStandardGEOEnabled {
-                
-                if let activityType = newGEOState.activityType {
-                    locationManager.activityType = activityType
-                }
-                
-                if let desiredAccuracy = newGEOState.desiredAccuracy {
-                    locationManager.desiredAccuracy = CLLocationAccuracy(desiredAccuracy)
-                }
-                
-                if let distanceFilter = newGEOState.distanceFilter {
-                    locationManager.distanceFilter = CLLocationDistance(distanceFilter)
-                }
-                
-                if let pausesUpdates = newGEOState.pausesUpdates {
-                    locationManager.pausesLocationUpdatesAutomatically = pausesUpdates
-                }
-                
-                // in case an offTime has been stored in state state store last time round
-                if let offTime = newGEOState.offTime {
-                    if offTime <= Date() {
-                        Log.verbose("GEOTIMER offTime \(offTime) occured before current time \(Date()), resetting offTime")
-                        DispatchQueue.main.async {self.stateStore.dispatch(SetGEOOffTimeEnd(offTimeEnd: nil))}
-                    } else {
-                        Log.verbose("GEOTIMER offTime \(offTime) occured after current date \(Date()), keeping offTime and doing nothing")
-                        // do nothing
-                    }
-                    // and in case there is not offTime, just start the location manager for maxRuntime
-                } else {
-                    Log.verbose("GEOTIMER startUpdatingLocation no offTime available")
-                    locationManager.startUpdatingLocation()
-                    isContinuousGEOCollectionActive = true
-                    
-                    Log.verbose("Enabled GEO settings are activityType:\(locationManager.activityType), desiredAccuracy: \(locationManager.desiredAccuracy), distanceFilter: \(locationManager.distanceFilter), pausesUpdates: \(locationManager.pausesLocationUpdatesAutomatically)")
-                    
-                    if let maxRunTime = newGEOState.maxRuntime {
-                        if (self.maxRunGEOTimer == nil){
-                            Log.verbose("GEOTIMER start maxGEORunTimer \(maxRunTime)")
-                            self.maxRunGEOTimer = Timer.scheduledTimer(timeInterval: TimeInterval(maxRunTime / 1000), target: self, selector: #selector(stopLocationUpdates), userInfo: nil, repeats: false)
-                        }
-                    } else {
-                        if self.maxRunGEOTimer != nil {
-                            self.maxRunGEOTimer?.invalidate()
-                            self.maxRunGEOTimer = nil
-                        }
-                    }
-                }
-            } else {
-                locationManager.stopUpdatingLocation()
-                
-                if self.maxRunGEOTimer != nil {
-                    self.maxRunGEOTimer?.invalidate()
-                    self.maxRunGEOTimer = nil
-                }
-                
-                if newGEOState.offTime != nil {
-                    DispatchQueue.main.async {self.stateStore.dispatch(SetGEOOffTimeEnd(offTimeEnd: nil))}
-                }
-            }
-        }
-    }
-    
     public func newState(state: CurrentLocationState) {
-        
         if let newGEOState = state.currentGEOState {
             
             let wakeupState = stateStore.state.locationSettingsState.currentLocationState?.wakeupState?.ccWakeup
@@ -203,4 +138,69 @@ extension CCLocationManager: StoreSubscriber {
             }
         }
     }
+    
+    func handleGEOState(_ newGEOState: CurrentGEOState) {
+        guard let isStandardGEOEnabled = newGEOState.isStandardGEOEnabled else {
+            return
+        }
+        
+        if isStandardGEOEnabled {
+            if let activityType = newGEOState.activityType {
+                locationManager.activityType = activityType
+            }
+            if let desiredAccuracy = newGEOState.desiredAccuracy {
+                locationManager.desiredAccuracy = CLLocationAccuracy(desiredAccuracy)
+            }
+            if let distanceFilter = newGEOState.distanceFilter {
+                locationManager.distanceFilter = CLLocationDistance(distanceFilter)
+            }
+            if let pausesUpdates = newGEOState.pausesUpdates {
+                locationManager.pausesLocationUpdatesAutomatically = pausesUpdates
+            }
+           
+            // in case an offTime has been stored in state state store last time round
+            if let offTime = newGEOState.offTime, offTime <= Date() {
+                Log.verbose("GeoTimer offTime passed and reset to nil")
+                DispatchQueue.main.async {self.stateStore.dispatch(SetGEOOffTimeEnd(offTimeEnd: nil))}
+            // and in case there is not offTime, just start the location manager for maxRuntime
+            } else {
+                Log.verbose("GeoTimer startUpdatingLocation no offTime available")
+                locationManager.startUpdatingLocation()
+                isContinuousGEOCollectionActive = true
+               
+                Log.verbose("""
+                    Enabled GEO settings are
+                    activityType:\(locationManager.activityType)
+                    desiredAccuracy: \(locationManager.desiredAccuracy)
+                    distanceFilter: \(locationManager.distanceFilter)
+                    pausesUpdates: \(locationManager.pausesLocationUpdatesAutomatically)
+                    """)
+               
+               if let maxRunTime = newGEOState.maxRuntime, self.maxRunGEOTimer == nil {
+                    Log.verbose("GEOTIMER start maxGEORunTimer \(maxRunTime)")
+                    self.maxRunGEOTimer = Timer.scheduledTimer(timeInterval: TimeInterval(maxRunTime / 1000),
+                                                               target: self,
+                                                               selector: #selector(stopLocationUpdates),
+                                                               userInfo: nil,
+                                                               repeats: false)
+               } else {
+                   if self.maxRunGEOTimer != nil {
+                       self.maxRunGEOTimer?.invalidate()
+                       self.maxRunGEOTimer = nil
+                   }
+               }
+           }
+       } else {
+           locationManager.stopUpdatingLocation()
+           
+           if self.maxRunGEOTimer != nil {
+               self.maxRunGEOTimer?.invalidate()
+               self.maxRunGEOTimer = nil
+           }
+           
+           if newGEOState.offTime != nil {
+               DispatchQueue.main.async {self.stateStore.dispatch(SetGEOOffTimeEnd(offTimeEnd: nil))}
+           }
+       }
+   }
 }

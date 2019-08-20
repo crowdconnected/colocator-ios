@@ -25,6 +25,7 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
     internal var eddystoneBeaconScanner: BeaconScanner? = nil
     
     internal var currentGEOState: CurrentGEOState!
+    internal var currentGeofencesMonitoringState: CurrentGeofencesMonitoringState!
     internal var currentBeaconState: CurrentBeaconState!
     internal var currentiBeaconMonitoringState: CurrentiBeaconMonitoringState!
     internal var wakeupState: WakeupState!
@@ -66,6 +67,7 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
                                           isSignificantUpdates: nil,
                                           isStandardGEOEnabled: nil)
         
+        currentGeofencesMonitoringState = CurrentGeofencesMonitoringState(monitoringGeofences: [])
         currentiBeaconMonitoringState = CurrentiBeaconMonitoringState(monitoringRegions: [])
         
         currentBeaconState = CurrentBeaconState(isIBeaconEnabled: nil,
@@ -158,6 +160,65 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
             } else {
                 DispatchQueue.main.async {self.stateStore.dispatch(SetGEOOffTimeEnd(offTimeEnd: nil))}
             }
+        }
+    }
+    
+    func updateMonitoringGeofences () {
+        
+        // stop monitoring for geofences
+        self.stopMonitoringGeofences()
+        
+        // then see if we can start monitoring for new geofence
+        Log.verbose("------- List of monitored geofences before adding new ones -------")
+        for monitoredGeofence in locationManager.monitoredRegions {
+            Log.verbose("Geofence \(monitoredGeofence)")
+        }
+        Log.verbose("------- List end -------")
+        
+        Log.warning("\nUpdate monitored geofences\n\n")
+        
+        for geofence in currentGeofencesMonitoringState.monitoringGeofences {
+            
+            var geofenceInMonitoredRegions = false
+            
+            for monitoredGeofence in locationManager.monitoredRegions where monitoredGeofence is CLCircularRegion {
+                if (monitoredGeofence as! CLCircularRegion).identifier == geofence.identifier {
+                    geofenceInMonitoredRegions = true
+                }
+            }
+            
+            if !geofenceInMonitoredRegions &&
+                CLLocationManager.isMonitoringAvailable(for: CLCircularRegion.self) {
+                
+                geofence.notifyOnEntry = true
+                geofence.notifyOnExit = true
+                locationManager.startMonitoring(for: geofence)
+            }
+        }
+    }
+    
+    func getCurrentGeofences() -> [CLCircularRegion] {
+        var geofences = [CLCircularRegion]()
+        
+        for monitoredGeofence in locationManager.monitoredRegions where monitoredGeofence is CLCircularRegion {
+            geofences.append(monitoredGeofence as! CLCircularRegion)
+        }
+        
+        return geofences
+    }
+    
+    func stopMonitoringGeofences () {
+        
+        Log.warning("\nStop monitoring previous geofences")
+        
+        // first check filter out all geofences we are monitoring atm
+        let crowdConnectedGeofences = locationManager.monitoredRegions.filter {
+            return $0 is CLCircularRegion ? (($0 as! CLCircularRegion).identifier.range(of: "CC") != nil) : false
+        }
+        
+        // second stop monitoring for geofences that are not included in the current settings
+        for geofence in crowdConnectedGeofences where !currentGeofencesMonitoringState.monitoringGeofences.contains(geofence as! CLCircularRegion) {
+            locationManager.stopMonitoring(for: geofence as! CLCircularRegion)
         }
     }
     
@@ -343,6 +404,10 @@ extension CCLocationManager: BeaconScannerDelegate {
 extension CCLocationManager {
     public func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
         
+        if region.identifier.contains("geofence") {
+                   Log.warning("User entered geofence with identifier: \(region.identifier)")
+               }
+        
         guard region is CLBeaconRegion else {
             return
         }
@@ -371,6 +436,10 @@ extension CCLocationManager {
     
     
     public func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
+        
+        if region.identifier.contains("geofence") {
+            Log.warning("User exited geofence with identifier: \(region.identifier)")
+        }
         
         guard region is CLBeaconRegion else {
             return
