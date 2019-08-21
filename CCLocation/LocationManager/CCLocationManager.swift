@@ -299,7 +299,7 @@ extension CCLocationManager {
         if isWaitingForSignificantUpdates {
             if isContinuousGEOCollectionActive == false {
                 Log.verbose("Renew current GEO state at significant update")
-                handleGEOState(currentGEOState)
+                updateGEOState(currentGEOState)
                 if isContinuousGEOCollectionActive {
                     isWaitingForSignificantUpdates = false
                 }
