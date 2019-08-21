@@ -12,8 +12,14 @@ import SQLite3
 import ReSwift
 import CoreBluetooth
 
+enum GeofenceEventType: Int {
+    case enter = 1
+    case exit = 2
+}
+
 @objc protocol CCLocationManagerDelegate: class {
     func receivedGEOLocation(location: CLLocation)
+    func receivedGeofenceEvent(type: Int, region: CLCircularRegion)
     func receivediBeaconInfo(proximityUUID:UUID, major:Int, minor:Int, proximity:Int, accuracy:Double, rssi:Int, timestamp: TimeInterval)
     func receivedEddystoneBeaconInfo(eid:NSString, tx:Int, rssi:Int, timestamp:TimeInterval)
 }
@@ -42,7 +48,7 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
     internal var eddystoneBeaconMessagesDB: SQLiteDatabase!
     internal let eddystoneBeaconMessagesDBName = "eddystoneMessages.db"
     
-    public weak var delegate:CCLocationManagerDelegate?
+    public weak var delegate: CCLocationManagerDelegate?
     
     weak var stateStore: Store<LibraryState>!
     
@@ -346,33 +352,36 @@ extension CCLocationManager: BeaconScannerDelegate {
 
 extension CCLocationManager {
     public func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
-        //TODO Remove this before release
-        if region.identifier.contains("geofence") {
-            Log.warning("User entered geofence with identifier: \(region.identifier)")
-        }
-        
         let isBeaconRegion = region is CLBeaconRegion
         let isCCGeofence = region is CLCircularRegion && region.identifier.contains("CC")
         
         if isBeaconRegion || isCCGeofence {
-            DispatchQueue.main.async {self.stateStore.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.idle))}
-            DispatchQueue.main.async {self.stateStore.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.notifyWakeup))}
+            triggerWakeUpAction()
+        }
+        
+        if isCCGeofence {
+            Log.warning("User entered geofence with identifier: \(region.identifier)")
+            delegate?.receivedGeofenceEvent(type: GeofenceEventType.enter.rawValue, region: region as! CLCircularRegion)
         }
     }
     
     public func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
-        //TODO Remove this before release
-        if region.identifier.contains("geofence") {
-            Log.warning("User exited geofence with identifier: \(region.identifier)")
-        }
-        
         let isBeaconRegion = region is CLBeaconRegion
         let isCCGeofence = region is CLCircularRegion && region.identifier.contains("CC")
                
         if isBeaconRegion || isCCGeofence {
-            DispatchQueue.main.async {self.stateStore.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.idle))}
-            DispatchQueue.main.async {self.stateStore.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.notifyWakeup))}
+            triggerWakeUpAction()
         }
+        
+        if isCCGeofence {
+            Log.warning("User exited geofence with identifier: \(region.identifier)")
+            delegate?.receivedGeofenceEvent(type: GeofenceEventType.exit.rawValue, region: region as! CLCircularRegion)
+        }
+    }
+    
+    private func triggerWakeUpAction() {
+        DispatchQueue.main.async {self.stateStore.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.idle))}
+        DispatchQueue.main.async {self.stateStore.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.notifyWakeup))}
     }
     
     public func locationManager(_ manager: CLLocationManager, didDetermineState state: CLRegionState, for region: CLRegion) {

@@ -139,6 +139,27 @@ extension CCRequestMessaging {
         }
     }
     
+    public func processGeofenceEvent(type: Int, region: CLCircularRegion) {
+        var clientMessage = Messaging_ClientMessage()
+        var geofenceEventMessage = Messaging_CircularGeoFenceEvent()
+        
+        //TODO Add these fields in the future
+//        geofenceEventMessage.type = type
+//        geofenceEventMessage.identifier = region.identifier
+        
+        geofenceEventMessage.latitude = region.center.latitude
+        geofenceEventMessage.longitude = region.center.longitude
+        geofenceEventMessage.radius = region.radius
+        
+        clientMessage.circularGeoFenceEvents.append(geofenceEventMessage)
+        
+        Log.debug("Geofence message build: \(clientMessage)")
+               
+        if let data = try? clientMessage.serializedData(){
+            sendOrQueueClientMessage(data: data, messageType: .queueable)
+        }
+    }
+    
     public func processStep(date: Date, angle: Double) {
         
         var clientMessage = Messaging_ClientMessage()

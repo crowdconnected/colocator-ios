@@ -85,13 +85,31 @@ extension CCRequestMessaging {
         if message.locationMessage.count > 0 {
             let geoMsg = message.locationMessage[0]
             let geoData = try? geoMsg.serializedData()
-            Log.verbose("Compiled geoMsg: \(geoData?.count ?? -1) and byte array: \(geoData?.hexEncodedString() ?? "NOT AVAILABLE")")
+            
+            Log.verbose("""
+                Compiled geoMsg: \(geoData?.count ?? -1) and byte array
+                \(geoData?.hexEncodedString() ?? "NOT AVAILABLE")
+                """)
+        }
+        
+        if message.circularGeoFenceEvents.count > 0 {
+            let geofenceMsg = message.circularGeoFenceEvents[0]
+            let geofenceData = try? geofenceMsg.serializedData()
+            
+            Log.verbose("""
+                Compiled geofenceMsg: \(geofenceData?.count ?? -1) and byte array
+                \(geofenceData?.hexEncodedString() ?? "NOT AVAILABLE")
+                """)
         }
         
         if message.bluetoothMessage.count > 0 {
             let blMsg = message.bluetoothMessage[0]
             let blData = try? blMsg.serializedData()
-            Log.verbose("Compiled bluetooth message: \(blData?.count ?? -1) and byte array: \(blData?.hexEncodedString() ?? "NOT AVAILABLE"))")
+            
+            Log.verbose("""
+                Compiled bluetooth message: \(blData?.count ?? -1) and byte array
+                \(blData?.hexEncodedString() ?? "NOT AVAILABLE"))
+                """)
         }
         
         for beacon in message.ibeaconMessage {
@@ -101,7 +119,11 @@ extension CCRequestMessaging {
         if message.alias.count > 0 {
             let alMsg = message.alias[0]
             let alData = try? alMsg.serializedData()
-            Log.verbose("Compiled alias message: \(alData?.count ?? -1)  and byte array: \(alData?.hexEncodedString() ?? "NOT AVAILABLE"))")
+            
+            Log.verbose("""
+                Compiled alias message: \(alData?.count ?? -1)  and byte array
+                \(alData?.hexEncodedString() ?? "NOT AVAILABLE"))
+                """)
         }
     }
     
