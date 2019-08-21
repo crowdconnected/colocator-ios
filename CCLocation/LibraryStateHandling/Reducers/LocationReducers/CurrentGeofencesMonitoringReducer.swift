@@ -17,8 +17,16 @@ private typealias C = CurrentGeofencesMonitorinReducerConstants
 func currentGeofencesMonitoringReducer (action: Action, state: CurrentGeofencesMonitoringState?) -> CurrentGeofencesMonitoringState {
     var state = state ?? CurrentGeofencesMonitoringState(monitoringGeofences: [])
    
-    if action is DisableGeofencesMonitoringAction {
+    switch action {
+        
+    case let newGeofencesAction as EnableGeofencesMonitoringAction:
+        state.monitoringGeofences = newGeofencesAction.geofences ?? []
+        
+    case _ as DisableGeofencesMonitoringAction:
         state.monitoringGeofences = []
+        
+    default:
+        break
     }
     
     return state
