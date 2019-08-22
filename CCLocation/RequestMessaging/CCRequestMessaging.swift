@@ -68,7 +68,7 @@ class CCRequestMessaging: NSObject {
         
         let serverMessageJSON = try serverMessage.jsonString()
         if serverMessageJSON.count > 2 {
-            Log.info("Received a server message: \(serverMessage)")
+            Log.info("Received message from server: \(serverMessage)")
         }
         
         processGlobalSettings(serverMessage: serverMessage, store: stateStore)
@@ -366,6 +366,14 @@ class CCRequestMessaging: NSObject {
         if stateStore.state.ccRequestMessagingState.webSocketState?.connectionState == .online {
             self.sendQueuedClientMessages(firstMessage: nil)
         }
+    }
+    
+    func sendQueuedMessagesAndStopTimer() {
+        if stateStore.state.ccRequestMessagingState.webSocketState?.connectionState == .online {
+            self.sendQueuedClientMessages(firstMessage: nil)
+        }
+        timeBetweenSendsTimer?.invalidate()
+        timeBetweenSendsTimer = nil
     }
     
     @objc internal func sendQueuedClientMessagesTimerFiredOnce(){
