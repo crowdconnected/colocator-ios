@@ -33,6 +33,9 @@ class ColocatorManager {
     private let iBeaconMessagesDBName = "iBeaconMessages.db"
     private let eddystoneBeaconMessagesDBName = "eddystoneMessages.db"
     
+    var stopLibraryTimer: Timer?
+    var secondsFromStopTrigger = 0
+    
     public static let sharedInstance: ColocatorManager = {
         let instance = ColocatorManager()
         instance.openLocalDatabase()
@@ -45,6 +48,13 @@ class ColocatorManager {
                stateStore: Store<LibraryState>) {
         if !running {
             running = true
+            
+            if stopLibraryTimer != nil {
+                destroyConnection()
+            }
+            stopLibraryTimer?.invalidate()
+            stopLibraryTimer = nil
+            
             startTime = Date()
             deviceId = UserDefaults.standard.string(forKey: CCSocketConstants.LAST_DEVICE_ID_KEY)
            
@@ -63,6 +73,8 @@ class ColocatorManager {
             ccLocationManager!.delegate = self
             ccInertial!.delegate = self
             
+            Log.info("[Colocator] Attempt to connect to back-end with URL: \(urlString) and APIKey: \(apiKey)")
+                       
             ccSocket?.start(urlString: urlString,
                             apiKey: apiKey,
                             ccRequestMessaging: ccRequestMessaging!)
@@ -89,14 +101,57 @@ class ColocatorManager {
             ccLocationManager?.stop()
             ccLocationManager?.delegate = nil
             ccLocationManager = nil
-            ccRequestMessaging = nil
             
-            ccSocket?.stop()
-            ccSocket?.delegate = nil
-            ccSocket = nil
-            
-            Log.debug("[Colocator] Stopping Colocator")
+            Log.info("Sending all messages from local database to server before stopping")
+        
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                self.ccRequestMessaging?.sendQueuedMessagesAndStopTimer()
+            }
+        
+            stopLibraryTimer = Timer.scheduledTimer(timeInterval: 1.0,
+                                                    target: self,
+                                                    selector: #selector(checkDatabaseAndStopLibrary),
+                                                    userInfo: nil,
+                                                    repeats: true)
         }
+    }
+    
+    @objc private func checkDatabaseAndStopLibrary() {
+        secondsFromStopTrigger += 1
+        
+        if secondsFromStopTrigger > 60 {
+            let leftMessages = ccRequestMessaging?.getMessageCount() ?? 0
+            Log.warning("Library stopped. \(leftMessages) unsent messages")
+            
+            destroyConnection()
+            secondsFromStopTrigger = 0
+            return
+        }
+        
+        if checkDatabaseEmptiness() {
+            destroyConnection()
+        }
+    }
+    
+    private func checkDatabaseEmptiness() -> Bool {
+        if let messagesLeft = ccRequestMessaging?.getMessageCount() {
+            return messagesLeft == 0
+        }
+        return true
+    }
+    
+    private func destroyConnection() {
+        stopLibraryTimer?.invalidate()
+        stopLibraryTimer = nil
+        
+        ccRequestMessaging?.stop()
+        ccRequestMessaging = nil
+        
+        ccSocket?.stop()
+        ccSocket?.delegate = nil
+        ccSocket = nil
+        
+        Log.info("[Colocator] Active back-end connection destroyed")
     }
     
     public func stopLocationObservations() {
@@ -108,6 +163,27 @@ class ColocatorManager {
         if let ccRequestMessaging = self.ccRequestMessaging {
             ccRequestMessaging.processAliases(aliases: aliases)
         }
+    }
+    
+    public func addAlias(key: String, value: String) {
+        let alias = [key: value]
+        updateAliasesInUserDefaults(alias)
+        if let ccRequestMessaging = self.ccRequestMessaging {
+            ccRequestMessaging.processAliases(aliases: alias)
+        }
+    }
+    
+    private func updateAliasesInUserDefaults(_ alias: Dictionary<String, String>) {
+        let defaults = UserDefaults.standard
+        
+        var newAliasesDictionary: Dictionary<String, String> = [:]
+        if let oldAliases = defaults.value(forKey: CCSocketConstants.ALIAS_KEY) as? Dictionary<String, String> {
+            newAliasesDictionary = oldAliases
+        }
+        for (key, value) in alias {
+            newAliasesDictionary.updateValue(value, forKey: key)
+        }
+        defaults.setValue(newAliasesDictionary, forKey: CCSocketConstants.ALIAS_KEY)
     }
     
     public func sendMarker(data: String) {

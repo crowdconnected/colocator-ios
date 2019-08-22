@@ -89,6 +89,12 @@
 		97036DCE22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DCD22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift */; };
 		970ACF3B22D894DD00317525 /* ColocatorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 970ACF3A22D894DD00317525 /* ColocatorManager.swift */; };
 		9770817C22E718DF0074D8E6 /* AutoEquatable.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9770817B22E718DF0074D8E6 /* AutoEquatable.generated.swift */; };
+		97FF65E0230E9A9700C50D52 /* DatabaseStructures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FF65DF230E9A9700C50D52 /* DatabaseStructures.swift */; };
+		97FF65E3230E9C9D00C50D52 /* CreateTableStatements.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FF65E2230E9C9D00C50D52 /* CreateTableStatements.swift */; };
+		97FF65E5230E9CEB00C50D52 /* SQLiteErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FF65E4230E9CEB00C50D52 /* SQLiteErrors.swift */; };
+		97FF65E7230E9DDE00C50D52 /* SQLiteDatabase+Insert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FF65E6230E9DDE00C50D52 /* SQLiteDatabase+Insert.swift */; };
+		97FF65E9230E9DF300C50D52 /* SQLiteDatabase+Delete.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FF65E8230E9DF300C50D52 /* SQLiteDatabase+Delete.swift */; };
+		97FF65EB230EA10100C50D52 /* SQLiteDatabase+Get.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FF65EA230EA10100C50D52 /* SQLiteDatabase+Get.swift */; };
 		97FF65EE230EAE3100C50D52 /* CCInertial+StoreSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FF65ED230EAE3100C50D52 /* CCInertial+StoreSubscriber.swift */; };
 		97FF65F0230EAF7C00C50D52 /* Inertial+Structures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FF65EF230EAF7C00C50D52 /* Inertial+Structures.swift */; };
 		BC0647AF218757A500555512 /* CCBeaconScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0647AE218757A500555512 /* CCBeaconScanner.swift */; };
@@ -213,6 +219,12 @@
 		97036DCD22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCLocationManager+RangingBeacons.swift"; sourceTree = "<group>"; };
 		970ACF3A22D894DD00317525 /* ColocatorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColocatorManager.swift; sourceTree = "<group>"; };
 		9770817B22E718DF0074D8E6 /* AutoEquatable.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutoEquatable.generated.swift; sourceTree = "<group>"; };
+		97FF65DF230E9A9700C50D52 /* DatabaseStructures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseStructures.swift; sourceTree = "<group>"; };
+		97FF65E2230E9C9D00C50D52 /* CreateTableStatements.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateTableStatements.swift; sourceTree = "<group>"; };
+		97FF65E4230E9CEB00C50D52 /* SQLiteErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLiteErrors.swift; sourceTree = "<group>"; };
+		97FF65E6230E9DDE00C50D52 /* SQLiteDatabase+Insert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SQLiteDatabase+Insert.swift"; sourceTree = "<group>"; };
+		97FF65E8230E9DF300C50D52 /* SQLiteDatabase+Delete.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SQLiteDatabase+Delete.swift"; sourceTree = "<group>"; };
+		97FF65EA230EA10100C50D52 /* SQLiteDatabase+Get.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SQLiteDatabase+Get.swift"; sourceTree = "<group>"; };
 		97FF65ED230EAE3100C50D52 /* CCInertial+StoreSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCInertial+StoreSubscriber.swift"; sourceTree = "<group>"; };
 		97FF65EF230EAF7C00C50D52 /* Inertial+Structures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Inertial+Structures.swift"; sourceTree = "<group>"; };
 		BC0647AE218757A500555512 /* CCBeaconScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CCBeaconScanner.swift; path = CCLocation/CCBeaconScanner.swift; sourceTree = SOURCE_ROOT; };
@@ -413,6 +425,20 @@
 			path = Helpers;
 			sourceTree = "<group>";
 		};
+		97FF65E1230E9ADB00C50D52 /* Database */ = {
+			isa = PBXGroup;
+			children = (
+				4F648D662051A38D0043175F /* SQLiteDatabase.swift */,
+				97FF65EA230EA10100C50D52 /* SQLiteDatabase+Get.swift */,
+				97FF65E6230E9DDE00C50D52 /* SQLiteDatabase+Insert.swift */,
+				97FF65E8230E9DF300C50D52 /* SQLiteDatabase+Delete.swift */,
+				97FF65E2230E9C9D00C50D52 /* CreateTableStatements.swift */,
+				97FF65DF230E9A9700C50D52 /* DatabaseStructures.swift */,
+				97FF65E4230E9CEB00C50D52 /* SQLiteErrors.swift */,
+			);
+			path = Database;
+			sourceTree = "<group>";
+		};
 		97FF65EC230EAE1700C50D52 /* Inertial */ = {
 			isa = PBXGroup;
 			children = (
@@ -470,7 +496,7 @@
 				97FF65EC230EAE1700C50D52 /* Inertial */,
 				97036DCF22CE532F005A8322 /* LocationManager */,
 				97036DC822CE461B005A8322 /* RequestMessaging */,
-				4F648D662051A38D0043175F /* SQLiteDatabase.swift */,
+				97FF65E1230E9ADB00C50D52 /* Database */,
 				4F648D6A2052F3390043175F /* TimeHandling.swift */,
 				4FF6BA652105EA430082859F /* Logger.swift */,
 				970ACF3D22D8B7F300317525 /* Helpers */,
@@ -667,6 +693,7 @@
 				BC0647AF218757A500555512 /* CCBeaconScanner.swift in Sources */,
 				BC9DEB7C212425680015C5CF /* Reachability.swift in Sources */,
 				4FBB8A9E1F30D07B00DEF04F /* CurrentBeaconState.swift in Sources */,
+				97FF65E9230E9DF300C50D52 /* SQLiteDatabase+Delete.swift in Sources */,
 				4F8FFD8B1F2CCA660001910A /* TimerReducer.swift in Sources */,
 				4FA524DB1F4050F90067D2C8 /* MessagingProtocol.pb.swift in Sources */,
 				4FFAA5991EF689ED00A2D508 /* LibraryReducer.swift in Sources */,
@@ -695,8 +722,10 @@
 				4FBB8A8D1F2F2F6300DEF04F /* BackgroundGEOActions.swift in Sources */,
 				4F8FFD7F1F2C74940001910A /* LifecycleState.swift in Sources */,
 				970ACF3B22D894DD00317525 /* ColocatorManager.swift in Sources */,
+				97FF65E3230E9C9D00C50D52 /* CreateTableStatements.swift in Sources */,
 				4F8FFD811F2C75E90001910A /* LifecycleReducer.swift in Sources */,
 				4FBB8AC51F37120300DEF04F /* CCRquestMessagingReducer.swift in Sources */,
+				97FF65E5230E9CEB00C50D52 /* SQLiteErrors.swift in Sources */,
 				4F222B1E1F90F17F00FB11BD /* BatteryLevelActions.swift in Sources */,
 				4F648D672051A38D0043175F /* SQLiteDatabase.swift in Sources */,
 				4FBB8AB61F32089400DEF04F /* CurrentiBeaconMonitoringState.swift in Sources */,
@@ -710,6 +739,7 @@
 				4FBB8AC01F34D1E400DEF04F /* CurrentBeaconSettingsActions.swift in Sources */,
 				4F648D6B2052F3390043175F /* TimeHandling.swift in Sources */,
 				4F8FFD831F2C7BF10001910A /* WebSocketState.swift in Sources */,
+				97FF65E7230E9DDE00C50D52 /* SQLiteDatabase+Insert.swift in Sources */,
 				4FF6BA662105EA430082859F /* Logger.swift in Sources */,
 				4F920BFA1F3B1C7F00BD7FEF /* LibraryTimeStateAction.swift in Sources */,
 				4F222B191F90EA4300FB11BD /* BatteryLevelState.swift in Sources */,
@@ -719,7 +749,9 @@
 				4FAAEA281F46F9C500DF4DA1 /* WakeupReducer.swift in Sources */,
 				4FBB8AA51F31139200DEF04F /* CurrentLocationReducer.swift in Sources */,
 				BC9DEB7A2124160B0015C5CF /* CCSocket.swift in Sources */,
+				97FF65EB230EA10100C50D52 /* SQLiteDatabase+Get.swift in Sources */,
 				9702361022CCBDAB00D559A8 /* CCRequestMessaging+SendMessages.swift in Sources */,
+				97FF65E0230E9A9700C50D52 /* DatabaseStructures.swift in Sources */,
 				4F03E1A41F9D30BF0023EEC2 /* CapabilityActions.swift in Sources */,
 				4F8FFD991F2CEC9E0001910A /* CurrentGEOSettingsAction.swift in Sources */,
 				4F8FFD8D1F2CCC670001910A /* TimerAction.swift in Sources */,
