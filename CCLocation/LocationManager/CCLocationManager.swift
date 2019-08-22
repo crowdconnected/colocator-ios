@@ -360,7 +360,7 @@ extension CCLocationManager {
         }
         
         if isCCGeofence {
-            Log.warning("User entered geofence with identifier: \(region.identifier)")
+            Log.debug("User entered geofence with identifier: \(region.identifier)")
             delegate?.receivedGeofenceEvent(type: GeofenceEventType.enter.rawValue, region: region as! CLCircularRegion)
         }
     }
@@ -374,7 +374,7 @@ extension CCLocationManager {
         }
         
         if isCCGeofence {
-            Log.warning("User exited geofence with identifier: \(region.identifier)")
+            Log.debug("User exited geofence with identifier: \(region.identifier)")
             delegate?.receivedGeofenceEvent(type: GeofenceEventType.exit.rawValue, region: region as! CLCircularRegion)
         }
     }
