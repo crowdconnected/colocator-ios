@@ -38,7 +38,7 @@ extension CCLocationManager {
         var beacons: [Beacon]?
         
         do {
-            try beacons = iBeaconMessagesDB.allBeaconsAndDelete()
+            try beacons = iBeaconMessagesDB.getAllBeaconsAndDelete()
         } catch {
             Log.error("Beacon database error: \(iBeaconMessagesDB.errorMessage)")
         }
@@ -51,7 +51,7 @@ extension CCLocationManager {
         var beacons: [EddystoneBeacon]?
         
         do {
-            try beacons = eddystoneBeaconMessagesDB.allEddystoneBeaconsAndDelete()
+            try beacons = eddystoneBeaconMessagesDB.getAllEddystoneBeaconsAndDelete()
             
         } catch {
             Log.error("Eddystone beacon database error: \(eddystoneBeaconMessagesDB.errorMessage)")
