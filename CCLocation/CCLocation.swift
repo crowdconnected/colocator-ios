@@ -107,8 +107,13 @@ internal struct Constants {
         colocatorManager?.sendMarker(data: message)
     }
     
-    @objc public func setAliases(aliases:Dictionary<String, String>) {
+    @available(*, deprecated, message: "Replaced by addAlias(key, value) method")
+    @objc public func setAliases(aliases: Dictionary<String, String>) {
         colocatorManager?.setAliases(aliases: aliases)
+    }
+    
+    @objc public func addAlias(key: String, value: String) {
+        colocatorManager?.addAlias(key: key, value: value)
     }
     
     /// Update library state at backgrounf refresh time
