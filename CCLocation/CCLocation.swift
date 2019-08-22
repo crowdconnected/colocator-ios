@@ -57,8 +57,6 @@ internal struct Constants {
                 state: nil
             )
             
-            Log.info("[Colocator] Attempt to connect to back-end with URL: \(tempUrlString) and APIKey: \(apiKey)")
-            
             colocatorManager = ColocatorManager.sharedInstance
             colocatorManager?.start(urlString: tempUrlString,
                                     apiKey: apiKey,
