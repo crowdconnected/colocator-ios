@@ -95,6 +95,8 @@
 		97FF65E7230E9DDE00C50D52 /* SQLiteDatabase+Insert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FF65E6230E9DDE00C50D52 /* SQLiteDatabase+Insert.swift */; };
 		97FF65E9230E9DF300C50D52 /* SQLiteDatabase+Delete.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FF65E8230E9DF300C50D52 /* SQLiteDatabase+Delete.swift */; };
 		97FF65EB230EA10100C50D52 /* SQLiteDatabase+Get.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FF65EA230EA10100C50D52 /* SQLiteDatabase+Get.swift */; };
+		97FF65EE230EAE3100C50D52 /* CCInertial+StoreSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FF65ED230EAE3100C50D52 /* CCInertial+StoreSubscriber.swift */; };
+		97FF65F0230EAF7C00C50D52 /* Inertial+Structures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FF65EF230EAF7C00C50D52 /* Inertial+Structures.swift */; };
 		BC0647AF218757A500555512 /* CCBeaconScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0647AE218757A500555512 /* CCBeaconScanner.swift */; };
 		BC0647B1218757B900555512 /* CCEddystone.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0647B0218757B900555512 /* CCEddystone.swift */; };
 		BC0647B5218757E200555512 /* DispatchTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0647B4218757E200555512 /* DispatchTimer.swift */; };
@@ -223,6 +225,8 @@
 		97FF65E6230E9DDE00C50D52 /* SQLiteDatabase+Insert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SQLiteDatabase+Insert.swift"; sourceTree = "<group>"; };
 		97FF65E8230E9DF300C50D52 /* SQLiteDatabase+Delete.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SQLiteDatabase+Delete.swift"; sourceTree = "<group>"; };
 		97FF65EA230EA10100C50D52 /* SQLiteDatabase+Get.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SQLiteDatabase+Get.swift"; sourceTree = "<group>"; };
+		97FF65ED230EAE3100C50D52 /* CCInertial+StoreSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCInertial+StoreSubscriber.swift"; sourceTree = "<group>"; };
+		97FF65EF230EAF7C00C50D52 /* Inertial+Structures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Inertial+Structures.swift"; sourceTree = "<group>"; };
 		BC0647AE218757A500555512 /* CCBeaconScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CCBeaconScanner.swift; path = CCLocation/CCBeaconScanner.swift; sourceTree = SOURCE_ROOT; };
 		BC0647B0218757B900555512 /* CCEddystone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CCEddystone.swift; sourceTree = "<group>"; };
 		BC0647B4218757E200555512 /* DispatchTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchTimer.swift; sourceTree = "<group>"; };
@@ -435,6 +439,16 @@
 			path = Database;
 			sourceTree = "<group>";
 		};
+		97FF65EC230EAE1700C50D52 /* Inertial */ = {
+			isa = PBXGroup;
+			children = (
+				4FE19A5222A90215000CE5A8 /* CCInertial.swift */,
+				97FF65ED230EAE3100C50D52 /* CCInertial+StoreSubscriber.swift */,
+				97FF65EF230EAF7C00C50D52 /* Inertial+Structures.swift */,
+			);
+			path = Inertial;
+			sourceTree = "<group>";
+		};
 		BC0647AD2187578C00555512 /* eddyStone */ = {
 			isa = PBXGroup;
 			children = (
@@ -479,7 +493,7 @@
 				F0AF0C931DB3C80300E72E76 /* CCLocation.swift */,
 				970ACF3A22D894DD00317525 /* ColocatorManager.swift */,
 				BC9DEB792124160B0015C5CF /* CCSocket.swift */,
-				4FE19A5222A90215000CE5A8 /* CCInertial.swift */,
+				97FF65EC230EAE1700C50D52 /* Inertial */,
 				97036DCF22CE532F005A8322 /* LocationManager */,
 				97036DC822CE461B005A8322 /* RequestMessaging */,
 				97FF65E1230E9ADB00C50D52 /* Database */,
@@ -673,6 +687,7 @@
 				4F8FFD951F2CE4AC0001910A /* LocationSettingsReducer.swift in Sources */,
 				BC9DEB7E212429B10015C5CF /* ReachabilityManager.swift in Sources */,
 				BC0647B1218757B900555512 /* CCEddystone.swift in Sources */,
+				97FF65EE230EAE3100C50D52 /* CCInertial+StoreSubscriber.swift in Sources */,
 				4FBB8A8F1F30B92500DEF04F /* ForegroundLocationState.swift in Sources */,
 				4F8FFD851F2C7D420001910A /* WebSocketReducer.swift in Sources */,
 				BC0647AF218757A500555512 /* CCBeaconScanner.swift in Sources */,
@@ -740,6 +755,7 @@
 				4F03E1A41F9D30BF0023EEC2 /* CapabilityActions.swift in Sources */,
 				4F8FFD991F2CEC9E0001910A /* CurrentGEOSettingsAction.swift in Sources */,
 				4F8FFD8D1F2CCC670001910A /* TimerAction.swift in Sources */,
+				97FF65F0230EAF7C00C50D52 /* Inertial+Structures.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
