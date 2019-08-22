@@ -12,6 +12,7 @@ import CoreMotion
 
 internal struct Constants {
     static let DEFAULT_END_POINT_PARTIAL_URL = ".colocator.net:443/socket"
+    static let END_POINT_UPDATE_LIBRARY_BACKGROUND = "https://en23kessvxam43o.m.pipedream.net"
 }
 
 @objc public protocol CCLocationDelegate: class {
@@ -110,8 +111,10 @@ internal struct Constants {
         colocatorManager?.setAliases(aliases: aliases)
     }
     
+    /// Update library state at backgrounf refresh time
+    ///
     @objc public func handleBackgroundRefresh(clientKey key: String, completion: @escaping (Bool) -> Void) {
-        let endpointUrlString = "https://en23kessvxam43o.m.pipedream.net"
+        let endpointUrlString = Constants.END_POINT_UPDATE_LIBRARY_BACKGROUND
         var urlComponents = URLComponents(string: endpointUrlString)
         urlComponents?.queryItems = [URLQueryItem(name: "clientKey", value: key)]
         
