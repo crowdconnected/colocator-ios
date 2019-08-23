@@ -13,6 +13,12 @@ protocol SQLTable {
     static var createStatement: String { get }
 }
 
+struct SQLiteConstants {
+    static let kBeginImmediateTransactionCommand = "BEGIN IMMEDIATE TRANSACTION"
+    static let kcommitTransaction = "COMMIT TRANSACTION"
+    static let kFailedDeleteMessage = "Failed to delete message record from database"
+}
+
 class SQLiteDatabase {
     
     var messagesBuffer : [CCMessage] = [CCMessage] ()
@@ -20,6 +26,7 @@ class SQLiteDatabase {
     var ibeaconBeaconBuffer : [Beacon] = [Beacon] ()
     
     weak var messagesBufferClearTimer : Timer?
+    let constants = SQLiteConstants.self
     
     let serialMessageDatabaseQueue = DispatchQueue(label: "com.crowdConnected.serielMessageDatabaseQueue")
     let serialiBeaconDatabaseQueue = DispatchQueue(label: "com.crowdConnected.serieliBeaconDatabaseQueue")

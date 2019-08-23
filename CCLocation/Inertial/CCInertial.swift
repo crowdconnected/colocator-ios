@@ -66,7 +66,9 @@ class CCInertial: NSObject {
     }
     
     internal func startCountingSteps() {
-        if !CMPedometer.isStepCountingAvailable() { return }
+        if !CMPedometer.isStepCountingAvailable() {
+            return
+        }
         
         pedometerStartDate = Date()
         previousPedometerData = PedometerData(endDate: pedometerStartDate, numberOfSteps: 0)
@@ -84,7 +86,9 @@ class CCInertial: NSObject {
     }
     
     private func startMotionUpdates() {
-        if !motion.isDeviceMotionAvailable { return }
+        if !motion.isDeviceMotionAvailable {
+            return
+        }
         
         self.motion.startDeviceMotionUpdates(using: .xArbitraryZVertical,
                                              to: OperationQueue.main,
