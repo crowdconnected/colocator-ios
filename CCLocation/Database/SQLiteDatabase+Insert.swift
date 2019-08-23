@@ -31,7 +31,7 @@ extension SQLiteDatabase {
             
             Log.info("Flushing iBeacon buffer with \(ibeaconBeaconBuffer.count)")
             
-            guard sqlite3_exec(dbPointer, "BEGIN IMMEDIATE TRANSACTION", nil, nil, nil) == SQLITE_OK else  {
+            guard sqlite3_exec(dbPointer, constants.kBeginImmediateTransactionCommand, nil, nil, nil) == SQLITE_OK else  {
                 throw SQLiteError.Exec(message: errorMessage)
             }
             
@@ -79,7 +79,7 @@ extension SQLiteDatabase {
                 let deleteStatement = try prepareStatement(sql: deleteSql)
                 
                 guard sqlite3_step(deleteStatement) == SQLITE_DONE else {
-                    NSLog("Failed to delete message record from database");
+                    Log.warning(constants.kFailedDeleteMessage)
                     throw SQLiteError.Step(message: errorMessage)
                 }
             }
@@ -88,7 +88,7 @@ extension SQLiteDatabase {
                 throw SQLiteError.Finalise(message: errorMessage)
             }
             
-            guard sqlite3_exec(dbPointer, "COMMIT TRANSACTION", nil, nil, nil) == SQLITE_OK else {
+            guard sqlite3_exec(dbPointer, constants.kcommitTransaction, nil, nil, nil) == SQLITE_OK else {
                 throw SQLiteError.Exec(message: errorMessage)
             }
             
@@ -114,7 +114,7 @@ extension SQLiteDatabase {
             
             try saveResetAutoincrement(table: CCLocationTables.EDDYSTONE_BEACON_MESSAGES_TABLE)
             
-            guard sqlite3_exec(dbPointer, "BEGIN IMMEDIATE TRANSACTION", nil, nil, nil) == SQLITE_OK else  {
+            guard sqlite3_exec(dbPointer, constants.kBeginImmediateTransactionCommand, nil, nil, nil) == SQLITE_OK else  {
                 throw SQLiteError.Exec(message: errorMessage)
             }
             
@@ -155,7 +155,7 @@ extension SQLiteDatabase {
                 let deleteStatement = try prepareStatement(sql: deleteSql)
                 
                 guard sqlite3_step(deleteStatement) == SQLITE_DONE else {
-                    NSLog("Failed to delete message record from database");
+                    Log.warning(constants.kFailedDeleteMessage)
                     throw SQLiteError.Step(message: errorMessage)
                 }
             }
@@ -164,7 +164,7 @@ extension SQLiteDatabase {
                 throw SQLiteError.Finalise(message: errorMessage)
             }
             
-            guard sqlite3_exec(dbPointer, "COMMIT TRANSACTION", nil, nil, nil) == SQLITE_OK else {
+            guard sqlite3_exec(dbPointer, constants.kcommitTransaction, nil, nil, nil) == SQLITE_OK else {
                 throw SQLiteError.Exec(message: errorMessage)
             }
             
@@ -189,7 +189,7 @@ extension SQLiteDatabase {
             
             try saveResetAutoincrement(table: CCLocationTables.MESSAGES_TABLE)
             
-            guard sqlite3_exec(dbPointer, "BEGIN IMMEDIATE TRANSACTION", nil, nil, nil) == SQLITE_OK else  {
+            guard sqlite3_exec(dbPointer, constants.kBeginImmediateTransactionCommand, nil, nil, nil) == SQLITE_OK else  {
                 throw SQLiteError.Exec(message: errorMessage)
             }
             
@@ -227,7 +227,7 @@ extension SQLiteDatabase {
                 let deleteStatement = try prepareStatement(sql: deleteSql)
                 
                 guard sqlite3_step(deleteStatement) == SQLITE_DONE else {
-                    NSLog("Failed to delete message record from database");
+                    Log.warning(constants.kFailedDeleteMessage)
                     throw SQLiteError.Step(message: errorMessage)
                 }
             }
@@ -236,7 +236,7 @@ extension SQLiteDatabase {
                 throw SQLiteError.Finalise(message: errorMessage)
             }
             
-            guard sqlite3_exec(dbPointer, "COMMIT TRANSACTION", nil, nil, nil) == SQLITE_OK else {
+            guard sqlite3_exec(dbPointer, constants.kcommitTransaction, nil, nil, nil) == SQLITE_OK else {
                 throw SQLiteError.Exec(message: errorMessage)
             }
             
