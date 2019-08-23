@@ -126,14 +126,15 @@ extension CCLocationManager: StoreSubscriber {
     
     func updateTimersForGEOState(_ newGEOState: CurrentGEOState) {
         // If offTime has been stored in state store at last update
-        if let offTime = newGEOState.offTime, offTime <= Date() {
-            Log.verbose("GeoTimer offTime passed and reset to nil")
-            
-            DispatchQueue.main.async { self.stateStore.dispatch(SetGEOOffTimeEnd(offTimeEnd: nil)) }
+        if let offTime = newGEOState.offTime {
+            if offTime <= Date() {
+                Log.debug("GeoTimer offTime passed and reset to nil")
+                DispatchQueue.main.async { self.stateStore.dispatch(SetGEOOffTimeEnd(offTimeEnd: nil)) }
+            }
             
             // If there's no offTime, start the location manager for maxRuntime
         } else {
-            Log.verbose("GeoTimer startUpdatingLocation has no offTime available")
+            Log.debug("GeoTimer startUpdatingLocation has no offTime available")
             
             locationManager.startUpdatingLocation()
             isContinuousGEOCollectionActive = true
