@@ -31,7 +31,7 @@ extension CCRequestMessaging {
         
         clientMessage.ibeaconMessage.append(iBeaconMessage)
         
-        Log.debug("iBeacon message built: \(clientMessage)")
+        Log.verbose("iBeacon message built: \(clientMessage)")
         
         if let data = try? clientMessage.serializedData() {
             sendOrQueueClientMessage(data: data, messageType: .queueable)
@@ -49,7 +49,7 @@ extension CCRequestMessaging {
         
         clientMessage.eddystonemessage.append(eddyStoneMessage)
         
-        Log.debug("Eddystone beacon message build: \(clientMessage)")
+        Log.verbose("Eddystone beacon message build: \(clientMessage)")
         
         if let data = try? clientMessage.serializedData() {
             sendOrQueueClientMessage(data: data, messageType: .queueable)
@@ -69,7 +69,7 @@ extension CCRequestMessaging {
         
         clientMessage.bluetoothMessage.append(bluetoothMessage)
         
-        Log.debug ("Bluetooth message build: \(clientMessage)")
+        Log.verbose("Bluetooth message build: \(clientMessage)")
         
         if let data = try? clientMessage.serializedData() {
             sendOrQueueClientMessage(data: data, messageType: .queueable)
@@ -123,7 +123,7 @@ extension CCRequestMessaging {
         
         clientMessage.locationMessage.append(locationMessage)
         
-        Log.debug("Location message build: \(clientMessage)")
+        Log.verbose("Location message build: \(clientMessage)")
         
         if let data = try? clientMessage.serializedData() {
             userDefaults.set(counter, forKey: CCRequestMessagingConstants.messageCounter)
@@ -145,7 +145,7 @@ extension CCRequestMessaging {
         
         clientMessage.circularGeoFenceEvents.append(geofenceEventMessage)
         
-        Log.debug("Geofence message build: \(clientMessage)")
+        Log.verbose("Geofence message build: \(clientMessage)")
                
         if let data = try? clientMessage.serializedData() {
             sendOrQueueClientMessage(data: data, messageType: .queueable)
@@ -172,7 +172,7 @@ extension CCRequestMessaging {
         
         clientMessage.step.append(stepMessage)
         
-        Log.debug("Step message build: \(clientMessage)")
+        Log.verbose("Step message build: \(clientMessage)")
         
         if let data = try? clientMessage.serializedData() {
             sendOrQueueClientMessage(data: data, messageType: .queueable)
@@ -191,7 +191,7 @@ extension CCRequestMessaging {
             clientMessage.alias.append(aliasMessage)
         }
         
-        Log.debug("Alias message build: \(clientMessage)")
+        Log.verbose("Alias message build: \(clientMessage)")
         
         if let data = try? clientMessage.serializedData() {
             sendOrQueueClientMessage(data: data, messageType: .discardable)
@@ -208,7 +208,7 @@ extension CCRequestMessaging {
             
             clientMessage.marker = markerMessage
             
-            Log.debug("Marker message build: \(clientMessage)")
+            Log.verbose("Marker message build: \(clientMessage)")
             
             if let data = try? clientMessage.serializedData() {
                 sendOrQueueClientMessage(data: data, messageType: .queueable)

@@ -254,7 +254,7 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
 extension CCLocationManager {
     
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        Log.debug("Received \(locations.count) locations")
+        Log.debug("Received \(locations.count) location(s)")
         
         for location in locations {
             Log.verbose("Geolocation information: \(location.description)")
@@ -490,9 +490,9 @@ extension CCLocationManager {
         })
        
         if results.count > 0 {
-            Log.debug("Beacon is in exclude regions")
+            Log.verbose("Beacon is in exclude regions")
         } else {
-            Log.debug("Beacon is input to reporting")
+            Log.verbose("Beacon is input to reporting")
            
             if filter {
                 insert(beacon: beacon)

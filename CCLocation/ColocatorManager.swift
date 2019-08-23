@@ -206,7 +206,7 @@ class ColocatorManager {
         } catch {
             Log.error("Failed to delete beacons content in database.")
         }
-        
+
         do {
             try eddystoneBeaconsDatabase.deleteBeacons(beaconTable: CCLocationTables.EDDYSTONE_BEACON_MESSAGES_TABLE)
         } catch {

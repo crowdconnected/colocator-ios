@@ -78,7 +78,7 @@ extension CCRequestMessaging {
     }
     
     private func logMessageContent(_ message: Messaging_ClientMessage, subMessageCounter: Int) {
-        Log.verbose("Compiled \(subMessageCounter) message(s)")
+        Log.debug("Compiled \(subMessageCounter) message(s)")
         
         if message.locationMessage.count > 0 {
             let geoMsg = message.locationMessage[0]
