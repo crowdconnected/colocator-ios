@@ -140,18 +140,16 @@ extension CCRequestMessaging {
         var subMessageNo = subMessageCounter
         
         for tempLocationMessage in messages {
-            
             var locationMessage = Messaging_LocationMessage()
             
             locationMessage.longitude = tempLocationMessage.longitude
             locationMessage.latitude = tempLocationMessage.latitude
             locationMessage.horizontalAccuracy = tempLocationMessage.horizontalAccuracy
+            locationMessage.timestamp = tempLocationMessage.timestamp
             
             if tempLocationMessage.hasAltitude {
                 locationMessage.altitude = tempLocationMessage.altitude
             }
-            
-            locationMessage.timestamp = tempLocationMessage.timestamp
             
             if subMessageNo >= 0 {
                 clientMessagesToCompile.append(locationMessage)
@@ -172,7 +170,6 @@ extension CCRequestMessaging {
         var subMessageNo = subMessageCounter
         
         for tempGeofenceMessage in messages {
-            
             var geofenceMessage = Messaging_CircularGeoFenceEvent()
             
             geofenceMessage.longitude = tempGeofenceMessage.longitude
@@ -200,7 +197,6 @@ extension CCRequestMessaging {
         var subMessageNo = subMessageCounter
         
         for tempStepMessage in messages {
-            
             var stepMessage = Messaging_Step()
             
             stepMessage.timestamp = tempStepMessage.timestamp
@@ -225,7 +221,6 @@ extension CCRequestMessaging {
         var subMessageNo = subMessageCounter
         
         for tempBluetoothMessage in messages {
-            
             var bluetoothMessage = Messaging_Bluetooth()
             
             bluetoothMessage.identifier = tempBluetoothMessage.identifier
@@ -252,7 +247,6 @@ extension CCRequestMessaging {
         var subMessageNo = subMessageCounter
         
         for tempIbeaconMessage in messages {
-            
             var ibeaconMessage = Messaging_IBeacon()
             
             ibeaconMessage.uuid = tempIbeaconMessage.uuid
@@ -282,7 +276,6 @@ extension CCRequestMessaging {
         var subMessageNo = subMessageCounter
         
         for tempEddyStoneMessage in messages {
-            
             var eddyStoneMessage = Messaging_EddystoneBeacon()
             
             eddyStoneMessage.eid = tempEddyStoneMessage.eid
@@ -309,7 +302,6 @@ extension CCRequestMessaging {
         var subMessageNo = subMessageCounter
         
         for tempAliasMessage in messages {
-            
             var aliasMessage = Messaging_AliasMessage()
             
             aliasMessage.key = tempAliasMessage.key
@@ -358,7 +350,7 @@ extension CCRequestMessaging {
     
     public func checkMarkerMessage(_ message: Messaging_ClientMessage,
                                    subMessageCounter: Int) -> (Int, Messaging_MarkerMessage?) {
-        if (message.hasMarker){
+        if message.hasMarker {
             var markerMessage = Messaging_MarkerMessage()
             
             markerMessage.data = message.marker.data

@@ -14,126 +14,107 @@ import ReSwift
 extension CCRequestMessaging: StoreSubscriber {
     
     public func newState(state: CCRequestMessagingState) {
+        Log.debug("New RequestMessaging state is \n\(state)")
         
-        Log.debug("New state is: \(state)")
-        
-        if let webSocketState = state.webSocketState {
-            if webSocketState != currentWebSocketState {
-                currentWebSocketState = webSocketState
+        if let webSocketState = state.webSocketState, webSocketState != currentWebSocketState {
+            currentWebSocketState = webSocketState
                 
-                if webSocketState.connectionState == ConnectionState.online {
+            if webSocketState.connectionState == ConnectionState.online {
+                Log.info("New connection has started")
                     
-                    Log.info("New connection has started")
+                //Send queued messages to server on new connection without radioSilencer delay
+                sendQueuedClientMessages(firstMessage: nil)
                     
-                    //Send queued messages to server on new connection without radioSilencer delay
-                    sendQueuedClientMessages(firstMessage: nil)
-                    
-                    let aliases: Dictionary? = UserDefaults.standard.dictionary(forKey: CCSocketConstants.ALIAS_KEY)
-                    
-                    if (aliases != nil){
-                        processAliases(aliases: aliases! as! Dictionary<String, String>)
-                    }
+                if let aliases = UserDefaults.standard.dictionary(forKey: CCSocketConstants.ALIAS_KEY) {
+                    processAliases(aliases: aliases as! Dictionary<String, String>)
                 }
             }
         }
         
-        // if we have a radioSilenceTimer and if its state has changed
         if let newTimerState = state.radiosilenceTimerState, newTimerState != currentRadioSilenceTimerState {
             actualizeTimerState(newState: newTimerState)
         }
         
-        if let newLibraryTimeState = state.libraryTimeState {
-            if newLibraryTimeState != currentLibraryTimerState {
+        if let newLibraryTimeState = state.libraryTimeState, newLibraryTimeState != currentLibraryTimerState {
+            currentLibraryTimerState = newLibraryTimeState
                 
-                currentLibraryTimerState = newLibraryTimeState
-                
-                if let bootTimeInterval = newLibraryTimeState.bootTimeIntervalAtLastTrueTime {
-                    
-                    let timeDifferenceSinceLastTrueTime = bootTimeInterval - TimeHandling.timeIntervalSinceBoot()
-                    
-                    if timeDifferenceSinceLastTrueTime > 60 {
-                        timeHandling.fetchTrueTime()
-                    }
-                }
+            if let bootTimeInterval = newLibraryTimeState.bootTimeIntervalAtLastTrueTime,
+                bootTimeInterval - TimeHandling.timeIntervalSinceBoot() > 60 {
+                timeHandling.fetchTrueTime()
             }
         }
         
-        if let newCapabilityState = state.capabilityState {
-            if newCapabilityState != currentCapabilityState {
-                
-                processIOSCapability(locationAuthStatus: newCapabilityState.locationAuthStatus, bluetoothHardware: newCapabilityState.bluetoothHardware, batteryState: newCapabilityState.batteryState, isLowPowerModeEnabled: newCapabilityState.isLowPowerModeEnabled, isLocationServicesEnabled: newCapabilityState.isLocationServicesAvailable)
-                
-                currentCapabilityState = newCapabilityState
-            }
+        if let newCapabilityState = state.capabilityState, newCapabilityState != currentCapabilityState {
+            currentCapabilityState = newCapabilityState
+            
+            processIOSCapability(locationAuthStatus: newCapabilityState.locationAuthStatus,
+                                 bluetoothHardware: newCapabilityState.bluetoothHardware,
+                                 batteryState: newCapabilityState.batteryState,
+                                 isLowPowerModeEnabled: newCapabilityState.isLowPowerModeEnabled,
+                                 isLocationServicesEnabled: newCapabilityState.isLocationServicesAvailable)
         }
     }
     
     public func actualizeTimerState(newState: TimerState) {
-        
         currentRadioSilenceTimerState = newState
+        
+        // Covers case were app starts from terminated and no timer is available yet
+        if timeBetweenSendsTimer == nil && timeHandling.isRebootTimeSame(stateStore: stateStore, ccSocket: ccSocket) {
+            Log.verbose("RadioSilence timeBetweenSendsTimer is nil, scheduling new timer")
+            
+            DispatchQueue.main.async {self.stateStore.dispatch(ScheduleSilencePeriodTimerAction())}
+        }
         
         if newState.timer == .schedule {
             scheduleTimerWithNewTimerInterval(newState: newState)
         }
         if newState.timer == .running {
-            Log.verbose("RADIOSILENCETIMER timer is in running state")
+            Log.verbose("RadioSilence timer running")
         }
-        
-//        covers case were app starts from terminated and no timer is available yet
-        if timeBetweenSendsTimer == nil {
-            
-            Log.verbose("RADIOSILENCETIMER timeBetweenSendsTimer == nil, scheduling new timer")
-            
-            if timeHandling.isRebootTimeSame(stateStore: stateStore, ccSocket: ccSocket){
-                DispatchQueue.main.async {self.stateStore.dispatch(ScheduleSilencePeriodTimerAction())}
-            }
-        }
-        
         if newState.timer == .invalidate {
+            Log.verbose("RadioSilence timer invalidated")
             
-            Log.verbose("RADIOSILENCETIMER invalidate timer")
-            
-            if timeBetweenSendsTimer != nil{
-                if timeBetweenSendsTimer!.isValid {
-                    timeBetweenSendsTimer!.invalidate()
-                }
-                timeBetweenSendsTimer = nil
-            }
+            timeBetweenSendsTimer?.invalidate()
+            timeBetweenSendsTimer = nil
             
             DispatchQueue.main.async {self.stateStore.dispatch(TimerStoppedAction())}
         }
     }
     
     public func scheduleTimerWithNewTimerInterval(newState: TimerState) {
+        if timeBetweenSendsTimer?.isValid == true {
+            timeBetweenSendsTimer?.invalidate()
+        }
         
-        if timeBetweenSendsTimer != nil {
-            if timeBetweenSendsTimer!.isValid{
-                timeBetweenSendsTimer!.invalidate()
+        guard let newTimeInterval = newState.timeInterval else {
+            return
+        }
+        
+        if let radioSilenceTimerState = newState.startTimeInterval {
+            let intervalForLastTimer = TimeHandling.timeIntervalSinceBoot() - radioSilenceTimerState
+            Log.verbose("RadioSilence intervalForLastTimer = \(intervalForLastTimer)")
+            
+            if intervalForLastTimer < Double(Double(newTimeInterval) / 1000) {
+                timeBetweenSendsTimer = Timer.scheduledTimer(timeInterval: TimeInterval(intervalForLastTimer),
+                                                             target: self,
+                                                             selector: #selector(self.sendQueuedClientMessagesTimerFiredOnce),
+                                                             userInfo: nil,
+                                                             repeats: false)
+                DispatchQueue.main.async {self.stateStore.dispatch(TimerRunningAction(startTimeInterval: nil))}
+                return
             }
         }
         
-        if let newTimeInterval = newState.timeInterval {
-            if let radioSilenceTimerState = newState.startTimeInterval {
-                
-                let intervalForLastTimer = TimeHandling.timeIntervalSinceBoot() - radioSilenceTimerState
-                Log.verbose("RADIOSILENCETIMER intervalForLastTimer = \(intervalForLastTimer)")
-                
-                if intervalForLastTimer < Double(Double(newTimeInterval) / 1000) {
-                    
-                    timeBetweenSendsTimer = Timer.scheduledTimer(timeInterval:TimeInterval(intervalForLastTimer), target: self, selector: #selector(self.sendQueuedClientMessagesTimerFiredOnce), userInfo: nil, repeats: false)
-                    DispatchQueue.main.async {self.stateStore.dispatch(TimerRunningAction(startTimeInterval: nil))}
-                } else {
-                    
-                    timeBetweenSendsTimer = Timer.scheduledTimer(timeInterval:TimeInterval(Double(newTimeInterval) / 1000), target: self, selector: #selector(self.sendQueuedClientMessagesTimerFired), userInfo: nil, repeats: true)
-                    
-                    DispatchQueue.main.async {self.stateStore.dispatch(TimerRunningAction(startTimeInterval: TimeHandling.timeIntervalSinceBoot()))}
-                }
-            } else {
-                
-                timeBetweenSendsTimer = Timer.scheduledTimer(timeInterval:TimeInterval(Double(newTimeInterval) / 1000), target: self, selector: #selector(self.sendQueuedClientMessagesTimerFired), userInfo: nil, repeats: true)
-                
-                DispatchQueue.main.async {self.stateStore.dispatch(TimerRunningAction(startTimeInterval: TimeHandling.timeIntervalSinceBoot()))}
-            }
-        }
+        // Case intervalForLastTimer > newTimeInterval or there's no new startTimeInterval
+        setTimeBetweenSendsAndAction(interval: newTimeInterval)
+    }
+    
+    private func setTimeBetweenSendsAndAction(interval: UInt64) {
+        timeBetweenSendsTimer = Timer.scheduledTimer(timeInterval: TimeInterval(Double(interval) / 1000),
+                                                     target: self,
+                                                     selector: #selector(self.sendQueuedClientMessagesTimerFired),
+                                                     userInfo: nil,
+                                                     repeats: true)
+        DispatchQueue.main.async {self.stateStore.dispatch(TimerRunningAction(startTimeInterval: TimeHandling.timeIntervalSinceBoot()))}
     }
 }

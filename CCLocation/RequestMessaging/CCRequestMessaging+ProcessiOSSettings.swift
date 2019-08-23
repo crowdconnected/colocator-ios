@@ -34,32 +34,21 @@ extension CCRequestMessaging {
         
         // GEO Settings
         if serverMessage.hasIosSettings && serverMessage.iosSettings.hasGeoSettings {
-            let geoSettings = serverMessage.iosSettings.geoSettings
-            
-            updateSignificantUpdatesState(geoSettings: geoSettings, store: store)
-            updateBackgroundGEOState(geoSettings: geoSettings, store: store)
-            updateForegroundGEOState(geoSettings: geoSettings, store: store)
-            updateGeofencesState(geoSettings: geoSettings, store: store)
+            updateAllGEOSettings(newGEOSettings: serverMessage.iosSettings.geoSettings, store: store)
         }
         
         // Beacon Settings
         if serverMessage.hasIosSettings && serverMessage.iosSettings.hasBeaconSettings {
-            let beaconSettings = serverMessage.iosSettings.beaconSettings
-            
-            updateBeaconMonitoringState(beaconSettings: beaconSettings, store: store)
-            updateForegroundBeaconRangingState(beaconSettings: beaconSettings, store: store)
-            updateBackgroundBeaconRangingState(beaconSettings: beaconSettings, store: store)
+            updateAllBeaconSettings(newBeaconSettings: serverMessage.iosSettings.beaconSettings, store: store)
         }
         
         // Inertial Settings
         if serverMessage.hasIosSettings && serverMessage.iosSettings.hasInertialSettings {
-            let inertialSettings = serverMessage.iosSettings.inertialSettings
-            
-            updateInertialState(inertialSettings: inertialSettings, store: store)
+            updateInertialState(inertialSettings: serverMessage.iosSettings.inertialSettings, store: store)
         }
     }
     
-     // MARK: - Disabling Settings
+    // MARK: - Disabling Settings
     
     // Disable Settings Actions
     
@@ -82,9 +71,16 @@ extension CCRequestMessaging {
         DispatchQueue.main.async {store.dispatch(DisableInertialAction())}
     }
     
-     // MARK: - Updating Settings
+    // MARK: - Updating Settings
     
     // Updating Geo Settings
+    
+    private func updateAllGEOSettings(newGEOSettings: Messaging_IosGeoSettings, store: Store<LibraryState>) {
+        updateSignificantUpdatesState(geoSettings: newGEOSettings, store: store)
+        updateBackgroundGEOState(geoSettings: newGEOSettings, store: store)
+        updateForegroundGEOState(geoSettings: newGEOSettings, store: store)
+        updateGeofencesState(geoSettings: newGEOSettings, store: store)
+    }
     
     private func updateSignificantUpdatesState(geoSettings: Messaging_IosGeoSettings, store: Store<LibraryState>) {
         if geoSettings.hasSignificantUpates && geoSettings.significantUpates {
@@ -123,6 +119,12 @@ extension CCRequestMessaging {
     }
     
     // Updating Beacon Settings
+    
+    private func updateAllBeaconSettings(newBeaconSettings: Messaging_IosBeaconSettings, store: Store<LibraryState>) {
+        updateBeaconMonitoringState(beaconSettings: newBeaconSettings, store: store)
+        updateForegroundBeaconRangingState(beaconSettings: newBeaconSettings, store: store)
+        updateBackgroundBeaconRangingState(beaconSettings: newBeaconSettings, store: store)
+    }
     
     private func  updateBeaconMonitoringState(beaconSettings: Messaging_IosBeaconSettings, store: Store<LibraryState>) {
         if beaconSettings.hasMonitoring {

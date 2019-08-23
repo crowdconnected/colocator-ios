@@ -89,6 +89,8 @@
 		97036DCE22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DCD22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift */; };
 		97044503230BE61D001B2815 /* GeofencesActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97044502230BE61D001B2815 /* GeofencesActions.swift */; };
 		97044505230BE76C001B2815 /* CurrentGeofencesMonitoringState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97044504230BE76C001B2815 /* CurrentGeofencesMonitoringState.swift */; };
+		97090E60230FDE9E00F1A684 /* CCRequestMessaging+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97090E5F230FDE9E00F1A684 /* CCRequestMessaging+Helpers.swift */; };
+		97090E62230FE33F00F1A684 /* CCRequestMessaging+SystemNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97090E61230FE33F00F1A684 /* CCRequestMessaging+SystemNotification.swift */; };
 		970ACF3B22D894DD00317525 /* ColocatorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 970ACF3A22D894DD00317525 /* ColocatorManager.swift */; };
 		975C8E03230BF7E700A48FE9 /* CurrentGeofencesMonitoringReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975C8E02230BF7E700A48FE9 /* CurrentGeofencesMonitoringReducer.swift */; };
 		9770817C22E718DF0074D8E6 /* AutoEquatable.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9770817B22E718DF0074D8E6 /* AutoEquatable.generated.swift */; };
@@ -222,6 +224,8 @@
 		97036DCD22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCLocationManager+RangingBeacons.swift"; sourceTree = "<group>"; };
 		97044502230BE61D001B2815 /* GeofencesActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeofencesActions.swift; sourceTree = "<group>"; };
 		97044504230BE76C001B2815 /* CurrentGeofencesMonitoringState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentGeofencesMonitoringState.swift; sourceTree = "<group>"; };
+		97090E5F230FDE9E00F1A684 /* CCRequestMessaging+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCRequestMessaging+Helpers.swift"; sourceTree = "<group>"; };
+		97090E61230FE33F00F1A684 /* CCRequestMessaging+SystemNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCRequestMessaging+SystemNotification.swift"; sourceTree = "<group>"; };
 		970ACF3A22D894DD00317525 /* ColocatorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColocatorManager.swift; sourceTree = "<group>"; };
 		975C8E02230BF7E700A48FE9 /* CurrentGeofencesMonitoringReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentGeofencesMonitoringReducer.swift; sourceTree = "<group>"; };
 		9770817B22E718DF0074D8E6 /* AutoEquatable.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutoEquatable.generated.swift; sourceTree = "<group>"; };
@@ -408,6 +412,8 @@
 				97036DC322CE0869005A8322 /* CCRequestMessaging+AnalyzeMessages.swift */,
 				97036DBD22CE05A2005A8322 /* CCRequestMessaging+StoreSubscriber.swift */,
 				9702361122CCC2A100D559A8 /* CCRequestMessaging+DatabaseOperations.swift */,
+				97090E5F230FDE9E00F1A684 /* CCRequestMessaging+Helpers.swift */,
+				97090E61230FE33F00F1A684 /* CCRequestMessaging+SystemNotification.swift */,
 			);
 			path = RequestMessaging;
 			sourceTree = "<group>";
@@ -700,6 +706,7 @@
 				4FBB8A8F1F30B92500DEF04F /* ForegroundLocationState.swift in Sources */,
 				4F8FFD851F2C7D420001910A /* WebSocketReducer.swift in Sources */,
 				BC0647AF218757A500555512 /* CCBeaconScanner.swift in Sources */,
+				97090E60230FDE9E00F1A684 /* CCRequestMessaging+Helpers.swift in Sources */,
 				BC9DEB7C212425680015C5CF /* Reachability.swift in Sources */,
 				4FBB8A9E1F30D07B00DEF04F /* CurrentBeaconState.swift in Sources */,
 				97FF65E9230E9DF300C50D52 /* SQLiteDatabase+Delete.swift in Sources */,
@@ -715,6 +722,7 @@
 				4FBB8ABA1F320A0F00DEF04F /* CurrentiBeaconMonitoringReducer.swift in Sources */,
 				97036DC422CE0869005A8322 /* CCRequestMessaging+AnalyzeMessages.swift in Sources */,
 				4FBB8AA01F30D23600DEF04F /* CurrentLocationState.swift in Sources */,
+				97090E62230FE33F00F1A684 /* CCRequestMessaging+SystemNotification.swift in Sources */,
 				4FE19A5B22AA513E000CE5A8 /* InertialActions.swift in Sources */,
 				4F659BB61F24910100775ABD /* CCLocationManager.swift in Sources */,
 				97036DC022CE06A3005A8322 /* CCRequestMessaging+ProcessEventsAndData.swift in Sources */,

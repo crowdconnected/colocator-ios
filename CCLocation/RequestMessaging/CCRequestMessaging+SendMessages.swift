@@ -42,29 +42,27 @@ extension CCRequestMessaging {
                 var tempMessageData: [Data]?
                 var subMessageCounter: Int = 0
                 
-                while self?.getMessageCount() ?? -1 > 0
-                    && subMessageCounter < maxMessagesToReturn {
-                        
-                        tempMessageData = self?.popMessagesFromLocalDatabase(maxMessagesToReturn: maxMessagesToReturn)
-                        
-                        if let unwrappedTempMessageData = tempMessageData {
-                            for tempMessage in unwrappedTempMessageData {
-                               
-                                let (newSubMessageCounter,
-                                     newCompiledClientMessage,
-                                     newBackToQueueMessages) = self?.handleMessageType(message: tempMessage,
-                                                                                       subMessageInitialNumber: subMessageCounter,
-                                                                                       compiledMessage: compiledClientMessage,
-                                                                                       queueMessage: backToQueueMessages)
+                while self?.getMessageCount() ?? -1 > 0 && subMessageCounter < maxMessagesToReturn {
+                    tempMessageData = self?.popMessagesFromLocalDatabase(maxMessagesToReturn: maxMessagesToReturn)
+                    
+                    if let unwrappedTempMessageData = tempMessageData {
+                        for tempMessage in unwrappedTempMessageData {
+                            
+                            let (newSubMessageCounter,
+                                 newCompiledClientMessage,
+                                 newBackToQueueMessages) = self?.handleMessageType(message: tempMessage,
+                                                                                   subMessageInitialNumber: subMessageCounter,
+                                                                                   compiledMessage: compiledClientMessage,
+                                                                                   queueMessage: backToQueueMessages)
                                                             ?? (subMessageCounter,
                                                                 Messaging_ClientMessage(),
                                                                 Messaging_ClientMessage())
-                                
-                                subMessageCounter = newSubMessageCounter
-                                compiledClientMessage = newCompiledClientMessage
-                                backToQueueMessages = newBackToQueueMessages
-                            }
+                            
+                            subMessageCounter = newSubMessageCounter
+                            compiledClientMessage = newCompiledClientMessage
+                            backToQueueMessages = newBackToQueueMessages
                         }
+                    }
                 }
                 
                 self?.logMessageContent(compiledClientMessage, subMessageCounter: subMessageCounter)
