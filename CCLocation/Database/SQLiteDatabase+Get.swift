@@ -22,7 +22,7 @@ extension SQLiteDatabase {
             var clientMessagesData: [Data] = [Data] ()
             var ids : [String] = [String] ()
             
-            guard sqlite3_exec(dbPointer, "BEGIN IMMEDIATE TRANSACTION", nil, nil, nil) == SQLITE_OK else  {
+            guard sqlite3_exec(dbPointer, constants.kBeginImmediateTransactionCommand, nil, nil, nil) == SQLITE_OK else  {
                 throw SQLiteError.Exec(message: errorMessage)
             }
             
@@ -59,7 +59,7 @@ extension SQLiteDatabase {
                 throw SQLiteError.Finalise(message: errorMessage)
             }
             
-            guard sqlite3_exec(dbPointer, "COMMIT TRANSACTION", nil, nil, nil) == SQLITE_OK else {
+            guard sqlite3_exec(dbPointer, constants.kcommitTransaction, nil, nil, nil) == SQLITE_OK else {
                 throw SQLiteError.Exec(message: errorMessage)
             }
             
