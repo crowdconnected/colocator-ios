@@ -134,13 +134,15 @@ extension CCLocationManager: StoreSubscriber {
             
             // If there's no offTime, start the location manager for maxRuntime
         } else {
-            Log.debug("GeoTimer startUpdatingLocation has no offTime available")
+            Log.info("Start collecting GEO")
             
             locationManager.startUpdatingLocation()
             isContinuousGEOCollectionActive = true
             
-            if let maxRunTime = newGEOState.maxRuntime, self.maxRunGEOTimer == nil {
-                startMaxRunTimeGeoTimer(maxRunTime: maxRunTime)
+            if let maxRunTime = newGEOState.maxRuntime {
+                if self.maxRunGEOTimer == nil {
+                    startMaxRunTimeGeoTimer(maxRunTime: maxRunTime)
+                }
             } else {
                 stopMaxRunTimeGeoTimer()
             }

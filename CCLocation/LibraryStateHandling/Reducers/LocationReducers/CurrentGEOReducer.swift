@@ -41,7 +41,6 @@ func currentGEOReducer (action: Action, state: CurrentGEOState?) -> CurrentGEOSt
         saveCurrentGEOSateToUserDefaults(geoState: state)
     
     case let offTime as SetGEOOffTimeEnd:
-        Log.warning("New offTIme set in CurrentGEOReducer \(offTime) end at \(offTime.offTimeEnd)")
         state.offTime = offTime.offTimeEnd
         saveCurrentGEOSateToUserDefaults(geoState: state)
         

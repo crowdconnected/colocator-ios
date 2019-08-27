@@ -127,6 +127,8 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
     }
     
     @objc func stopLocationUpdates() {
+        Log.info("Stop collecting GEO")
+        
         locationManager.stopUpdatingLocation()
         
         Log.debug("Waiting for significant updates only")
