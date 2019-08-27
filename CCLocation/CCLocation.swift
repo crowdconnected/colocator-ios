@@ -12,6 +12,7 @@ import CoreMotion
 
 internal struct Constants {
     static let DEFAULT_END_POINT_PARTIAL_URL = ".colocator.net:443/socket"
+    static let END_POINT_UPDATE_LIBRARY_BACKGROUND = "https://en23kessvxam43o.m.pipedream.net"
 }
 
 @objc public protocol CCLocationDelegate: class {
@@ -55,8 +56,6 @@ internal struct Constants {
                 reducer: libraryReducer,
                 state: nil
             )
-            
-            Log.info("[Colocator] Attempt to connect to back-end with URL: \(tempUrlString) and APIKey: \(apiKey)")
             
             colocatorManager = ColocatorManager.sharedInstance
             colocatorManager?.start(urlString: tempUrlString,
@@ -106,8 +105,50 @@ internal struct Constants {
         colocatorManager?.sendMarker(data: message)
     }
     
-    @objc public func setAliases(aliases:Dictionary<String, String>) {
+    @available(*, deprecated, message: "Replaced by addAlias(key, value) method")
+    @objc public func setAliases(aliases: Dictionary<String, String>) {
         colocatorManager?.setAliases(aliases: aliases)
+    }
+    
+    @objc public func addAlias(key: String, value: String) {
+        colocatorManager?.addAlias(key: key, value: value)
+    }
+    
+    /// Update library state at backgrounf refresh time
+    ///
+    @objc public func handleBackgroundRefresh(clientKey key: String, completion: @escaping (Bool) -> Void) {
+        let endpointUrlString = Constants.END_POINT_UPDATE_LIBRARY_BACKGROUND
+        var urlComponents = URLComponents(string: endpointUrlString)
+        urlComponents?.queryItems = [URLQueryItem(name: "clientKey", value: key)]
+        
+        guard let requestURL = urlComponents?.url  else {
+            completion(false)
+            return
+        }
+        let request = URLRequest(url: requestURL)
+        
+        Log.info("Background Refresh Event detected - Checking client status for \(key.uppercased()) ...")
+        URLSession.shared.dataTask(with: request) { (data, response, err) in
+            guard err == nil, let dataResponse = data else {
+                completion(false)
+                return
+            }
+            
+            do {
+                let jsonResponse = try JSONSerialization.jsonObject(with: dataResponse, options: []) as? [String: Any]
+                let clientStatus = jsonResponse?["clientStatus"] as? Bool
+                
+                if clientStatus == true {
+                    self.start(apiKey: key)
+                    completion(true)
+                } else {
+                    completion(false)
+                }
+            } catch let parsingError {
+                completion(false)
+                print("Error", parsingError)
+            }
+        }.resume()
     }
 }
 

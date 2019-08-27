@@ -136,6 +136,7 @@ class CCSocket:NSObject {
     
     @objc func stopCycler(timer: Timer) {
         colocatorManager?.stopLocationObservations()
+        colocatorManager?.deleteDatabaseContent()
         self.maxCycleTimer = nil
         
         Log.debug("Location observations stopped")

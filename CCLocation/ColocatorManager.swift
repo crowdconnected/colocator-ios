@@ -25,8 +25,20 @@ class ColocatorManager {
     var ccInertial: CCInertial?
     var ccSocket: CCSocket?
     
+    var messagesDatabase: SQLiteDatabase!
+    var beaconsDatabase: SQLiteDatabase!
+    var eddystoneBeaconsDatabase:  SQLiteDatabase!
+    
+    private let messagesDBName = "observations.db"
+    private let iBeaconMessagesDBName = "iBeaconMessages.db"
+    private let eddystoneBeaconMessagesDBName = "eddystoneMessages.db"
+    
+    var stopLibraryTimer: Timer?
+    var secondsFromStopTrigger = 0
+    
     public static let sharedInstance: ColocatorManager = {
         let instance = ColocatorManager()
+        instance.openLocalDatabase()
         return instance
     }()
     
@@ -35,8 +47,14 @@ class ColocatorManager {
                ccLocation: CCLocation,
                stateStore: Store<LibraryState>) {
         if !running {
-            
             running = true
+            
+            if stopLibraryTimer != nil {
+                destroyConnection()
+            }
+            stopLibraryTimer?.invalidate()
+            stopLibraryTimer = nil
+            
             startTime = Date()
             deviceId = UserDefaults.standard.string(forKey: CCSocketConstants.LAST_DEVICE_ID_KEY)
            
@@ -55,6 +73,8 @@ class ColocatorManager {
             ccLocationManager!.delegate = self
             ccInertial!.delegate = self
             
+            Log.info("[Colocator] Attempt to connect to back-end with URL: \(urlString) and APIKey: \(apiKey)")
+                       
             ccSocket?.start(urlString: urlString,
                             apiKey: apiKey,
                             ccRequestMessaging: ccRequestMessaging!)
@@ -81,14 +101,57 @@ class ColocatorManager {
             ccLocationManager?.stop()
             ccLocationManager?.delegate = nil
             ccLocationManager = nil
-            ccRequestMessaging = nil
             
-            ccSocket?.stop()
-            ccSocket?.delegate = nil
-            ccSocket = nil
-            
-            Log.debug("[Colocator] Stopping Colocator")
+            Log.info("Sending all messages from local database to server before stopping")
+        
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                self.ccRequestMessaging?.sendQueuedMessagesAndStopTimer()
+            }
+        
+            stopLibraryTimer = Timer.scheduledTimer(timeInterval: 1.0,
+                                                    target: self,
+                                                    selector: #selector(checkDatabaseAndStopLibrary),
+                                                    userInfo: nil,
+                                                    repeats: true)
         }
+    }
+    
+    @objc private func checkDatabaseAndStopLibrary() {
+        secondsFromStopTrigger += 1
+        
+        if secondsFromStopTrigger > 60 {
+            let leftMessages = ccRequestMessaging?.getMessageCount() ?? 0
+            Log.warning("Library stopped. \(leftMessages) unsent messages")
+            
+            destroyConnection()
+            secondsFromStopTrigger = 0
+            return
+        }
+        
+        if checkDatabaseEmptiness() {
+            destroyConnection()
+        }
+    }
+    
+    private func checkDatabaseEmptiness() -> Bool {
+        if let messagesLeft = ccRequestMessaging?.getMessageCount() {
+            return messagesLeft == 0
+        }
+        return true
+    }
+    
+    private func destroyConnection() {
+        stopLibraryTimer?.invalidate()
+        stopLibraryTimer = nil
+        
+        ccRequestMessaging?.stop()
+        ccRequestMessaging = nil
+        
+        ccSocket?.stop()
+        ccSocket?.delegate = nil
+        ccSocket = nil
+        
+        Log.info("[Colocator] Active back-end connection destroyed")
     }
     
     public func stopLocationObservations() {
@@ -102,9 +165,115 @@ class ColocatorManager {
         }
     }
     
+    public func addAlias(key: String, value: String) {
+        let alias = [key: value]
+        updateAliasesInUserDefaults(alias)
+        if let ccRequestMessaging = self.ccRequestMessaging {
+            ccRequestMessaging.processAliases(aliases: alias)
+        }
+    }
+    
+    private func updateAliasesInUserDefaults(_ alias: Dictionary<String, String>) {
+        let defaults = UserDefaults.standard
+        
+        var newAliasesDictionary: Dictionary<String, String> = [:]
+        if let oldAliases = defaults.value(forKey: CCSocketConstants.ALIAS_KEY) as? Dictionary<String, String> {
+            newAliasesDictionary = oldAliases
+        }
+        for (key, value) in alias {
+            newAliasesDictionary.updateValue(value, forKey: key)
+        }
+        defaults.setValue(newAliasesDictionary, forKey: CCSocketConstants.ALIAS_KEY)
+    }
+    
     public func sendMarker(data: String) {
         if let ccRequestMessaging = self.ccRequestMessaging {
             ccRequestMessaging.processMarker(data: data)
+        }
+    }
+    
+    func deleteDatabaseContent() {
+        Log.warning("Attempt to delete all the content inside the database")
+        
+        do {
+            try messagesDatabase.deleteMessages(messagesTable: CCLocationTables.MESSAGES_TABLE)
+        } catch {
+            Log.error("Failed to delete messages content in database.")
+        }
+        
+        do {
+            try   beaconsDatabase.deleteBeacons(beaconTable: CCLocationTables.IBEACON_MESSAGES_TABLE)
+        } catch {
+            Log.error("Failed to delete beacons content in database.")
+        }
+        
+        do {
+            try eddystoneBeaconsDatabase.deleteBeacons(beaconTable: CCLocationTables.EDDYSTONE_BEACON_MESSAGES_TABLE)
+        } catch {
+            Log.error("Failed to delete eddystonebeacons content in database.")
+        }
+    }
+    
+    deinit {
+        messagesDatabase.close()
+        beaconsDatabase.close()
+        eddystoneBeaconsDatabase.close()
+    }
+}
+
+//MARK: - Database
+extension ColocatorManager {
+    func openLocalDatabase() {
+        // Get the library directory
+        let dirPaths = NSSearchPathForDirectoriesInDomains (.libraryDirectory, .userDomainMask, true)
+        let docsDir = dirPaths[0]
+        
+        // Build the path to the database messages file
+        let messageDBPath = URL.init(string: docsDir)?.appendingPathComponent(messagesDBName).absoluteString
+        guard let messagesDBPathStringUnwrapped = messageDBPath else {
+            Log.error("Unable to create messages database path")
+            return
+        }
+        
+        do {
+            messagesDatabase = try SQLiteDatabase.open(path: messagesDBPathStringUnwrapped)
+            Log.debug("Successfully opened connection to messages database.")
+        } catch SQLiteError.OpenDatabase(let message) {
+            Log.error("Unable to open observation messages database. \(message)")
+        } catch {
+            Log.error("An unexpected error was thrown, when trying to open a connection to observation messages database")
+        }
+        
+        // Build the path to the database beacons file
+        let beaconsDBPath = URL.init(string: docsDir)?.appendingPathComponent(iBeaconMessagesDBName).absoluteString
+        guard let beaconsDBPathStringUnwrapped = beaconsDBPath else {
+            Log.error("Unable to create messages database path")
+            return
+        }
+        
+        do {
+            beaconsDatabase = try SQLiteDatabase.open(path: beaconsDBPathStringUnwrapped)
+            Log.debug("Successfully opened connection to beacons database.")
+        } catch SQLiteError.OpenDatabase(let message) {
+            Log.error("Unable to open observation beacons database. \(message)")
+        } catch {
+            Log.error("An unexpected error was thrown, when trying to open a connection to observation beacons database")
+        }
+        
+        // Build the path to the database eddystone beacons file
+        let eddystoneBeaconsDBPath = URL.init(string: docsDir)?.appendingPathComponent(eddystoneBeaconMessagesDBName).absoluteString
+        guard let eddystoneBeaconsDBPathStringUnwrapped = eddystoneBeaconsDBPath else {
+            Log.error("Unable to create eddystone beacons database path")
+            return
+        }
+        
+        do {
+            eddystoneBeaconsDatabase = try SQLiteDatabase.open(path: eddystoneBeaconsDBPathStringUnwrapped)
+            Log.debug("Successfully opened connection to eddystone beacons database.")
+        } catch SQLiteError.OpenDatabase(let message) {
+            Log.error("Unable to open observation eddystone beacons database. \(message)")
+        } catch {
+            Log.error("An unexpected error was thrown, when trying to open a connection to eddystone beacons database")
         }
     }
 }

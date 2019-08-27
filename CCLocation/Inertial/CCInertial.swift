@@ -10,16 +10,6 @@ import Foundation
 import CoreMotion
 import ReSwift
 
-struct PedometerData {
-    let endDate: Date
-    let numberOfSteps: Int
-}
-
-struct YawData {
-    let yaw: Double
-    let date: Date
-}
-
 protocol CCInertialDelegate: class {
     func receivedStep(date: Date, angle: Double)
 }
@@ -34,7 +24,7 @@ class CCInertial: NSObject {
     private var previousPedometerData: PedometerData?
     private var yawDataBuffer: [YawData] = []
     
-    fileprivate var currentInertialState: InertialState!
+    var currentInertialState: InertialState!
     
     weak var stateStore: Store<LibraryState>!
     
@@ -48,8 +38,37 @@ class CCInertial: NSObject {
         stateStore.subscribe(self)
     }
     
+    internal func start() {
+       if #available(iOS 11.0, *) {
+           let pedometerAuthStatus = CMPedometer.authorizationStatus()
+           
+           if pedometerAuthStatus == .authorized || pedometerAuthStatus == .notDetermined {
+               Log.debug("Starting intertial")
+               
+               startCountingSteps()
+               startMotionUpdates()
+           } else {
+               Log.debug("Authorisation status is .denied or .restriced, no inertial updates requested")
+           }
+       } else {
+           Log.debug("Starting intertial")
+           
+           startCountingSteps()
+           startMotionUpdates()
+       }
+    }
+       
+    internal func stop() {
+        Log.debug("Stopping inertial")
+           
+        pedometer.stopUpdates()
+        motion.stopDeviceMotionUpdates()
+    }
+    
     internal func startCountingSteps() {
-        if !CMPedometer.isStepCountingAvailable() { return }
+        if !CMPedometer.isStepCountingAvailable() {
+            return
+        }
         
         pedometerStartDate = Date()
         previousPedometerData = PedometerData(endDate: pedometerStartDate, numberOfSteps: 0)
@@ -67,10 +86,9 @@ class CCInertial: NSObject {
     }
     
     private func startMotionUpdates() {
-        if !motion.isDeviceMotionAvailable { return }
-        
-        // need to double check the behaviour on this one
-        // self.motion.showsDeviceMovementDisplay = true
+        if !motion.isDeviceMotionAvailable {
+            return
+        }
         
         self.motion.startDeviceMotionUpdates(using: .xArbitraryZVertical,
                                              to: OperationQueue.main,
@@ -78,15 +96,16 @@ class CCInertial: NSObject {
             guard let data = deviceMotion, error == nil else {
                 let cmError = error as? CMError
                 
-                Log.error("Received: \(cmError.debugDescription)")
+                Log.error("Received motion update error: \(cmError.debugDescription)")
                 return
             }
             
             let yawValue = data.attitude.yaw
             let yawData = YawData(yaw: yawValue, date: Date())
             
-            Log.debug("""
-                Pedometer: Yaw: \(yawData.yaw)
+            Log.verbose("""
+                Pedometer Data
+                Yaw: \(yawData.yaw)
                 Timestamp: \(yawData.date.timeIntervalSince1970)
                 Interval: \(self.motion.deviceMotionUpdateInterval )
                 """)
@@ -102,15 +121,12 @@ class CCInertial: NSObject {
             }
         })
     }
-
-    private func setInterval(time: TimeInterval) {
-        self.motion.deviceMotionUpdateInterval = time
-    }
     
     private func findFirstSmallerYaw(yawArray: [YawData], timeInterval: TimeInterval) -> YawData? {
         for (index, yaw) in yawArray.reversed().enumerated() {
-            Log.debug("""
-                Pedometer: Yaw time interval: \(yaw.date.timeIntervalSince1970)
+            Log.verbose("""
+                Pedometer Data
+                Yaw time interval: \(yaw.date.timeIntervalSince1970)
                 Time interval: \(timeInterval)
                 """)
             
@@ -123,36 +139,7 @@ class CCInertial: NSObject {
         return nil
     }
     
-    private func rad2deg(_ number: Double) -> Double {
-        return number * 180 / .pi
-    }
-    
-    internal func start() {
-        if #available(iOS 11.0, *) {
-            let pedometerAuthStatus = CMPedometer.authorizationStatus()
-            
-            if pedometerAuthStatus == .authorized || pedometerAuthStatus == .notDetermined {
-                Log.debug("Starting intertial")
-                
-                startCountingSteps()
-                startMotionUpdates()
-            } else {
-                Log.debug("Authorisation status is .denied or .restriced, no inertial updates requested")
-            }
-        } else {
-            Log.debug("Starting intertial")
-            
-            startCountingSteps()
-            startMotionUpdates()
-        }
-    }
-    
-    internal func stop() {
-        Log.debug("Stopping inertial")
-        
-        pedometer.stopUpdates()
-        motion.stopDeviceMotionUpdates()
-    }
+    //MARK: - Handle Updates
     
     private func handleStepsSinceLastCount(fromPedometerData pedometerData: CMPedometerData) {
         guard let tempPreviousPedometerData = previousPedometerData else {
@@ -169,7 +156,7 @@ class CCInertial: NSObject {
             let oneStepTimeInterval = TimeInterval(periodBetweenStepCounts / Double(stepsBetweenStepCounts))
             
             Log.debug("""
-                Pedometer:
+                Pedometer Data
                 Step count: \(numberOfSteps)
                 Previous step count: \(tempPreviousPedometerData.numberOfSteps)
                 Period between step counts: \(periodBetweenStepCounts)
@@ -180,8 +167,8 @@ class CCInertial: NSObject {
                 """)
             
             handleAndReceiveEachStep(totalSteps: stepsBetweenStepCounts,
-                                     oneStepTimeInterval: oneStepTimeInterval,
-                                     previousPedometerData: tempPreviousPedometerData)
+                                          oneStepTimeInterval: oneStepTimeInterval,
+                                          previousPedometerData: tempPreviousPedometerData)
             previousPedometerData = PedometerData (endDate: pedometerData.endDate,
                                                    numberOfSteps: numberOfSteps)
         }
@@ -190,16 +177,20 @@ class CCInertial: NSObject {
     private func handleAndReceiveEachStep(totalSteps: Int,
                                           oneStepTimeInterval: TimeInterval,
                                           previousPedometerData: PedometerData) {
+        Log.debug("Handle \(totalSteps) steps")
+        
         for i in  1 ... totalSteps {
             let tempTimePeriod = TimeInterval(Double(i) * oneStepTimeInterval)
             let tempTimeStamp = previousPedometerData.endDate.timeIntervalSince1970 + tempTimePeriod
             
             guard let tempYaw = findFirstSmallerYaw(yawArray: yawDataBuffer, timeInterval: tempTimeStamp) else {
-                return
+                Log.debug("Temp yaw is nil. Steps won't be sent to server")
+                continue
             }
             
             Log.debug ("""
-                Pedometer: Step count: \(i)
+                Pedometer Data
+                Step count: \(i)
                 Time period: \(tempTimePeriod)
                 Timestamp: \(tempTimeStamp)
                 Yaw value: \(String(describing: tempYaw.yaw))
@@ -207,45 +198,21 @@ class CCInertial: NSObject {
             
             let stepDate = Date(timeIntervalSince1970: tempTimeStamp)
             let angle = rad2deg(tempYaw.yaw)
-            delegate?.receivedStep(date: stepDate, angle: angle)
+            self.delegate?.receivedStep(date: stepDate, angle: angle)
         }
+    }
+    
+    // MARK: - Helpers
+    
+    func setInterval(time: TimeInterval) {
+        self.motion.deviceMotionUpdateInterval = time
+    }
+    
+    private func rad2deg(_ number: Double) -> Double {
+        return number * 180 / .pi
     }
     
     private func getPeriodBetween(recentDate date1: Date, oldDate date2: Date) -> TimeInterval {
         return date1.timeIntervalSince1970 - date2.timeIntervalSince1970
-    }
-}
-
-// MARK:- StoreSubscriber delegate
-extension CCInertial: StoreSubscriber {
-    
-    public func newState(state: LibraryState) {
-        guard let newInertialState = state.intertialState else {
-            return
-        }
-        
-        Log.debug("Pedometer: New state is: \(newInertialState)")
-        
-        if newInertialState != currentInertialState {
-            if let interval = newInertialState.interval {
-                setInterval(time: Double(interval) / 1000)
-            }
-
-            updateCurrentInertialStateActivity(newState: newInertialState)
-            currentInertialState = newInertialState
-        }
-    }
-    
-    private func updateCurrentInertialStateActivity(newState: InertialState) {
-        guard let isInertialEnabled = newState.isEnabled else {
-            return
-        }
-        
-        if isInertialEnabled && !self.currentInertialState.isEnabled! {
-            start()
-        }
-        if !isInertialEnabled && self.currentInertialState.isEnabled! {
-            stop()
-        }
     }
 }
