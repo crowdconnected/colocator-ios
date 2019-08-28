@@ -104,9 +104,9 @@ extension CCLocationManager: StoreSubscriber {
         if isStandardGEOEnabled {
             updateSettingsForGEOState(newGEOState)
             updateTimersForGEOState(newGEOState)
-       } else {
+        } else {
             disableGeoStandardLocation(newGEOState: newGEOState)
-       }
+        }
     }
     
     func updateSettingsForGEOState(_ newGEOState: CurrentGEOState) {

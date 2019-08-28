@@ -114,9 +114,7 @@ internal struct Constants {
         colocatorManager?.addAlias(key: key, value: value)
     }
     
-    /// Update library state at backgrounf refresh time
-    ///
-    @objc public func handleBackgroundRefresh(clientKey key: String, completion: @escaping (Bool) -> Void) {
+    @objc public func updateLibraryBasedOnClientStatus(clientKey key: String, completion: @escaping (Bool) -> Void) {
         let endpointUrlString = Constants.END_POINT_UPDATE_LIBRARY_BACKGROUND
         var urlComponents = URLComponents(string: endpointUrlString)
         urlComponents?.queryItems = [URLQueryItem(name: "clientKey", value: key)]
@@ -127,7 +125,8 @@ internal struct Constants {
         }
         let request = URLRequest(url: requestURL)
         
-        Log.info("Background Refresh Event detected - Checking client status for \(key.uppercased()) ...")
+        Log.info("Background Refresh Event detected - Checking client status for \(key.uppercased())")
+        
         URLSession.shared.dataTask(with: request) { (data, response, err) in
             guard err == nil, let dataResponse = data else {
                 completion(false)
@@ -141,12 +140,18 @@ internal struct Constants {
                 if clientStatus == true {
                     self.start(apiKey: key)
                     completion(true)
-                } else {
-                    completion(false)
+                    return
                 }
+                if clientStatus == false {
+                    self.stop()
+                    completion(false)
+                    return
+                }
+                completion(false)
+                
             } catch let parsingError {
                 completion(false)
-                print("Error", parsingError)
+                Log.warning("Failed to get client's status in background. Error: \(parsingError)")
             }
         }.resume()
     }
