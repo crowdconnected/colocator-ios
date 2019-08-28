@@ -156,6 +156,7 @@ class ColocatorManager {
     
     public func stopLocationObservations() {
         ccLocationManager?.stopAllLocationObservations()
+        ccLocationManager?.updateGEOAndBeaconStatesWithoutObservations()
     }
     
     public func setAliases(aliases: Dictionary<String, String>) {

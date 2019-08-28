@@ -232,6 +232,19 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
         stopReceivingSignificantLocationChanges()
         stopRangingiBeacons(forCurrentSettings: false)
         stopMonitoringForBeaconRegions()
+    }
+    
+    public func updateGEOAndBeaconStatesWithoutObservations() {
+        currentGEOState.isStandardGEOEnabled = false
+        currentGEOState.isSignificantLocationChangeMonitoringState = false
+        saveCurrentGEOSateToUserDefaults(geoState: currentGEOState)
+        
+        currentBeaconState.isIBeaconRangingEnabled = false
+        currentBeaconState.regions = []
+        saveCurrentiBeaconStateToUserDefaults(currentiBeaconState: currentBeaconState)
+    }
+    
+    private func removeLocationManagers() {
         locationManager.delegate = nil
         centralManager?.delegate = nil
         centralManager = nil
@@ -248,6 +261,7 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
         
         stateStore.unsubscribe(self)
         stopAllLocationObservations()
+        removeLocationManagers()
     }
 }
 
