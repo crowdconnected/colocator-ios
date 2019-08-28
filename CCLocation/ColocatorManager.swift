@@ -33,6 +33,8 @@ class ColocatorManager {
     private let iBeaconMessagesDBName = "iBeaconMessages.db"
     private let eddystoneBeaconMessagesDBName = "eddystoneMessages.db"
     
+    private let maxTimeSendingDataAtStop = 120 // seconds
+    
     var stopLibraryTimer: Timer?
     var secondsFromStopTrigger = 0
     
@@ -119,7 +121,7 @@ class ColocatorManager {
     @objc private func checkDatabaseAndStopLibrary() {
         secondsFromStopTrigger += 1
         
-        if secondsFromStopTrigger > 60 {
+        if secondsFromStopTrigger > maxTimeSendingDataAtStop {
             let leftMessages = ccRequestMessaging?.getMessageCount() ?? 0
             Log.warning("Library stopped. \(leftMessages) unsent messages")
             
