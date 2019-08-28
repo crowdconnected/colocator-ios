@@ -12,10 +12,7 @@ import CoreLocation
 public struct CurrentiBeaconMonitoringState: StateType, AutoEquatable {
     var monitoringRegions: [CLBeaconRegion] = []
     
-    
     init(monitoringRegions: [CLBeaconRegion]?) {
-        
-        
         if let monitoringRegions = monitoringRegions {
             self.monitoringRegions = monitoringRegions
         }

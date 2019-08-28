@@ -206,7 +206,7 @@ class ColocatorManager {
         } catch {
             Log.error("Failed to delete beacons content in database.")
         }
-        
+
         do {
             try eddystoneBeaconsDatabase.deleteBeacons(beaconTable: CCLocationTables.EDDYSTONE_BEACON_MESSAGES_TABLE)
         } catch {
@@ -326,6 +326,10 @@ extension ColocatorManager {
 
 // MARK: - CCLocationManagerDelegate
 extension ColocatorManager: CCLocationManagerDelegate {
+    public func receivedGeofenceEvent(type: Int, region: CLCircularRegion) {
+        ccRequestMessaging?.processGeofenceEvent(type: type, region: region)
+    }
+    
     public func receivedEddystoneBeaconInfo(eid: NSString, tx: Int, rssi: Int, timestamp: TimeInterval) {
         let tempString = String(eid).hexa2Bytes
         ccRequestMessaging?.processEddystoneEvent(eid: NSData(bytes: tempString, length: tempString.count) as Data,

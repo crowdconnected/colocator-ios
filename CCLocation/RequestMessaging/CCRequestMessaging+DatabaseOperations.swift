@@ -13,7 +13,6 @@ import Foundation
 extension CCRequestMessaging {
     
     func openMessagesDatabase() {
-        
         // Get the library directory
         let dirPaths = NSSearchPathForDirectoriesInDomains (.libraryDirectory, .userDomainMask, true)
         
@@ -38,7 +37,6 @@ extension CCRequestMessaging {
     }
     
     func createCCMesageTable() {
-        
         do {
             try messagesDB.createTable(table: CCMessage.self)
         } catch {
@@ -47,7 +45,6 @@ extension CCRequestMessaging {
     }
     
     func insertMessageInLocalDatabase(message: Data) {
-        
         Log.verbose("Pushing new message into message queue")
         
         if let database = self.messagesDB {
@@ -62,7 +59,6 @@ extension CCRequestMessaging {
     }
     
     func popMessagesFromLocalDatabase(maxMessagesToReturn: Int) -> [Data] {
-        
         var popMessages = [Data]()
         
         if let database = self.messagesDB {
@@ -78,7 +74,6 @@ extension CCRequestMessaging {
     }
     
     func getMessageCount() -> Int {
-        
         var count:Int = -1
         
         do {
