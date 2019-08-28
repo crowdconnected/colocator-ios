@@ -8,13 +8,18 @@
 
 import Foundation
 import CoreLocation
-//import UserNotifications
 import SQLite3
 import ReSwift
-import CoreBluetooth // only needed to get bluetooth state, not needed for ibeacon locations
+import CoreBluetooth
+
+enum GeofenceEventType: Int {
+    case enter = 1
+    case exit = 2
+}
 
 @objc protocol CCLocationManagerDelegate: class {
     func receivedGEOLocation(location: CLLocation)
+    func receivedGeofenceEvent(type: Int, region: CLCircularRegion)
     func receivediBeaconInfo(proximityUUID:UUID, major:Int, minor:Int, proximity:Int, accuracy:Double, rssi:Int, timestamp: TimeInterval)
     func receivedEddystoneBeaconInfo(eid:NSString, tx:Int, rssi:Int, timestamp:TimeInterval)
 }
@@ -25,6 +30,7 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
     internal var eddystoneBeaconScanner: BeaconScanner? = nil
     
     internal var currentGEOState: CurrentGEOState!
+    internal var currentGeofencesMonitoringState: CurrentGeofencesMonitoringState!
     internal var currentBeaconState: CurrentBeaconState!
     internal var currentiBeaconMonitoringState: CurrentiBeaconMonitoringState!
     internal var wakeupState: WakeupState!
@@ -42,7 +48,7 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
     internal var eddystoneBeaconMessagesDB: SQLiteDatabase!
     internal let eddystoneBeaconMessagesDBName = "eddystoneMessages.db"
     
-    public weak var delegate:CCLocationManagerDelegate?
+    public weak var delegate: CCLocationManagerDelegate?
     
     weak var stateStore: Store<LibraryState>!
     
@@ -66,6 +72,7 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
                                           isSignificantUpdates: nil,
                                           isStandardGEOEnabled: nil)
         
+        currentGeofencesMonitoringState = CurrentGeofencesMonitoringState(monitoringGeofences: [])
         currentiBeaconMonitoringState = CurrentiBeaconMonitoringState(monitoringRegions: [])
         
         currentBeaconState = CurrentBeaconState(isIBeaconEnabled: nil,
@@ -84,12 +91,6 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
         
         locationManager.delegate = self
         
-        //        if #available(iOS 10.0, *) {
-        //            UNUserNotificationCenter.current().delegate = self
-        //        } else {
-        //            // Fallback on earlier versions
-        //        }
-        
         stateStore.subscribe(self)
         {
             $0.select {
@@ -100,7 +101,6 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
         centralManager = CBCentralManager(delegate: self,
                                           queue: nil,
                                           options: [CBCentralManagerOptionShowPowerAlertKey:false])
-
         
         eddystoneBeaconScanner = BeaconScanner()
         eddystoneBeaconScanner?.delegate = self
@@ -117,17 +117,6 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
     }
     
     func startReceivingSignificantLocationChanges() {
-        //        let authorizationStatus = CLLocationManager.authorizationStatus()
-        //        if authorizationStatus != .authorizedAlways {
-        //            // User has not authorized access to location information.
-        //            return
-        //        }
-        //
-        //        if !CLLocationManager.significantLocationChangeMonitoringAvailable() {
-        //            // The service is not available.
-        //            return
-        //        }
-        
         locationManager.startMonitoringSignificantLocationChanges()
     }
     
@@ -137,21 +126,23 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
         }
     }
     
-    @objc func stopLocationUpdates () {
+    @objc func stopLocationUpdates() {
+        Log.info("Stop collecting GEO")
+        
         locationManager.stopUpdatingLocation()
         
-        Log.verbose("Waiting for significant updates only")
+        Log.debug("Waiting for significant updates only")
+        
         isWaitingForSignificantUpdates = true
         isContinuousGEOCollectionActive = false
         
-        if (maxRunGEOTimer != nil) {
+        if maxRunGEOTimer != nil {
             maxRunGEOTimer?.invalidate()
             maxRunGEOTimer = nil
         }
         
         if let minOffTime = currentGEOState.minOffTime {
             if minOffTime > 0 {
-                
                 let offTimeEnd = Date().addingTimeInterval(TimeInterval(minOffTime / 1000))
                 
                 DispatchQueue.main.async {self.stateStore.dispatch(SetGEOOffTimeEnd(offTimeEnd: offTimeEnd))}
@@ -161,8 +152,60 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
         }
     }
     
-    func stopTimers () {
+    func updateMonitoringGeofences() {
+        stopMonitoringRemovedGeofences()
         
+        Log.debug("\nUpdate monitored geofences\n\n")
+        
+        Log.verbose("------- List of monitored geofences before adding new ones -------")
+        for monitoredGeofence in locationManager.monitoredRegions {
+            Log.verbose("Geofence \(monitoredGeofence)")
+        }
+        Log.verbose("------- List end -------")
+        
+        for geofence in currentGeofencesMonitoringState.monitoringGeofences {
+            var geofenceInMonitoredRegions = false
+            
+            for monitoredGeofence in locationManager.monitoredRegions where monitoredGeofence is CLCircularRegion {
+                if (monitoredGeofence as! CLCircularRegion).identifier == geofence.identifier {
+                    geofenceInMonitoredRegions = true
+                }
+            }
+            
+            if !geofenceInMonitoredRegions &&
+                CLLocationManager.isMonitoringAvailable(for: CLCircularRegion.self) {
+                
+                geofence.notifyOnEntry = true
+                geofence.notifyOnExit = true
+                locationManager.startMonitoring(for: geofence)
+            }
+        }
+    }
+    
+    func stopMonitoringRemovedGeofences() {
+        Log.debug("\nStop monitoring previous geofences")
+        
+        let crowdConnectedGeofences = locationManager.monitoredRegions.filter {
+            return $0 is CLCircularRegion ? (($0 as! CLCircularRegion).identifier.range(of: "CC") != nil) : false
+        }
+        
+        for geofence in crowdConnectedGeofences
+            where !currentGeofencesMonitoringState.monitoringGeofences.contains(geofence as! CLCircularRegion) {
+            locationManager.stopMonitoring(for: geofence as! CLCircularRegion)
+        }
+    }
+    
+    func getCurrentGeofences() -> [CLCircularRegion] {
+          var geofences = [CLCircularRegion]()
+          
+          for monitoredGeofence in locationManager.monitoredRegions where monitoredGeofence is CLCircularRegion {
+              geofences.append(monitoredGeofence as! CLCircularRegion)
+          }
+          
+          return geofences
+      }
+    
+    func stopTimers() {
         if maxRunGEOTimer != nil {
             maxRunGEOTimer?.invalidate()
             maxRunGEOTimer = nil
@@ -189,13 +232,25 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
         stopReceivingSignificantLocationChanges()
         stopRangingiBeacons(forCurrentSettings: false)
         stopMonitoringForBeaconRegions()
+    }
+    
+    public func updateGEOAndBeaconStatesWithoutObservations() {
+        currentGEOState.isStandardGEOEnabled = false
+        currentGEOState.isSignificantLocationChangeMonitoringState = false
+        saveCurrentGEOSateToUserDefaults(geoState: currentGEOState)
+        
+        currentBeaconState.isIBeaconRangingEnabled = false
+        currentBeaconState.regions = []
+        saveCurrentiBeaconStateToUserDefaults(currentiBeaconState: currentBeaconState)
+    }
+    
+    private func removeLocationManagers() {
         locationManager.delegate = nil
         centralManager?.delegate = nil
         centralManager = nil
     }
     
-    public func stop () {
-        
+    public func stop() {
         stopTimers()
         
         iBeaconMessagesDB.close()
@@ -206,30 +261,19 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
         
         stateStore.unsubscribe(self)
         stopAllLocationObservations()
+        removeLocationManagers()
     }
 }
 
 // MARK:- Responding to Location Events
+
 extension CCLocationManager {
     
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        
-        Log.debug("Received \(locations.count) locations")
+        Log.debug("Received \(locations.count) location(s)")
         
         for location in locations {
-            Log.debug("Geolocation information: \(location.description)")
-            
-            //            if #available(iOS 10.0, *) {
-            //                let content = UNMutableNotificationContent()
-            //                content.title = "GEO location event"
-            //                content.body = "\(location.description)"
-            //                content.sound = .default()
-            //
-            //                let request = UNNotificationRequest(identifier: "GEOLocation", content: content, trigger: nil)
-            //                UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
-            //
-            //            }
-            
+            Log.verbose("Geolocation information: \(location.description)")
             delegate?.receivedGEOLocation(location: location)
         }
         
@@ -238,7 +282,8 @@ extension CCLocationManager {
         if isWaitingForSignificantUpdates {
             if isContinuousGEOCollectionActive == false {
                 Log.verbose("Renew current GEO state at significant update")
-                handleGEOState(currentGEOState)
+                
+                updateGEOState(currentGEOState)
                 if isContinuousGEOCollectionActive {
                     isWaitingForSignificantUpdates = false
                 }
@@ -247,31 +292,22 @@ extension CCLocationManager {
     }
     
     public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        
         switch (error) {
         case CLError.headingFailure:
-            Log.error(String(format:"locationManager didFailWithError kCLErrorHeadingFailure occured with description: %@", error.localizedDescription))
-            break
-            
-        // as per Apple documentation, locationUnknown error occures when the location service is unable to retrieve a location right away, but keeps trying, simply to ignore and wait for new event
+            Log.error("LocationManager didFailWithError kCLErrorHeadingFailure: \(error.localizedDescription)")
+            //LocationUnknown error occures when the location service is unable to retrieve a location right away, but keeps trying, simply to ignore and wait for new event
         case CLError.locationUnknown:
-            Log.error(String(format:"locationManager didFailWithError kCLErrorLocationUnknown occured with description: %@", error.localizedDescription))
-            break
-            
-        // as per Apple documentation, denied error occures when the user denies location services, if that happens we should stop location services
+            Log.error("LocationManager didFailWithError kCLErrorLocationUnknown: \(error.localizedDescription)")
+            //Denied error occures when the user denies location services, if that happens we should stop location services
         case CLError.denied:
-            Log.error(String(format:"locationManager didFailWithError kCLErrorDenied occured with description: %@", error.localizedDescription))
-            
+            Log.error("LocationManager didFailWithError kCLErrorDenied: \(error.localizedDescription)")
             // According to API reference on denied error occures, when users stops location services, so we should stop them as well here
             
             // TODO: wrap into stop function to stop everything
             //            self.locationManager.stopUpdatingLocation()
             //            self.locationManager.stopMonitoringSignificantLocationChanges()
-            break
-            
         default:
-            Log.error(String(format:"locationManager didFailWithError Unknown location error occured with description: %@", error.localizedDescription));
-            break
+            Log.error("LocationManager didFailWithError Unknown: \(error.localizedDescription)")
         }
     }
     
@@ -281,55 +317,44 @@ extension CCLocationManager {
 }
 
 // MARK: - Responding to Eddystone Beacon Discovery Events
+
 extension CCLocationManager: BeaconScannerDelegate {
     func didFindBeacon(beaconScanner: BeaconScanner, beaconInfo: EddystoneBeaconInfo) {
+        Log.verbose("Finde beacon \(beaconInfo.description)")
         
-        Log.verbose("FIND: \(beaconInfo.description)")
-        
-        if (beaconInfo.beaconID.beaconType == BeaconID.BeaconType.EddystoneEID){
-            
+        if beaconInfo.beaconID.beaconType == BeaconID.BeaconType.EddystoneEID {
             var isFilterAvailable = false
             checkIfWindowSizeAndMaxObservationsAreAvailable(&isFilterAvailable)
             
             if isFilterAvailable {
                 insert(eddystoneBeacon: beaconInfo)
-            } else {
-                if let timeIntervalSinceBoot = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {
-                    delegate?.receivedEddystoneBeaconInfo(
-                        eid: beaconInfo.beaconID.hexBeaconID() as NSString,
-                        tx: beaconInfo.txPower,
-                        rssi: beaconInfo.RSSI,
-                        timestamp: timeIntervalSinceBoot
-                    )
-                }
+            } else if let timeIntervalSinceBoot = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {
+                delegate?.receivedEddystoneBeaconInfo(eid: beaconInfo.beaconID.hexBeaconID() as NSString,
+                                                      tx: beaconInfo.txPower,
+                                                      rssi: beaconInfo.RSSI,
+                                                      timestamp: timeIntervalSinceBoot)
             }
-            
         }
     }
     
     func didLoseBeacon(beaconScanner: BeaconScanner, beaconInfo: EddystoneBeaconInfo) {
-        Log.verbose("LOST: \(beaconInfo.description)")
+        Log.verbose("Lost beacon \(beaconInfo.description)")
     }
     
     func didUpdateBeacon(beaconScanner: BeaconScanner, beaconInfo: EddystoneBeaconInfo) {
-        Log.verbose("UPDATE: \(beaconInfo.description)")
+        Log.verbose("Update beacon \(beaconInfo.description)")
         
-        if (beaconInfo.beaconID.beaconType == BeaconID.BeaconType.EddystoneEID){
-            
+        if beaconInfo.beaconID.beaconType == BeaconID.BeaconType.EddystoneEID {
             var isFilterAvailable = false
             checkIfWindowSizeAndMaxObservationsAreAvailable(&isFilterAvailable)
             
             if isFilterAvailable {
                 insert(eddystoneBeacon: beaconInfo)
-            } else {
-                if let timeIntervalSinceBoot = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {
-                    delegate?.receivedEddystoneBeaconInfo(
-                        eid: beaconInfo.beaconID.hexBeaconID() as NSString,
-                        tx: beaconInfo.txPower,
-                        rssi: beaconInfo.RSSI,
-                        timestamp: timeIntervalSinceBoot
-                    )
-                }
+            } else if let timeIntervalSinceBoot = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {
+                delegate?.receivedEddystoneBeaconInfo(eid: beaconInfo.beaconID.hexBeaconID() as NSString,
+                                                      tx: beaconInfo.txPower,
+                                                      rssi: beaconInfo.RSSI,
+                                                      timestamp: timeIntervalSinceBoot)
             }
         }
     }
@@ -340,66 +365,42 @@ extension CCLocationManager: BeaconScannerDelegate {
 }
 
 // MARK: - Responding to Region Events
+
 extension CCLocationManager {
     public func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
+        let isBeaconRegion = region is CLBeaconRegion
+        let isCCGeofence = region is CLCircularRegion && region.identifier.contains("CC")
         
-        guard region is CLBeaconRegion else {
-            return
+        if isBeaconRegion || isCCGeofence {
+            triggerWakeUpAction()
         }
         
-        DispatchQueue.main.async {self.stateStore.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.idle))}
-        DispatchQueue.main.async {self.stateStore.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.notifyWakeup))}
-        
-        //        if #available(iOS 10.0, *) {
-        //            let content = UNMutableNotificationContent()
-        //            content.title = "Region entry event"
-        //            content.body = "You entered a beacon region"
-        //            content.sound = .default()
-        //
-        //            let request = UNNotificationRequest(identifier: "didEnterRegion", content: content, trigger: nil)
-        //            UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
-        //
-        //            let localNotification = UILocalNotification()
-        //            localNotification.soundName = UILocalNotificationDefaultSoundName
-        //            UIApplication.shared.scheduleLocalNotification(localNotification)
-        //
-        //            Log.debug("[CC] You entered a beacon region")
-        //        } else {
-        //            // Fallback on earlier versions
-        //        }
+        if isCCGeofence {
+            Log.debug("User entered geofence with identifier: \(region.identifier)")
+            delegate?.receivedGeofenceEvent(type: GeofenceEventType.enter.rawValue, region: region as! CLCircularRegion)
+        }
     }
     
-    
     public func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
-        
-        guard region is CLBeaconRegion else {
-            return
+        let isBeaconRegion = region is CLBeaconRegion
+        let isCCGeofence = region is CLCircularRegion && region.identifier.contains("CC")
+               
+        if isBeaconRegion || isCCGeofence {
+            triggerWakeUpAction()
         }
         
+        if isCCGeofence {
+            Log.debug("User exited geofence with identifier: \(region.identifier)")
+            delegate?.receivedGeofenceEvent(type: GeofenceEventType.exit.rawValue, region: region as! CLCircularRegion)
+        }
+    }
+    
+    private func triggerWakeUpAction() {
         DispatchQueue.main.async {self.stateStore.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.idle))}
         DispatchQueue.main.async {self.stateStore.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.notifyWakeup))}
-        
-        //        if #available(iOS 10.0, *) {
-        //            let content = UNMutableNotificationContent()
-        //            content.title = "Region exit event"
-        //            content.body = "You left a beacon region"
-        //            content.sound = .default()
-        //
-        //            let request = UNNotificationRequest(identifier: "didExitRegion", content: content, trigger: nil)
-        //            UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
-        //
-        //            let localNotification = UILocalNotification()
-        //            localNotification.soundName = UILocalNotificationDefaultSoundName
-        //            UIApplication.shared.scheduleLocalNotification(localNotification)
-        //
-        //            Log.debug("[CC] You left a beacon region")
-        //        } else {
-        //            // Fallback on earlier versions
-        //
     }
     
     public func locationManager(_ manager: CLLocationManager, didDetermineState state: CLRegionState, for region: CLRegion) {
-        
         switch state {
         case .inside:
             Log.verbose(String(format: "Inside region: %@", region.identifier))
@@ -411,7 +412,6 @@ extension CCLocationManager {
     }
     
     public func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) {
-        
         guard let region = region else {
             return
         }
@@ -420,36 +420,36 @@ extension CCLocationManager {
     }
     
     public func locationManager(_ manager: CLLocationManager, didStartMonitoringFor region: CLRegion) {
-        
         if let beaconRegion = region as? CLBeaconRegion {
-            Log.debug("Did start monitoring for region: \(beaconRegion.identifier) uuid: \(beaconRegion.proximityUUID) major: \(String(describing: beaconRegion.major)) minor: \(String(describing: beaconRegion.minor))")
-
-            Log.verbose("------- a list of monitored regions -------")
-            for monitoredRegion in locationManager.monitoredRegions {
-                Log.verbose("\(monitoredRegion)")
-            }
-            Log.verbose("------- list end -------")
+            Log.verbose("""
+                Did start monitoring for region \(beaconRegion.identifier)
+                uuid: \(beaconRegion.proximityUUID)
+                major: \(String(describing: beaconRegion.major))
+                minor: \(String(describing: beaconRegion.minor))
+                """)
         }
     }
 }
 
 // MARK: - Responding to Ranging Events
+
 extension CCLocationManager {
     
     fileprivate func checkIfWindowSizeAndMaxObservationsAreAvailable(_ isFilterAvailable: inout Bool) {
+        guard let currentBeaconState = stateStore.state.locationSettingsState.currentLocationState?.currentBeaconState else {
+            return
+        }
         
-        if let windowSize = stateStore.state.locationSettingsState.currentLocationState?.currentBeaconState?.filterWindowSize {
-            if let maxObservations = stateStore.state.locationSettingsState.currentLocationState?.currentBeaconState?.filterMaxObservations {
-                if windowSize > 0 && maxObservations > 0 {
-                    isFilterAvailable = true
-                }
+        if let windowSize = currentBeaconState.filterWindowSize,
+            let maxObservations = currentBeaconState.filterMaxObservations {
+            if windowSize > 0 && maxObservations > 0 {
+                isFilterAvailable = true
             }
         }
     }
     
     fileprivate func checkRegionBelonging(_ region: CLBeaconRegion, beacon: CLBeacon) -> Bool {
         if region.proximityUUID.uuidString == beacon.proximityUUID.uuidString {
-            
             if let major = region.major {
                 if major == beacon.major {
                     
@@ -469,70 +469,64 @@ extension CCLocationManager {
     }
     
     public func locationManager(_ manager: CLLocationManager, didRangeBeacons beacons: [CLBeacon], in region: CLBeaconRegion) {
-        
-        if (beacons.count > 0){
-            for beacon in beacons {
-                
-                Log.verbose("Ranged beacon with UUID: \(beacon.proximityUUID.uuidString), MAJOR: \(beacon.major), MINOR: \(beacon.minor), RSSI: \(beacon.rssi)")
-                
-                //                if #available(iOS 10.0, *) {
-                //                    let content = UNMutableNotificationContent()
-                //                    content.title = "iBeacon ranged"
-                //                    content.body = "UUID: \(beacon.proximityUUID.uuidString), MAJ: \(beacon.major), MIN: \(beacon.minor), RSSI: \(beacon.rssi)"
-                //                    content.sound = .default()
-                //
-                //                    let request = UNNotificationRequest(identifier: "GEOLocation", content: content, trigger: nil)
-                //                    UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
-                //                }
-                
-                // mainly excluding RSSI's that are zero, which happens some time
-                if beacon.rssi < 0 {
-                    
-                    var isFilterAvailable: Bool = false
-                    checkIfWindowSizeAndMaxObservationsAreAvailable(&isFilterAvailable)
-                    
-                    // check if exclude regions
-                    if let excludeRegions = stateStore.state.locationSettingsState.currentLocationState?.currentBeaconState?.filterExcludeRegions{
-                        let results = Array(excludeRegions.filter { region in
-                            return checkRegionBelonging(region, beacon: beacon)
-                        })
-                        
-                        if results.count > 0 {
-                            Log.debug("Beacon is in exclude regions")
-                        } else {
-                            Log.debug("Beacon is input to reporting")
-                            
-                            if isFilterAvailable {
-                                insert(beacon: beacon)
-                            } else {
-                                if let timeIntervalSinceBoot = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {
-                                    delegate?.receivediBeaconInfo(proximityUUID: beacon.proximityUUID,
-                                                                  major: Int(truncating: beacon.major),
-                                                                  minor: Int(truncating: beacon.minor),
-                                                                  proximity: beacon.proximity.rawValue,
-                                                                  accuracy: beacon.accuracy,
-                                                                  rssi: Int(beacon.rssi),
-                                                                  timestamp: timeIntervalSinceBoot)
-                                }
-                            }
-                        }
-                    } else {
-                        if isFilterAvailable {
-                            insert(beacon: beacon)
-                        } else {
-                            if let timeIntervalSinceBoot = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {
-                                delegate?.receivediBeaconInfo(proximityUUID: beacon.proximityUUID,
-                                                              major: Int(truncating: beacon.major),
-                                                              minor: Int(truncating: beacon.minor),
-                                                              proximity: beacon.proximity.rawValue,
-                                                              accuracy: beacon.accuracy,
-                                                              rssi: Int(beacon.rssi),
-                                                              timestamp: timeIntervalSinceBoot)
-                            }
-                        }
-                    }
+        guard !beacons.isEmpty else {
+            return
+        }
+   
+        for beacon in beacons where beacon.rssi < 0 {
+            Log.verbose("""
+                Ranged beacon with UUID \(beacon.proximityUUID.uuidString)
+                MAJOR: \(beacon.major)
+                MINOR: \(beacon.minor)
+                RSSI: \(beacon.rssi)
+                """)
+            
+            var isFilterAvailable: Bool = false
+            checkIfWindowSizeAndMaxObservationsAreAvailable(&isFilterAvailable)
+            
+            let extractedCurrentBeaconState = stateStore.state.locationSettingsState.currentLocationState?.currentBeaconState
+            
+            if let excludeRegions = extractedCurrentBeaconState?.filterExcludeRegions {
+                checkBeaconInExcludedRegions(beacon: beacon,
+                                             excludedregions: excludeRegions,
+                                             filter: isFilterAvailable)
+            } else {
+                if isFilterAvailable {
+                    insert(beacon: beacon)
+                } else {
+                    sendBeaconInfoToDelegate(beacon)
                 }
             }
+        }
+    }
+    
+    private func checkBeaconInExcludedRegions(beacon: CLBeacon, excludedregions: [CLBeaconRegion], filter: Bool) {
+        let results = Array(excludedregions.filter { region in
+            return checkRegionBelonging(region, beacon: beacon)
+        })
+       
+        if results.count > 0 {
+            Log.verbose("Beacon is in exclude regions")
+        } else {
+            Log.verbose("Beacon is input to reporting")
+           
+            if filter {
+                insert(beacon: beacon)
+            } else {
+                sendBeaconInfoToDelegate(beacon)
+            }
+        }
+    }
+    
+    private func sendBeaconInfoToDelegate(_ beacon: CLBeacon) {
+        if let timeIntervalSinceBoot = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {
+            delegate?.receivediBeaconInfo(proximityUUID: beacon.proximityUUID,
+                                          major: Int(truncating: beacon.major),
+                                          minor: Int(truncating: beacon.minor),
+                                          proximity: beacon.proximity.rawValue,
+                                          accuracy: beacon.accuracy,
+                                          rssi: Int(beacon.rssi),
+                                          timestamp: timeIntervalSinceBoot)
         }
     }
     
@@ -542,9 +536,10 @@ extension CCLocationManager {
 }
 
 // MARK: - Responding to Authorization Changes
+
 extension CCLocationManager {
+    
     public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        
         Log.debug("Changed authorization status")
         
         DispatchQueue.main.async {self.stateStore.dispatch(LocationAuthStatusChangedAction(locationAuthStatus: status))}
@@ -553,20 +548,14 @@ extension CCLocationManager {
         switch (status) {
         case .notDetermined:
             Log.info("CLLocationManager authorization status not determined")
-            
-            break
-            
         case .restricted:
-             Log.info("CLLocationManager authorization status restricted, can not use location services")
+            Log.info("CLLocationManager authorization status restricted, can not use location services")
             
             if #available(iOS 9.0, *) {
                 locationManager.allowsBackgroundLocationUpdates = false
             } else {
                 // Fallback on earlier versions
             }
-            
-            break
-            
         case .denied:
             Log.info("CLLocationManager authorization status denied in user settings, can not use location services, until user enables them")
             // might consider here to ask a question to the user to enable location services again
@@ -576,9 +565,6 @@ extension CCLocationManager {
             } else {
                 // Fallback on earlier versions
             }
-            
-            break
-            
         case .authorizedAlways:
             Log.info("CLLocationManager authorization status set to always authorized, we are ready to go")
             
@@ -587,9 +573,6 @@ extension CCLocationManager {
             } else {
                 // Fallback on earlier versions
             }
-            
-            break
-            
         case .authorizedWhenInUse:
             Log.info("CLLocationManager authorization status set to in use, no background updates enabled")
         
@@ -598,31 +581,9 @@ extension CCLocationManager {
             } else {
                 // Fallback on earlier versions
             }
-            
-            break
         }
     }
 }
-
-//@available(iOS 10.0, *)
-//extension CCLocationManager:UNUserNotificationCenterDelegate{
-//
-//    public func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-//
-//        print("Tapped in notification")
-//    }
-//
-//    //This is key callback to present notification while the app is in foreground
-//    public func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-//
-//        print("Notification being triggered")
-//        //You can either present alert ,sound or increase badge while the app is in foreground too with ios 10
-//        //to distinguish between notifications
-//
-//            completionHandler( [.alert, .sound,.badge])
-//
-//    }
-//}
 
 extension CCLocationManager: CBCentralManagerDelegate {
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
