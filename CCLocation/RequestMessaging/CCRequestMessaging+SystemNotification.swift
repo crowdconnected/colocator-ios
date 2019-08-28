@@ -39,64 +39,64 @@ extension CCRequestMessaging {
     // MARK: - SYSTEM NOTIFICATIONS
     
     func setupApplicationNotifications() {
-            NotificationCenter.default.addObserver(self,
-                                                   selector:#selector(applicationWillResignActive),
-                                                   name:UIApplication.willResignActiveNotification,
-                                                   object:nil)
-            NotificationCenter.default.addObserver(self,
-                                                   selector:#selector(applicationDidEnterBackground),
-                                                   name:UIApplication.didEnterBackgroundNotification,
-                                                   object:nil)
-            NotificationCenter.default.addObserver(self,
-                                                   selector:#selector(applicationWillEnterForeground),
-                                                   name:UIApplication.willEnterForegroundNotification,
-                                                   object:nil)
-            NotificationCenter.default.addObserver(self,
-                                                   selector:#selector(applicationDidBecomeActive),
-                                                   name:UIApplication.didBecomeActiveNotification,
-                                                   object:nil)
-            NotificationCenter.default.addObserver(self,
-                                                   selector:#selector(applicationWillTerminate),
-                                                   name:UIApplication.willTerminateNotification,
-                                                   object:nil)
-        }
+        NotificationCenter.default.addObserver(self,
+                                               selector:#selector(applicationWillResignActive),
+                                               name:UIApplication.willResignActiveNotification,
+                                               object:nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector:#selector(applicationDidEnterBackground),
+                                               name:UIApplication.didEnterBackgroundNotification,
+                                               object:nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector:#selector(applicationWillEnterForeground),
+                                               name:UIApplication.willEnterForegroundNotification,
+                                               object:nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector:#selector(applicationDidBecomeActive),
+                                               name:UIApplication.didBecomeActiveNotification,
+                                               object:nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector:#selector(applicationWillTerminate),
+                                               name:UIApplication.willTerminateNotification,
+                                               object:nil)
+    }
         
-        func setupBatteryStateAndLevelNotifcations() {
-            UIDevice.current.isBatteryMonitoringEnabled = true
-            
+    func setupBatteryStateAndLevelNotifcations() {
+        UIDevice.current.isBatteryMonitoringEnabled = true
+        
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(batteryLevelDidChange),
+                                               name: UIDevice.batteryLevelDidChangeNotification,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(batteryStateDidChange),
+                                               name: UIDevice.batteryStateDidChangeNotification,
+                                               object: nil)
+        if #available(iOS 9.0, *) {
             NotificationCenter.default.addObserver(self,
-                                                   selector: #selector(batteryLevelDidChange),
-                                                   name: UIDevice.batteryLevelDidChangeNotification,
+                                                   selector: #selector(powerModeDidChange),
+                                                   name: NSNotification.Name.NSProcessInfoPowerStateDidChange,
                                                    object: nil)
-            NotificationCenter.default.addObserver(self,
-                                                   selector: #selector(batteryStateDidChange),
-                                                   name: UIDevice.batteryStateDidChangeNotification,
-                                                   object: nil)
-    //        if #available(iOS 9.0, *) {
-    //            NotificationCenter.default.addObserver(self,
-    //                                                   selector: #selector(powerModeDidChange),
-    //                                                   name: NSNotification.Name.NSProcessInfoPowerStateDidChange,
-    //                                                   object: nil)
-    //        }
         }
+    }
         
-        @objc func batteryLevelDidChange(notification: Notification) {
-            let batteryLevel = UIDevice.current.batteryLevel
+    @objc func batteryLevelDidChange(notification: Notification) {
+        let batteryLevel = UIDevice.current.batteryLevel
+        
+        DispatchQueue.main.async {self.stateStore.dispatch(BatteryLevelChangedAction(batteryLevel: UInt32(batteryLevel * 100)))}
+    }
+    
+    @objc func batteryStateDidChange(notification: Notification) {
+        let batteryState = UIDevice.current.batteryState
+        
+        DispatchQueue.main.async {self.stateStore.dispatch(BatteryStateChangedAction(batteryState: batteryState))}
+    }
+        
+    @objc func powerModeDidChange(notification: Notification) {
+        if #available(iOS 9.0, *) {
+            let isLowPowerMode = ProcessInfo.processInfo.isLowPowerModeEnabled
             
-            DispatchQueue.main.async {self.stateStore.dispatch(BatteryLevelChangedAction(batteryLevel: UInt32(batteryLevel * 100)))}
+            DispatchQueue.main.async {self.stateStore.dispatch(IsLowPowerModeEnabledAction(isLowPowerModeEnabled: isLowPowerMode))}
         }
-        
-        @objc func batteryStateDidChange(notification: Notification) {
-            let batteryState = UIDevice.current.batteryState
-            
-            DispatchQueue.main.async {self.stateStore.dispatch(BatteryStateChangedAction(batteryState: batteryState))}
-        }
-        
-        func powerModeDidChange(notification: Notification) {
-            if #available(iOS 9.0, *) {
-                let isLowPowerMode = ProcessInfo.processInfo.isLowPowerModeEnabled
-                
-                DispatchQueue.main.async {self.stateStore.dispatch(IsLowPowerModeEnabledAction(isLowPowerModeEnabled: isLowPowerMode))}
-            }
-        }
+    }
 }
