@@ -15,187 +15,201 @@ import ReSwift
 extension CCLocationManager: StoreSubscriber {
     
     public func newState(state: CurrentLocationState) {
+        let wakeUpState = stateStore.state.locationSettingsState.currentLocationState?.wakeupState?.ccWakeup
+        let isWakeUpNotification = wakeUpState == CCWakeup.notifyWakeup
         
-        if let newGEOState = state.currentGEOState {
+        // Geo State
+        
+        let newGEOState = state.currentGEOState
+        if (newGEOState != nil && newGEOState != self.currentGEOState) || isWakeUpNotification {
+            Log.debug("New GEOState \n \(String(describing: newGEOState))")
+                
+            self.currentGEOState = newGEOState
+            updateSignificantUpdatesForGEOState(newGEOState!)
+            updateGEOState(newGEOState!)
+        }
+        
+        // Geofence State
+        
+        let newGeofencesState = state.currentGeofencesMonitoringState
+        if newGeofencesState != nil && newGeofencesState != self.currentGeofencesMonitoringState {
+            Log.debug("New GeofencesMonitoringState \n \(String(describing: newGeofencesState))")
             
-            let wakeupState = stateStore.state.locationSettingsState.currentLocationState?.wakeupState?.ccWakeup
+            self.currentGeofencesMonitoringState = newGeofencesState
+            self.updateMonitoringGeofences()
+         }
+        
+        // Beacon Monitoring State
+        
+        let newiBeaconMonitoringState = state.currentiBeaconMonitoringState
+        if  newiBeaconMonitoringState != nil && newiBeaconMonitoringState != self.currentiBeaconMonitoringState {
+            Log.debug("New iBeaconMonitoringState \n \(String(describing: newiBeaconMonitoringState))")
+
+            self.currentiBeaconMonitoringState = newiBeaconMonitoringState
+            self.updateMonitoringForRegions()
+        }
+        
+        // Beacon State
+
+        let newBeaconState = state.currentBeaconState
+        if (newBeaconState != nil && newBeaconState != currentBeaconState) || isWakeUpNotification {
+            Log.debug("New BeaconState \n \(String(describing: newBeaconState))")
             
-            if newGEOState != self.currentGEOState || wakeupState == CCWakeup.notifyWakeup {
+            currentBeaconState = newBeaconState
+            let isIBeaconRangingEnabled = currentBeaconState.isIBeaconRangingEnabled
+            let isEddystoneScanEnabled = currentBeaconState.isEddystoneScanningEnabled
                 
-                Log.debug("New state is: \(newGEOState)")
-                
-                self.currentGEOState = newGEOState
-                
-                if let isSignificantUpdates = newGEOState.isSignificantLocationChangeMonitoringState {
-                    if isSignificantUpdates {
-                        startReceivingSignificantLocationChanges()
-                    } else {
-                        stopReceivingSignificantLocationChanges()
-                    }
+            if isIBeaconRangingEnabled != nil || isEddystoneScanEnabled != nil {
+                if maxBeaconRunTimer == nil && minOffTimeBeaconTimer == nil {
+                    startBeaconScanning()
                 }
                 
-                if let isStandardGEOEnabled = newGEOState.isStandardGEOEnabled {
-                    if isStandardGEOEnabled {
-                        
-                        if let activityType = newGEOState.activityType {
-                            locationManager.activityType = activityType
-                        }
-                        
-                        if let desiredAccuracy = newGEOState.desiredAccuracy {
-                            locationManager.desiredAccuracy = CLLocationAccuracy(desiredAccuracy)
-                        }
-                        
-                        if let distanceFilter = newGEOState.distanceFilter {
-                            locationManager.distanceFilter = CLLocationDistance(distanceFilter)
-                        }
-                        
-                        if let pausesUpdates = newGEOState.pausesUpdates {
-                            locationManager.pausesLocationUpdatesAutomatically = pausesUpdates
-                        }
-                        
-                        // in case an offTime has been stored in state state store last time round
-                        if let offTime = newGEOState.offTime {
-                            if offTime <= Date() {
-                                Log.verbose("GEOTIMER offTime \(offTime) occured before current time \(Date()), resetting offTime")
-                                DispatchQueue.main.async {self.stateStore.dispatch(SetGEOOffTimeEnd(offTimeEnd: nil))}
-                            } else {
-                                Log.verbose("GEOTIMER offTime \(offTime) occured after current date \(Date()), keeping offTime and doing nothing")
-                                // do nothing
-                            }
-                            // and in case there is not offTime, just start the location manager for maxRuntime
-                        } else {
-                            Log.verbose("GEOTIMER startUpdatingLocation no offTime available")
-                            locationManager.startUpdatingLocation()
-                            
-                            Log.verbose("Enabled GEO settings are activityType:\(locationManager.activityType), desiredAccuracy: \(locationManager.desiredAccuracy), distanceFilter: \(locationManager.distanceFilter), pausesUpdates: \(locationManager.pausesLocationUpdatesAutomatically)")
-                            
-                            if let maxRunTime = newGEOState.maxRuntime {
-                                if (self.maxRunGEOTimer == nil){
-                                    Log.verbose("GEOTIMER start maxGEORunTimer \(maxRunTime)")
-                                    self.maxRunGEOTimer = Timer.scheduledTimer(timeInterval: TimeInterval(maxRunTime / 1000), target: self, selector: #selector(stopLocationUpdates), userInfo: nil, repeats: false)
-                                }
-                            } else {
-                                if self.maxRunGEOTimer != nil {
-                                    self.maxRunGEOTimer?.invalidate()
-                                    self.maxRunGEOTimer = nil
-                                }
-                            }
-                        }
-                    } else {
-                        locationManager.stopUpdatingLocation()
-                        
-                        if self.maxRunGEOTimer != nil {
-                            self.maxRunGEOTimer?.invalidate()
-                            self.maxRunGEOTimer = nil
-                        }
-                        
-                        if newGEOState.offTime != nil {
-                            DispatchQueue.main.async {self.stateStore.dispatch(SetGEOOffTimeEnd(offTimeEnd: nil))}
-                        }
-                    }
-                }
+                updateWindowSizeFilter()
+            } else {
+                cleanUpBeaconTimers()
+                stopRangingBeaconsFor(timer: nil)
             }
         }
         
-        if let newiBeaconMonitoringState = state.currentiBeaconMonitoringState {
+        // WakeUp State
+        
+        let newWakeupNotificationState = state.wakeupState
+        if  newWakeupNotificationState != nil && newWakeupNotificationState != wakeupState {
+            Log.debug("New WakeUpState \n \(String(describing: newWakeupNotificationState))")
             
-            if newiBeaconMonitoringState != self.currentiBeaconMonitoringState {
-                self.currentiBeaconMonitoringState = newiBeaconMonitoringState
-                self.updateMonitoringForRegions()
+            wakeupState = newWakeupNotificationState
+            if wakeupState.ccWakeup == CCWakeup.notifyWakeup {
+                DispatchQueue.main.async { self.stateStore.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.idle)) }
             }
+        }
+    }
+    
+    func updateSignificantUpdatesForGEOState(_ newGEOState: CurrentGEOState) {
+        guard let isSignificantUpdates = newGEOState.isSignificantLocationChangeMonitoringState else {
+            return
         }
         
-        if let newBeaconState = state.currentBeaconState {
-            
-            let wakeupState = stateStore.state.locationSettingsState.currentLocationState?.wakeupState?.ccWakeup
-            
-            if newBeaconState != currentBeaconState || wakeupState == CCWakeup.notifyWakeup {
-                
-                currentBeaconState = newBeaconState
-                Log.debug("new state is: \(newBeaconState), with CCWakeup \(String(describing: wakeupState))")
-                
-                let isIBeaconRangingEnabled = currentBeaconState.isIBeaconRangingEnabled
-                let isEddystoneScanEnabled = currentBeaconState.isEddystoneScanningEnabled
-                
-                if isIBeaconRangingEnabled != nil || isEddystoneScanEnabled != nil {
-                    
-                    // managing cycling of Beacon discovery
-                    //                        if currentBeaconState.isCyclingEnabled! {
-                    if maxBeaconRunTimer == nil && minOffTimeBeaconTimer == nil {
-                        startBeaconScanning()
-                    }
-                    
-                    
-                    //                        if let maxRuntime = currentBeaconState.maxRuntime {
-                    //                            Log.verbose("Cycling: setting maxRuntime timer \(maxRuntime) at start")
-                    //                            if maxBeaconRunTimer == nil {
-                    //                                maxBeaconRunTimer = Timer.scheduledTimer(timeInterval: TimeInterval(maxRuntime / 1000), target: self, selector: #selector(self.stopRangingBeaconsFor), userInfo: nil, repeats: false)
-                    //                            }
-                    //                        }
-                    //                    } else {
-                    //                        // in case an offTime has been stored in state state store last time round
-                    //                        if let offTime = currentBeaconState.offTime {
-                    //                            if offTime <= Date() {
-                    //                                Log.verbose("BEACONTIMER after offTime")
-                    //                                stateStore.dispatch(SetiBeaconOffTimeEndAction(offTimeEnd: nil))
-                    //                            } else {
-                    //                                Log.verbose("BEACONTIMER do nothing with beacon offTime")
-                    //                            }
-                    //                            // and in case there is not offTime, just start the location manager
-                    //                        } else {
-                    //                            Log.verbose("BEACONTIMER no offTime available")
-                    //                            updateRangingIBeacons()
-                    //                            if let maxRuntime = currentBeaconState.maxRuntime {
-                    //                                if maxBeaconRunTimer == nil {
-                    //                                    Log.verbose("IBEACONTIMER start maxRunTimer \(maxRuntime)")
-                    //                                    maxBeaconRunTimer = Timer.scheduledTimer(timeInterval: TimeInterval(maxRuntime / 1000), target: self, selector: #selector(stopRangingBeaconsFor), userInfo: nil, repeats: false)
-                    //                                    stateStore.dispatch(SetiBEaconMaxOnTimeStartAction(maxOnTimeStart: Date()))
-                    //                                }
-                    //                            }
-                    //                        }
-                    
-                    // manage timer for beacon window size duration
-                    
-                    if let beaconWindowSizeDuration = currentBeaconState.filterWindowSize {
-                        // initialise time on filterWindowSize being available
-                        if beaconWindowSizeDurationTimer == nil {
-                            Log.verbose("BEACONWINDOWSIZETIMER start beaconWindowSizeDuration timer with: \(beaconWindowSizeDuration)")
-                            beaconWindowSizeDurationTimer = Timer.scheduledTimer(timeInterval: TimeInterval(beaconWindowSizeDuration / 1000), target: self, selector: #selector(processBeaconTables), userInfo: nil, repeats: true)
-                        }
-                    } else {
-                        // clean up timer
-                        if  beaconWindowSizeDurationTimer != nil {
-                            beaconWindowSizeDurationTimer?.invalidate()
-                            beaconWindowSizeDurationTimer = nil
-                        }
-                    }
-                } else {
-                    
-                    // clean up timers
-                    if maxBeaconRunTimer != nil {
-                        maxBeaconRunTimer?.invalidate()
-                        maxBeaconRunTimer = nil
-                    }
-                    
-                    if minOffTimeBeaconTimer != nil {
-                        minOffTimeBeaconTimer?.invalidate()
-                        minOffTimeBeaconTimer = nil
-                    }
-                    
-                    stopRangingBeaconsFor(timer: nil)
-                }
-            }
+        if isSignificantUpdates {
+            startReceivingSignificantLocationChanges()
+        } else {
+            stopReceivingSignificantLocationChanges()
+        }
+    }
+    
+    func updateGEOState(_ newGEOState: CurrentGEOState) {
+        guard let isStandardGEOEnabled = newGEOState.isStandardGEOEnabled else {
+            return
         }
         
-        if let newWakeupNotificationState = state.wakeupState {
-            Log.debug("Got a wake up state reported, state is: \(newWakeupNotificationState)")
-            if newWakeupNotificationState != wakeupState {
-                wakeupState = newWakeupNotificationState
-                Log.debug("new state is: \(newWakeupNotificationState)")
-                if wakeupState.ccWakeup == CCWakeup.notifyWakeup{
-                    DispatchQueue.main.async {self.stateStore.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.idle))}
+        if isStandardGEOEnabled {
+            updateSettingsForGEOState(newGEOState)
+            updateTimersForGEOState(newGEOState)
+        } else {
+            disableGeoStandardLocation(newGEOState: newGEOState)
+        }
+    }
+    
+    func updateSettingsForGEOState(_ newGEOState: CurrentGEOState) {
+        if let activityType = newGEOState.activityType {
+            locationManager.activityType = activityType
+        }
+        if let desiredAccuracy = newGEOState.desiredAccuracy {
+            locationManager.desiredAccuracy = CLLocationAccuracy(desiredAccuracy)
+        }
+        if let distanceFilter = newGEOState.distanceFilter {
+            locationManager.distanceFilter = CLLocationDistance(distanceFilter)
+        }
+        if let pausesUpdates = newGEOState.pausesUpdates {
+            locationManager.pausesLocationUpdatesAutomatically = pausesUpdates
+        }
+    }
+    
+    func updateTimersForGEOState(_ newGEOState: CurrentGEOState) {
+        // If offTime has been stored in state store at last update
+        if let offTime = newGEOState.offTime {
+            if offTime <= Date() {
+                Log.debug("GeoTimer offTime passed and reset to nil")
+                DispatchQueue.main.async { self.stateStore.dispatch(SetGEOOffTimeEnd(offTimeEnd: nil)) }
+            }
+            
+            // If there's no offTime, start the location manager for maxRuntime
+        } else {
+            Log.info("Start collecting GEO")
+            
+            locationManager.startUpdatingLocation()
+            isContinuousGEOCollectionActive = true
+            
+            if let maxRunTime = newGEOState.maxRuntime {
+                if self.maxRunGEOTimer == nil {
+                    startMaxRunTimeGeoTimer(maxRunTime: maxRunTime)
                 }
+            } else {
+                stopMaxRunTimeGeoTimer()
             }
         }
+    }
+    
+    func startMaxRunTimeGeoTimer(maxRunTime: UInt64) {
+        Log.verbose("Start maxGEORunTimer \(maxRunTime)")
+        
+        self.maxRunGEOTimer = Timer.scheduledTimer(timeInterval: TimeInterval(maxRunTime / 1000),
+                                                   target: self,
+                                                   selector: #selector(stopLocationUpdates),
+                                                   userInfo: nil,
+                                                   repeats: false)
+    }
+    
+    func stopMaxRunTimeGeoTimer() {
+        self.maxRunGEOTimer?.invalidate()
+        self.maxRunGEOTimer = nil
+    }
+    
+    func disableGeoStandardLocation(newGEOState: CurrentGEOState) {
+        locationManager.stopUpdatingLocation()
+                  
+        if self.maxRunGEOTimer != nil {
+            self.maxRunGEOTimer?.invalidate()
+            self.maxRunGEOTimer = nil
+        }
+      
+        if newGEOState.offTime != nil {
+            DispatchQueue.main.async { self.stateStore.dispatch(SetGEOOffTimeEnd(offTimeEnd: nil)) }
+        }
+    }
+    
+    func cleanUpBeaconTimers() {
+        if maxBeaconRunTimer != nil {
+            maxBeaconRunTimer?.invalidate()
+            maxBeaconRunTimer = nil
+        }
+        if minOffTimeBeaconTimer != nil {
+            minOffTimeBeaconTimer?.invalidate()
+            minOffTimeBeaconTimer = nil
+        }
+    }
+    
+    func updateWindowSizeFilter() {
+        if let beaconWindowSizeDuration = currentBeaconState.filterWindowSize {
+            if beaconWindowSizeDurationTimer == nil {
+                startWindowSizeTimer(duration: beaconWindowSizeDuration)
+            }
+        } else {
+            stopWindowSizeTimer()
+        }
+    }
+    
+    func startWindowSizeTimer(duration: UInt64) {
+        Log.verbose("BeaconWindowSize timer starts with duration: \(duration)")
+
+        beaconWindowSizeDurationTimer = Timer.scheduledTimer(timeInterval: TimeInterval(duration / 1000),
+                                                             target: self,
+                                                             selector: #selector(processBeaconTables),
+                                                             userInfo: nil,
+                                                             repeats: true)
+    }
+    
+    func stopWindowSizeTimer() {
+        beaconWindowSizeDurationTimer?.invalidate()
+        beaconWindowSizeDurationTimer = nil
     }
 }

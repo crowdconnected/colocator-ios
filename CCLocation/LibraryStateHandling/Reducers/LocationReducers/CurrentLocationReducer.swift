@@ -11,6 +11,7 @@ import ReSwift
 func currentLocationReducer (action: Action, state: CurrentLocationState?) -> CurrentLocationState {
     let state = CurrentLocationState(
         currentGEOState: currentGEOReducer(action: action, state: state?.currentGEOState),
+        currentGeofencesMonitoringState: currentGeofencesMonitoringReducer(action: action, state: state?.currentGeofencesMonitoringState),
         currentBeaconState: currentBeaconReducer(action: action, state: state?.currentBeaconState),
         currentiBeaconMonitoringState: currentiBeaconMonitoringReducer(action: action, state: state?.currentiBeaconMonitoringState),
         wakeupState: wakeupReducer(action: action, state: state?.wakeupState)

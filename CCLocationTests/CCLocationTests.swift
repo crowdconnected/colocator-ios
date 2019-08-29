@@ -12,6 +12,8 @@ import CoreLocation
 
 class CCLocationTests: XCTestCase {
 
+    let testAPIKey = "iosrtest"
+    
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -80,7 +82,14 @@ class CCLocationTests: XCTestCase {
         
         let realColocatorManager = realCCLocation.colocatorManager
         
-        XCTAssertNil(realColocatorManager)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 121) {
+            let areObjectsDestroyed = realColocatorManager?.ccLocationManager == nil &&
+            realColocatorManager?.ccRequestMessaging == nil &&
+            realColocatorManager?.ccInertial == nil &&
+            realColocatorManager?.ccSocket == nil
+            
+            XCTAssert(areObjectsDestroyed)
+        }
     }
     
     func testGetDeviceID() {
