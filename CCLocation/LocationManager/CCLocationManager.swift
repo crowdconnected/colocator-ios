@@ -57,6 +57,10 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
     
     var isContinuousGEOCollectionActive = true
     
+    #if DEBUG
+    var areAllObservationsStopped = false
+    #endif
+    
     public init(stateStore: Store<LibraryState>) {
         super.init()
         
@@ -118,6 +122,9 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
     
     func startReceivingSignificantLocationChanges() {
         locationManager.startMonitoringSignificantLocationChanges()
+        #if DEBUG
+        areAllObservationsStopped = false
+        #endif
     }
     
     func stopReceivingSignificantLocationChanges() {
@@ -228,6 +235,9 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate {
     }
     
     public func stopAllLocationObservations () {
+        #if DEBUG
+        areAllObservationsStopped = true
+        #endif
         locationManager.stopUpdatingLocation()
         stopReceivingSignificantLocationChanges()
         stopRangingiBeacons(forCurrentSettings: false)
@@ -271,6 +281,11 @@ extension CCLocationManager {
     
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         Log.debug("Received \(locations.count) location(s)")
+        
+        
+        #if DEBUG
+        areAllObservationsStopped = false
+        #endif
         
         for location in locations {
             Log.verbose("Geolocation information: \(location.description)")

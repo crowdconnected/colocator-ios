@@ -89,7 +89,11 @@ extension CCRequestMessaging {
     @objc func batteryStateDidChange(notification: Notification) {
         let batteryState = UIDevice.current.batteryState
         
-        DispatchQueue.main.async {self.stateStore.dispatch(BatteryStateChangedAction(batteryState: batteryState))}
+        DispatchQueue.main.async {
+            if self.stateStore != nil {
+                self.stateStore.dispatch(BatteryStateChangedAction(batteryState: batteryState))
+            }
+        }
     }
         
     @objc func powerModeDidChange(notification: Notification) {
