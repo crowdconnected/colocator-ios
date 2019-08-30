@@ -119,9 +119,11 @@ extension CCLocationManager: StoreSubscriber {
         if let distanceFilter = newGEOState.distanceFilter {
             locationManager.distanceFilter = CLLocationDistance(distanceFilter)
         }
+        #if RELEASE
         if let pausesUpdates = newGEOState.pausesUpdates {
             locationManager.pausesLocationUpdatesAutomatically = pausesUpdates
         }
+        #endif
     }
     
     func updateTimersForGEOState(_ newGEOState: CurrentGEOState) {
