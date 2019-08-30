@@ -12,7 +12,7 @@ import CoreMotion
 
 internal struct Constants {
     static let DEFAULT_END_POINT_PARTIAL_URL = ".colocator.net:443/socket"
-    static let END_POINT_UPDATE_LIBRARY_BACKGROUND = "https://en23kessvxam43o.m.pipedream.net"
+    static let END_POINT_UPDATE_LIBRARY_BACKGROUND = "https://u0piciynxe.execute-api.us-east-1.amazonaws.com/Test/connectping"
 }
 
 @objc public protocol CCLocationDelegate: class {
@@ -117,7 +117,8 @@ internal struct Constants {
     @objc public func updateLibraryBasedOnClientStatus(clientKey key: String, completion: @escaping (Bool) -> Void) {
         let endpointUrlString = Constants.END_POINT_UPDATE_LIBRARY_BACKGROUND
         var urlComponents = URLComponents(string: endpointUrlString)
-        urlComponents?.queryItems = [URLQueryItem(name: "clientKey", value: key)]
+//        urlComponents?.queryItems = [URLQueryItem(name: "clientKey", value: key)]
+        urlComponents?.queryItems = [URLQueryItem(name: "app", value: "true")]
         
         guard let requestURL = urlComponents?.url  else {
             completion(false)
@@ -135,7 +136,7 @@ internal struct Constants {
             
             do {
                 let jsonResponse = try JSONSerialization.jsonObject(with: dataResponse, options: []) as? [String: Any]
-                let clientStatus = jsonResponse?["clientStatus"] as? Bool
+                let clientStatus = jsonResponse?["connect"] as? Bool
                 
                 if clientStatus == true {
                     self.start(apiKey: key)
