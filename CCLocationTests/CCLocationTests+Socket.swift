@@ -118,15 +118,16 @@ extension CCLocationTests {
         let cclocation = CCLocation.sharedInstance
         cclocation.start(apiKey: testAPIKey)
 
-        //check delay for connetion after 5 mins
         let ccSocket = cclocation.colocatorManager?.ccRequestMessaging?.ccSocket
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 30) {
+        let timeRunningInSeconds: Int = 60 * 1 // 5
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + Double(timeRunningInSeconds)) {
             cclocation.stop()
             XCTAssert(ccSocket?.delay == CCSocketConstants.MIN_DELAY)
             expectation.fulfill()
         }
-        wait(for: [expectation], timeout: 31.0)
+        wait(for: [expectation], timeout: Double(timeRunningInSeconds + 5))
     }
     
     func testStopObservationsAfter24hWithoutInternet() {
@@ -143,5 +144,41 @@ extension CCLocationTests {
         cclocation.stop()
         
         XCTAssert(noObservations)
+    }
+    
+    func testMaximumItemsInOneMessage() {
+        let expectation = XCTestExpectation(description: "In a client message should be sent maximum 100 submessages")
+        
+        let ccLocation = CCLocation.sharedInstance
+        ccLocation.start(apiKey: testAPIKey)
+        
+        let colocatorManager = ccLocation.colocatorManager
+        let ccRequestMessages = colocatorManager?.ccRequestMessaging
+        
+        colocatorManager?.deleteDatabaseContent()
+        
+        let messagesToAdd = 301
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            ccRequestMessages?.stateStore.dispatch( TimeBetweenSendsTimerReceivedAction(timeInMilliseconds: 3000))
+            
+            for i in 0..<messagesToAdd {
+                ccRequestMessages?.processStep(date: Date(), angle: Double(i))
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            ccRequestMessages?.stateStore.dispatch( TimeBetweenSendsTimerReceivedAction(timeInMilliseconds: 0))
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            let sentMessages = ccRequestMessages?.ccSocket?.messagesSentSinceStart ?? -1
+            
+            let hundredsOfMessages =  messagesToAdd / 100
+            XCTAssert(sentMessages >= sentMessages && sentMessages <= hundredsOfMessages + 2)
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 4.0)
     }
 }

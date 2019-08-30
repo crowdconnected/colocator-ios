@@ -63,18 +63,18 @@ class CCLocationTests: XCTestCase {
     func testStartSDK() {
         let expectation = XCTestExpectation(description: "Data should be saved in database if cannot be sent")
         let mockCCLocation = MockCCLocation()
-        let realCCLocation = CCLocation.sharedInstance
+        let ccLocation = CCLocation.sharedInstance
 
-        realCCLocation.stop()
+        ccLocation.stop()
         
         mockCCLocation.start(apiKey: testAPIKey)
-        realCCLocation.start(apiKey: testAPIKey)
+        ccLocation.start(apiKey: testAPIKey)
 
         let mockURL = mockCCLocation.mockUrlString
-        let realURL = realCCLocation.colocatorManager?.ccRequestMessaging?.ccSocket?.ccWebsocketBaseURL
+        let realURL = ccLocation.colocatorManager?.ccRequestMessaging?.ccSocket?.ccWebsocketBaseURL
 
         mockCCLocation.stop()
-        realCCLocation.stop()
+        ccLocation.stop()
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             
@@ -88,12 +88,12 @@ class CCLocationTests: XCTestCase {
     func testStopSDK() {
         let expectation = XCTestExpectation(description: "All objects in Colocator Manager should be removed after stopping the SDK")
         
-        let realCCLocation = CCLocation.sharedInstance
+        let ccLocation = CCLocation.sharedInstance
         
-        realCCLocation.start(apiKey: testAPIKey)
-        realCCLocation.stop()
+        ccLocation.start(apiKey: testAPIKey)
+        ccLocation.stop()
         
-        let realColocatorManager = realCCLocation.colocatorManager
+        let realColocatorManager = ccLocation.colocatorManager
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
             let areObjectsDestroyed = realColocatorManager?.ccLocationManager == nil &&
@@ -108,18 +108,76 @@ class CCLocationTests: XCTestCase {
         wait(for: [expectation], timeout: 6.0)
     }
     
+    func testSendMarker() {
+        let expectation = XCTestExpectation(description: "Marker should be sent immediately")
+        
+        let ccLocation = CCLocation.sharedInstance
+        ccLocation.start(apiKey: testAPIKey)
+        
+        let colocatorManager = ccLocation.colocatorManager
+        let ccRequestMessages = colocatorManager?.ccRequestMessaging
+
+        let initialMessagesCount = ccRequestMessages?.getMessageCount() ?? 0
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            ccLocation.sendMarker(message: "Test marker")
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            let finalMessagesCount = ccRequestMessages?.getMessageCount() ?? 0
+            
+            XCTAssert(initialMessagesCount >= finalMessagesCount)
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 3.0)
+    }
+    
+    func testSetAliasesAndPersistence() {
+        let expectation = XCTestExpectation(description: "Aliases should be sent and persist in User Defaults")
+        
+        let ccLocation = CCLocation.sharedInstance
+        ccLocation.start(apiKey: testAPIKey)
+        
+        let colocatorManager = ccLocation.colocatorManager
+        let ccRequestMessages = colocatorManager?.ccRequestMessaging
+
+
+        ccLocation.colocatorManager?.deleteDatabaseContent()
+        let initialMessagesCount = ccRequestMessages?.getMessageCount() ?? 0
+        
+        let aliasKey = "key"
+        let aliasValue = "value"
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            ccLocation.addAlias(key: aliasKey, value: aliasValue)
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            let finalMessagesCount = ccRequestMessages?.getMessageCount() ?? 0
+            
+            let aliases = UserDefaults.standard.value(forKey: CCSocketConstants.ALIAS_KEY) as? Dictionary<String, String> ?? [:]
+            let value = aliases[aliasKey]
+            
+            XCTAssert(initialMessagesCount >= finalMessagesCount && aliasValue == value)
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 3.0)
+    }
+    
     func testGetDeviceID() {
         let mockCCLocation = MockCCLocation()
-        let realCCLocation = CCLocation.sharedInstance
+        let ccLocation = CCLocation.sharedInstance
 
         mockCCLocation.start(apiKey: testAPIKey)
-        realCCLocation.start(apiKey: testAPIKey)
+        ccLocation.start(apiKey: testAPIKey)
 
         let mockDeviceID = mockCCLocation.getDeviceId()
-        let realDeviceID = realCCLocation.getDeviceId()
+        let realDeviceID = ccLocation.getDeviceId()
 
         mockCCLocation.stop()
-        realCCLocation.stop()
+        ccLocation.stop()
 
         XCTAssert(mockDeviceID == realDeviceID)
     }
@@ -250,6 +308,7 @@ class CCLocationTests: XCTestCase {
 
         let colocatorManager = cclocation.colocatorManager
         let ccRequestMessages = colocatorManager?.ccRequestMessaging
+        colocatorManager?.deleteDatabaseContent()
         
         let initialMessagesCount = ccRequestMessages?.getMessageCount() ?? 0
         
