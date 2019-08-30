@@ -36,6 +36,10 @@ class CCSocket:NSObject {
     var reconnectTimer: Timer?
     var startTime: Date?
     
+    #if DEBUG
+    var messagesSentSinceStart = 0
+    #endif
+    
     public static let sharedInstance: CCSocket = {
         let instance = CCSocket()
         return instance
@@ -55,6 +59,10 @@ class CCSocket:NSObject {
         self.ccRequestMessaging = ccRequestMessaging
         
         connect(timer: nil)
+        
+        #if DEBUG
+        messagesSentSinceStart = 0
+        #endif
     }
     
     public func stop() {
@@ -185,6 +193,9 @@ class CCSocket:NSObject {
     func sendWebSocketMessage(data: Data) {
         if webSocket != nil {
             webSocket?.send(data)
+            #if DEBUG
+            messagesSentSinceStart += 1
+            #endif
         }
     }
     

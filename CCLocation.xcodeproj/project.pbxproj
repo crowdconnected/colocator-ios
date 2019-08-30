@@ -72,6 +72,7 @@
 		4FF6BA662105EA430082859F /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF6BA652105EA430082859F /* Logger.swift */; };
 		4FFAA5951EF688CD00A2D508 /* LibraryState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFAA5941EF688CD00A2D508 /* LibraryState.swift */; };
 		4FFAA5991EF689ED00A2D508 /* LibraryReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFAA5981EF689ED00A2D508 /* LibraryReducer.swift */; };
+		97001D0022EB0D3700044436 /* CCLocationTests+Socket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97001CFF22EB0D3700044436 /* CCLocationTests+Socket.swift */; };
 		9700649F22D62B9A00E7F9E9 /* DevicePlatformEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9700649E22D62B9A00E7F9E9 /* DevicePlatformEnum.swift */; };
 		9702361022CCBDAB00D559A8 /* CCRequestMessaging+SendMessages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9702360F22CCBDAB00D559A8 /* CCRequestMessaging+SendMessages.swift */; };
 		9702361222CCC2A100D559A8 /* CCRequestMessaging+DatabaseOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9702361122CCC2A100D559A8 /* CCRequestMessaging+DatabaseOperations.swift */; };
@@ -206,6 +207,7 @@
 		4FF6BA652105EA430082859F /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		4FFAA5941EF688CD00A2D508 /* LibraryState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryState.swift; sourceTree = "<group>"; };
 		4FFAA5981EF689ED00A2D508 /* LibraryReducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryReducer.swift; sourceTree = "<group>"; };
+		97001CFF22EB0D3700044436 /* CCLocationTests+Socket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCLocationTests+Socket.swift"; sourceTree = "<group>"; };
 		9700649E22D62B9A00E7F9E9 /* DevicePlatformEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevicePlatformEnum.swift; sourceTree = "<group>"; };
 		9702360F22CCBDAB00D559A8 /* CCRequestMessaging+SendMessages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCRequestMessaging+SendMessages.swift"; sourceTree = "<group>"; };
 		9702361122CCC2A100D559A8 /* CCRequestMessaging+DatabaseOperations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCRequestMessaging+DatabaseOperations.swift"; sourceTree = "<group>"; };
@@ -523,6 +525,7 @@
 			isa = PBXGroup;
 			children = (
 				F0AF0C461DB3912700E72E76 /* CCLocationTests.swift */,
+				97001CFF22EB0D3700044436 /* CCLocationTests+Socket.swift */,
 				F0AF0C481DB3912700E72E76 /* Info.plist */,
 			);
 			path = CCLocationTests;
@@ -666,6 +669,8 @@
 				"$(SRCROOT)/Carthage/Build/iOS/SwiftProtobuf.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/SocketRocket.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/ReSwift.framework",
+				"$(SRCROOT)/Carthage/Build/iOS/Result.framework",
+				"$(SRCROOT)/carthage/Build/iOS/TrueTime.framework",
 			);
 			outputPaths = (
 			);
@@ -784,6 +789,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F0AF0C471DB3912700E72E76 /* CCLocationTests.swift in Sources */,
+				97001D0022EB0D3700044436 /* CCLocationTests+Socket.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

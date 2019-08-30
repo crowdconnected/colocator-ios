@@ -185,7 +185,7 @@ extension SQLiteDatabase {
                 return
             }
             
-            let total_count = try count(table: CCLocationTables.MESSAGES_TABLE)
+            var total_count = try count(table: CCLocationTables.MESSAGES_TABLE)
             
             try saveResetAutoincrement(table: CCLocationTables.MESSAGES_TABLE)
             
@@ -213,9 +213,14 @@ extension SQLiteDatabase {
                 }
             }
             
+            total_count = try count(table: CCLocationTables.MESSAGES_TABLE)
+            
             if total_count >= CCLocationConstants.MAX_QUEUE_SIZE {
+                Log.warning("Attempt to insert more messages than maximum number in database")
                 
                 let deleteDiff = total_count - CCLocationConstants.MAX_QUEUE_SIZE
+                
+                Log.debug("Current messages number in database \(total_count)\nTry to delete \(deleteDiff) messages")
                 
                 sqlite3_clear_bindings(insertStatement)
                 sqlite3_reset(insertStatement)

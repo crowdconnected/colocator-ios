@@ -218,9 +218,15 @@ class ColocatorManager {
     }
     
     deinit {
-        messagesDatabase.close()
-        beaconsDatabase.close()
-        eddystoneBeaconsDatabase.close()
+        if messagesDatabase != nil {
+            messagesDatabase.close()
+        }
+        if beaconsDatabase != nil {
+            beaconsDatabase.close()
+        }
+        if eddystoneBeaconsDatabase != nil {
+            eddystoneBeaconsDatabase.close()
+        }
     }
 }
 
