@@ -13,6 +13,7 @@ import CoreLocation
 class CCLocationTests: XCTestCase {
 
     let testAPIKey = "iosrtest"
+    let stagingWrongURL = "staging.colocator.net:443/wrongURLString"
     
     override func setUp() {
         super.setUp()
@@ -127,7 +128,7 @@ class CCLocationTests: XCTestCase {
         let expectation = XCTestExpectation(description: "Data should be saved in database if cannot be sent")
         
         let cclocation = CCLocation.sharedInstance
-        cclocation.start(apiKey: testAPIKey, urlString: "staging.colocator.net:443/wrongURLString")
+        cclocation.start(apiKey: testAPIKey, urlString: stagingWrongURL)
 
         let colocatorManager = cclocation.colocatorManager
         let ccRequestMessages = colocatorManager?.ccRequestMessaging
@@ -150,11 +151,41 @@ class CCLocationTests: XCTestCase {
         wait(for: [expectation], timeout: 3.0)
     }
     
+    func testDatabaseMaximumCapacity() {
+        let expectation = XCTestExpectation(description: "Database should store items up to 100.000")
+        
+        let cclocation = CCLocation.sharedInstance
+        cclocation.start(apiKey: testAPIKey, urlString: stagingWrongURL)
+
+        let colocatorManager = cclocation.colocatorManager
+        let ccRequestMessages = colocatorManager?.ccRequestMessaging
+
+        let messagesToInsert = 100100
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            colocatorManager?.deleteDatabaseContent()
+            
+            for i in 0..<messagesToInsert {
+                ccRequestMessages?.processStep(date: Date(), angle: Double(i))
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 100) {
+            let finalMessagesCount = ccRequestMessages?.getMessageCount() ?? 0
+            cclocation.stop()
+            
+            XCTAssert(finalMessagesCount > 99990 && finalMessagesCount < messagesToInsert)
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 102)
+    }
+    
     func testSendDataInOrder() {
         let expectation = XCTestExpectation(description: "Data should be sent in order to server")
         
         let cclocation = CCLocation.sharedInstance
-        cclocation.start(apiKey: testAPIKey, urlString: "staging.colocator.net:443/wrongURLString")
+        cclocation.start(apiKey: testAPIKey, urlString: stagingWrongURL)
 
         let colocatorManager = cclocation.colocatorManager
         let ccRequestMessages = colocatorManager?.ccRequestMessaging
