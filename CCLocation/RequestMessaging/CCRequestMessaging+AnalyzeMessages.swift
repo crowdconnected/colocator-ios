@@ -364,11 +364,14 @@ extension CCRequestMessaging {
     
     public func checkNewBatteryLevelTypeMessage() -> (Messaging_Battery?) {
         var newBatteryMessage: Messaging_Battery? = nil
-        if let isNewBatteryLevel = self.stateStore.state.batteryLevelState.isNewBatteryLevel {
+        guard let stateStore = self.stateStore else {
+            return nil
+        }
+        if let isNewBatteryLevel = stateStore.state.batteryLevelState.isNewBatteryLevel {
             if isNewBatteryLevel {
                 var batteryMessage = Messaging_Battery()
                 
-                if let batteryLevel = self.stateStore.state.batteryLevelState.batteryLevel {
+                if let batteryLevel = stateStore.state.batteryLevelState.batteryLevel {
                     batteryMessage.battery = batteryLevel
                     newBatteryMessage = batteryMessage
                     DispatchQueue.main.async {self.stateStore.dispatch(BatteryLevelReportedAction())}
