@@ -114,11 +114,19 @@ internal struct Constants {
         colocatorManager?.addAlias(key: key, value: value)
     }
     
-    @objc public func updateLibraryBasedOnClientStatus(clientKey key: String, completion: @escaping (Bool) -> Void) {
+    @objc public func receivedSilentNotification(clientKey key: String) {
+        updateLibraryBasedOnClientStatus(clientKey: key, isSilentNotification: true) { _ in }
+    }
+    
+    @objc public func updateLibraryBasedOnClientStatus(clientKey key: String, isSilentNotification: Bool = false, completion: @escaping (Bool) -> Void) {
         let endpointUrlString = Constants.END_POINT_UPDATE_LIBRARY_BACKGROUND
-        var urlComponents = URLComponents(string: endpointUrlString)
-//        urlComponents?.queryItems = [URLQueryItem(name: "clientKey", value: key)]
-        urlComponents?.queryItems = [URLQueryItem(name: "app", value: "true")]
+        let deviceID = getDeviceId() ?? ""
+        let wakeUpSource = isSilentNotification ? "SPN" : "BR"
+        
+         var urlComponents = URLComponents(string: endpointUrlString)
+        urlComponents?.queryItems = [URLQueryItem(name: "app", value: key),
+                                     URLQueryItem(name: "deviceID", value: deviceID),
+                                     URLQueryItem(name: "wakeUp", value: wakeUpSource)]
         
         guard let requestURL = urlComponents?.url  else {
             completion(false)
