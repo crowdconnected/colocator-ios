@@ -87,7 +87,7 @@
 		97036DC422CE0869005A8322 /* CCRequestMessaging+AnalyzeMessages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DC322CE0869005A8322 /* CCRequestMessaging+AnalyzeMessages.swift */; };
 		97036DCA22CE4C91005A8322 /* CCLocationManager+StoreSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DC922CE4C91005A8322 /* CCLocationManager+StoreSubscriber.swift */; };
 		97036DCC22CE4D50005A8322 /* CCLocationManager+DatabaseOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DCB22CE4D50005A8322 /* CCLocationManager+DatabaseOperations.swift */; };
-		97036DCE22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DCD22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift */; };
+		97036DCE22CE51BC005A8322 /* CCLocationManager+Bluetooth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DCD22CE51BC005A8322 /* CCLocationManager+Bluetooth.swift */; };
 		97044503230BE61D001B2815 /* GeofencesActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97044502230BE61D001B2815 /* GeofencesActions.swift */; };
 		97044505230BE76C001B2815 /* CurrentGeofencesMonitoringState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97044504230BE76C001B2815 /* CurrentGeofencesMonitoringState.swift */; };
 		97090E60230FDE9E00F1A684 /* CCRequestMessaging+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97090E5F230FDE9E00F1A684 /* CCRequestMessaging+Helpers.swift */; };
@@ -223,7 +223,7 @@
 		97036DC322CE0869005A8322 /* CCRequestMessaging+AnalyzeMessages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCRequestMessaging+AnalyzeMessages.swift"; sourceTree = "<group>"; };
 		97036DC922CE4C91005A8322 /* CCLocationManager+StoreSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCLocationManager+StoreSubscriber.swift"; sourceTree = "<group>"; };
 		97036DCB22CE4D50005A8322 /* CCLocationManager+DatabaseOperations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCLocationManager+DatabaseOperations.swift"; sourceTree = "<group>"; };
-		97036DCD22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCLocationManager+RangingBeacons.swift"; sourceTree = "<group>"; };
+		97036DCD22CE51BC005A8322 /* CCLocationManager+Bluetooth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCLocationManager+Bluetooth.swift"; sourceTree = "<group>"; };
 		97044502230BE61D001B2815 /* GeofencesActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeofencesActions.swift; sourceTree = "<group>"; };
 		97044504230BE76C001B2815 /* CurrentGeofencesMonitoringState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentGeofencesMonitoringState.swift; sourceTree = "<group>"; };
 		97090E5F230FDE9E00F1A684 /* CCRequestMessaging+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCRequestMessaging+Helpers.swift"; sourceTree = "<group>"; };
@@ -424,7 +424,7 @@
 			isa = PBXGroup;
 			children = (
 				4F659BB51F24910100775ABD /* CCLocationManager.swift */,
-				97036DCD22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift */,
+				97036DCD22CE51BC005A8322 /* CCLocationManager+Bluetooth.swift */,
 				97036DCB22CE4D50005A8322 /* CCLocationManager+DatabaseOperations.swift */,
 				97036DC922CE4C91005A8322 /* CCLocationManager+StoreSubscriber.swift */,
 			);
@@ -768,7 +768,7 @@
 				4FF6BA662105EA430082859F /* Logger.swift in Sources */,
 				4F920BFA1F3B1C7F00BD7FEF /* LibraryTimeStateAction.swift in Sources */,
 				4F222B191F90EA4300FB11BD /* BatteryLevelState.swift in Sources */,
-				97036DCE22CE51BC005A8322 /* CCLocationManager+RangingBeacons.swift in Sources */,
+				97036DCE22CE51BC005A8322 /* CCLocationManager+Bluetooth.swift in Sources */,
 				4F920BF81F3B161100BD7FEF /* LibraryTimeState.swift in Sources */,
 				97036DBE22CE05A2005A8322 /* CCRequestMessaging+StoreSubscriber.swift in Sources */,
 				4FAAEA281F46F9C500DF4DA1 /* WakeupReducer.swift in Sources */,
