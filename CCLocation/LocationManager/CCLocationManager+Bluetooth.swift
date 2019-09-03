@@ -37,11 +37,9 @@ extension CCLocationManager {
                 }
             }
             
-            if (!regionInMonitoredRegions) {
-                if (CLLocationManager.isMonitoringAvailable(for: CLBeaconRegion.self)) {
-                    region.notifyEntryStateOnDisplay = true
-                    locationManager.startMonitoring(for: region)
-                }
+            if !regionInMonitoredRegions && CLLocationManager.isMonitoringAvailable(for: CLBeaconRegion.self) {
+                region.notifyEntryStateOnDisplay = true
+                locationManager.startMonitoring(for: region)
             }
         }
     }
@@ -49,7 +47,11 @@ extension CCLocationManager {
     func stopMonitoringForBeaconRegions () {
         // first check filter out all regions we are monitoring atm
         let crowdConnectedRegions = locationManager.monitoredRegions.filter {
-            return $0 is CLBeaconRegion ? (($0 as! CLBeaconRegion).identifier.range(of: "CC") != nil) : false
+            if $0 is CLBeaconRegion {
+                return ($0 as! CLBeaconRegion).identifier.range(of: "CC") != nil
+            } else {
+                return false
+            }
         }
         
         // second stop monitoring for beacons that are not included in the current settings
@@ -60,30 +62,24 @@ extension CCLocationManager {
     
     @objc func startBeaconScanning() {
         // start ibeacon scanning if enabled
-        if let isIBeaconEnabledUnwrapped = currentBeaconState.isIBeaconRangingEnabled {
-            if isIBeaconEnabledUnwrapped {
-                updateRangingIBeacons()
-            }
+        if currentBeaconState.isIBeaconRangingEnabled == true {
+            updateRangingIBeacons()
         }
         
         // start eddystone beacon scanning if enabled
-        if let isEddystoneScanEnabledUnwrapped = currentBeaconState.isEddystoneScanningEnabled {
-            if isEddystoneScanEnabledUnwrapped {
-                centralManager = CBCentralManager(delegate: self,
-                                                  queue: nil,
-                                                  options: [CBCentralManagerOptionShowPowerAlertKey: false])
-                
-                eddystoneBeaconScanner = BeaconScanner()
-                eddystoneBeaconScanner?.delegate = self
-                eddystoneBeaconScanner?.startScanning()
-            }
+        if currentBeaconState.isEddystoneScanningEnabled == true {
+            centralManager = CBCentralManager(delegate: self,
+                                              queue: nil,
+                                              options: [CBCentralManagerOptionShowPowerAlertKey: false])
+            
+            eddystoneBeaconScanner = BeaconScanner()
+            eddystoneBeaconScanner?.delegate = self
+            eddystoneBeaconScanner?.startScanning()
         }
         
         // make sure timers are cleared out
-        if minOffTimeBeaconTimer != nil {
-            minOffTimeBeaconTimer?.invalidate()
-            minOffTimeBeaconTimer = nil
-        }
+        minOffTimeBeaconTimer?.invalidate()
+        minOffTimeBeaconTimer = nil
         
         // make sure that scanning finishes when maxRuntime has expired
         if let maxRuntime = currentBeaconState.maxRuntime {
@@ -119,16 +115,13 @@ extension CCLocationManager {
                 }
             }
             
-            if (!regionInRangedRegions){
-                if (CLLocationManager.isRangingAvailable()){
-                    locationManager.startRangingBeacons(in: region)
-                }
+            if !regionInRangedRegions && CLLocationManager.isRangingAvailable() {
+                locationManager.startRangingBeacons(in: region)
             }
         }
     }
     
-    @objc func stopRangingBeaconsFor (timer: Timer!){
-        
+    @objc func stopRangingBeaconsFor() {
         // stop scanning for Eddystone beacons
         eddystoneBeaconScanner?.stopScanning()
         
@@ -136,10 +129,8 @@ extension CCLocationManager {
         stopRangingiBeacons(forCurrentSettings: false)
         
         // clear timer
-        if (maxBeaconRunTimer != nil) {
-            maxBeaconRunTimer?.invalidate()
-            maxBeaconRunTimer = nil
-        }
+        maxBeaconRunTimer?.invalidate()
+        maxBeaconRunTimer = nil
         
         //        if currentBeaconState.isCyclingEnabled! {
         
@@ -206,12 +197,15 @@ extension CCLocationManager {
         
         // iBeacon first filter for all regions we are ranging in atm
         let crowdConnectedRegions = locationManager.rangedRegions.filter {
-            return $0 is CLBeaconRegion ? (($0 as! CLBeaconRegion).identifier.range(of: "CC") != nil) : false
+            if $0 is CLBeaconRegion {
+                return ($0 as! CLBeaconRegion).identifier.range(of: "CC") != nil
+            } else {
+                return false
+            }
         }
         
         // iterate through all crowdConnectedRegions
         for region in crowdConnectedRegions {
-            
             // check if we only want to stop beacons that are not included in the current settings
             if (forCurrentSettings){
                 if !currentBeaconState.regions.contains(region as! CLBeaconRegion){
