@@ -206,6 +206,7 @@ message CircularGeoFenceEvent {
     optional double latitude = 1;
     optional double longitude = 2;
     optional double radius = 3;
+    optional Type type = 4;
 }
 message UserInputLocationMessage {
     optional double latitude = 1;

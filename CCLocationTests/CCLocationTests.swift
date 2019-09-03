@@ -122,7 +122,7 @@ class CCLocationTests: XCTestCase {
         let initialMessagesCount = ccRequestMessages?.getMessageCount() ?? 0
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            ccLocation.sendMarker(message: kTestMarkerMessage)
+            ccLocation.sendMarker(message: self.kTestMarkerMessage)
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {

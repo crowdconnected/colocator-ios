@@ -1534,6 +1534,15 @@ struct Messaging_CircularGeoFenceEvent {
   /// Clears the value of `radius`. Subsequent reads from it will return its default value.
   mutating func clearRadius() {self._radius = nil}
 
+  var type: Messaging_CircularGeoFenceEvent.TypeEnum {
+    get {return _type ?? .entry}
+    set {_type = newValue}
+  }
+  /// Returns true if `type` has been explicitly set.
+  var hasType: Bool {return self._type != nil}
+  /// Clears the value of `type`. Subsequent reads from it will return its default value.
+  mutating func clearType() {self._type = nil}
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   enum TypeEnum: SwiftProtobuf.Enum {
@@ -1567,6 +1576,7 @@ struct Messaging_CircularGeoFenceEvent {
   fileprivate var _latitude: Double? = nil
   fileprivate var _longitude: Double? = nil
   fileprivate var _radius: Double? = nil
+  fileprivate var _type: Messaging_CircularGeoFenceEvent.TypeEnum? = nil
 }
 
 #if swift(>=4.2)
@@ -4233,6 +4243,7 @@ extension Messaging_CircularGeoFenceEvent: SwiftProtobuf.Message, SwiftProtobuf.
     1: .same(proto: "latitude"),
     2: .same(proto: "longitude"),
     3: .same(proto: "radius"),
+    4: .same(proto: "type"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -4241,6 +4252,7 @@ extension Messaging_CircularGeoFenceEvent: SwiftProtobuf.Message, SwiftProtobuf.
       case 1: try decoder.decodeSingularDoubleField(value: &self._latitude)
       case 2: try decoder.decodeSingularDoubleField(value: &self._longitude)
       case 3: try decoder.decodeSingularDoubleField(value: &self._radius)
+      case 4: try decoder.decodeSingularEnumField(value: &self._type)
       default: break
       }
     }
@@ -4256,6 +4268,9 @@ extension Messaging_CircularGeoFenceEvent: SwiftProtobuf.Message, SwiftProtobuf.
     if let v = self._radius {
       try visitor.visitSingularDoubleField(value: v, fieldNumber: 3)
     }
+    if let v = self._type {
+      try visitor.visitSingularEnumField(value: v, fieldNumber: 4)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -4263,6 +4278,7 @@ extension Messaging_CircularGeoFenceEvent: SwiftProtobuf.Message, SwiftProtobuf.
     if lhs._latitude != rhs._latitude {return false}
     if lhs._longitude != rhs._longitude {return false}
     if lhs._radius != rhs._radius {return false}
+    if lhs._type != rhs._type {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
