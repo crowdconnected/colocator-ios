@@ -114,7 +114,7 @@ internal struct Constants {
         colocatorManager?.addAlias(key: key, value: value)
     }
     
-    @objc public func receivedSilentNotification(clientKey key: String) {
+    @objc public func receivedSilentNotification(userInfo: [AnyHashable : Any], clientKey key: String) {
         updateLibraryBasedOnClientStatus(clientKey: key, isSilentNotification: true) { _ in }
     }
     
