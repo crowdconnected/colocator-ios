@@ -126,6 +126,8 @@ internal struct Constants {
         })
     }
     
+    //MARK: - Background Library Updates
+    
     @objc public func receivedSilentNotification(userInfo: [AnyHashable : Any], clientKey key: String) {
         updateLibraryBasedOnClientStatus(clientKey: key, isSilentNotification: true) { _ in
             // UpdateLibrary method will start or stop the library depending on the server response
@@ -179,9 +181,35 @@ internal struct Constants {
             }
         }.resume()
     }
+    
+    //MARK: - Location Callbacks
+    
+    @objc public func requestLocation() {
+        if libraryStarted == true {
+            colocatorManager?.ccRequestMessaging?.sendLocationRequestMessage(type: 1)
+        }
+    }
+    
+    @objc public func registerLocationListener() {
+        if libraryStarted == true {
+            colocatorManager?.ccRequestMessaging?.sendLocationRequestMessage(type: 2)
+        }
+    }
+    
+    @objc public func unregisterLocationListener() {
+        if libraryStarted == true {
+            colocatorManager?.ccRequestMessaging?.sendLocationRequestMessage(type: 3)
+        }
+    }
 }
 
+//MARK: - CCSocketDelegate
+
 extension CCLocation: CCSocketDelegate {
+    func receivedLocationMessages(_ messages: [LocationResponse]) {
+        Log.info("\nReceived LocationResponse messages\n\(messages)")
+    }
+    
     func receivedTextMessage(message: NSDictionary) {
         Log.verbose("Received text message from socket")
     }

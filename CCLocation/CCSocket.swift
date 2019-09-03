@@ -12,8 +12,17 @@ import SocketRocket
 import CoreLocation
 import TrueTime
 
+struct LocationResponse {
+    var latitude: Double
+    var longitude: Double
+    var headingOffSet: Double
+    var error: Double
+    var timestamp: UInt64
+}
+
 protocol CCSocketDelegate: AnyObject{
     func receivedTextMessage(message: NSDictionary)
+    func receivedLocationMessages(_ messages: [LocationResponse])
     func ccSocketDidConnect()
     func ccSocketDidFailWithError(error: Error)
 }

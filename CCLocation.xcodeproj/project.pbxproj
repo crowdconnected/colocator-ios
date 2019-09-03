@@ -95,6 +95,7 @@
 		970ACF3B22D894DD00317525 /* ColocatorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 970ACF3A22D894DD00317525 /* ColocatorManager.swift */; };
 		975C8E03230BF7E700A48FE9 /* CurrentGeofencesMonitoringReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975C8E02230BF7E700A48FE9 /* CurrentGeofencesMonitoringReducer.swift */; };
 		9770817C22E718DF0074D8E6 /* AutoEquatable.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9770817B22E718DF0074D8E6 /* AutoEquatable.generated.swift */; };
+		97E2A5E5231EA590009A78AA /* CCRequestMessaging+RequestLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97E2A5E4231EA590009A78AA /* CCRequestMessaging+RequestLocation.swift */; };
 		97FF65E0230E9A9700C50D52 /* DatabaseStructures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FF65DF230E9A9700C50D52 /* DatabaseStructures.swift */; };
 		97FF65E3230E9C9D00C50D52 /* CreateTableStatements.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FF65E2230E9C9D00C50D52 /* CreateTableStatements.swift */; };
 		97FF65E5230E9CEB00C50D52 /* SQLiteErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FF65E4230E9CEB00C50D52 /* SQLiteErrors.swift */; };
@@ -231,6 +232,7 @@
 		970ACF3A22D894DD00317525 /* ColocatorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColocatorManager.swift; sourceTree = "<group>"; };
 		975C8E02230BF7E700A48FE9 /* CurrentGeofencesMonitoringReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentGeofencesMonitoringReducer.swift; sourceTree = "<group>"; };
 		9770817B22E718DF0074D8E6 /* AutoEquatable.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutoEquatable.generated.swift; sourceTree = "<group>"; };
+		97E2A5E4231EA590009A78AA /* CCRequestMessaging+RequestLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCRequestMessaging+RequestLocation.swift"; sourceTree = "<group>"; };
 		97FF65DF230E9A9700C50D52 /* DatabaseStructures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseStructures.swift; sourceTree = "<group>"; };
 		97FF65E2230E9C9D00C50D52 /* CreateTableStatements.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateTableStatements.swift; sourceTree = "<group>"; };
 		97FF65E4230E9CEB00C50D52 /* SQLiteErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLiteErrors.swift; sourceTree = "<group>"; };
@@ -416,6 +418,7 @@
 				9702361122CCC2A100D559A8 /* CCRequestMessaging+DatabaseOperations.swift */,
 				97090E5F230FDE9E00F1A684 /* CCRequestMessaging+Helpers.swift */,
 				97090E61230FE33F00F1A684 /* CCRequestMessaging+SystemNotification.swift */,
+				97E2A5E4231EA590009A78AA /* CCRequestMessaging+RequestLocation.swift */,
 			);
 			path = RequestMessaging;
 			sourceTree = "<group>";
@@ -780,6 +783,7 @@
 				4F03E1A41F9D30BF0023EEC2 /* CapabilityActions.swift in Sources */,
 				4F8FFD991F2CEC9E0001910A /* CurrentGEOSettingsAction.swift in Sources */,
 				4F8FFD8D1F2CCC670001910A /* TimerAction.swift in Sources */,
+				97E2A5E5231EA590009A78AA /* CCRequestMessaging+RequestLocation.swift in Sources */,
 				97FF65F0230EAF7C00C50D52 /* Inertial+Structures.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
