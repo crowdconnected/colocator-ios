@@ -15,6 +15,8 @@ class CCLocationTests: XCTestCase {
     let testAPIKey = "iosrtest"
     let stagingWrongURL = "staging.colocator.net:443/wrongURLString"
     
+    let kTestMarkerMessage = "Test marker"
+    
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -33,7 +35,7 @@ class CCLocationTests: XCTestCase {
         var lastAliasesMessage: Messaging_ClientMessage?
         
         override func start(apiKey: String, urlString: String? = nil) {
-            mockUrlString = apiKey + Constants.DEFAULT_END_POINT_PARTIAL_URL
+            mockUrlString = apiKey + Constants.kDefaultEndPointPartialUrl
             if urlString != nil {
                 mockUrlString = urlString!
             }
@@ -120,7 +122,7 @@ class CCLocationTests: XCTestCase {
         let initialMessagesCount = ccRequestMessages?.getMessageCount() ?? 0
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            ccLocation.sendMarker(message: "Test marker")
+            ccLocation.sendMarker(message: kTestMarkerMessage)
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
@@ -194,9 +196,9 @@ class CCLocationTests: XCTestCase {
         let initialMessagesCount = ccRequestMessages?.getMessageCount() ?? 0
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            cclocation.sendMarker(message: "Test marker 1")
-            cclocation.sendMarker(message: "Test marker 2")
-            cclocation.sendMarker(message: "Test marker 3")
+            cclocation.sendMarker(message: "\(self.kTestMarkerMessage)1")
+            cclocation.sendMarker(message: "\(self.kTestMarkerMessage)2")
+            cclocation.sendMarker(message: "\(self.kTestMarkerMessage)3")
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
@@ -315,9 +317,9 @@ class CCLocationTests: XCTestCase {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             ccRequestMessages?.stateStore.dispatch( TimeBetweenSendsTimerReceivedAction(timeInMilliseconds: 0))
             
-            cclocation.sendMarker(message: "Test marker 1")
-            cclocation.sendMarker(message: "Test marker 2")
-            cclocation.sendMarker(message: "Test marker 3")
+            cclocation.sendMarker(message: "\(self.kTestMarkerMessage)1")
+            cclocation.sendMarker(message: "\(self.kTestMarkerMessage)2")
+            cclocation.sendMarker(message: "\(self.kTestMarkerMessage)3")
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
@@ -347,9 +349,9 @@ class CCLocationTests: XCTestCase {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             ccRequestMessages?.stateStore.dispatch( TimeBetweenSendsTimerReceivedAction(timeInMilliseconds: 5000))
             
-            cclocation.sendMarker(message: "Test marker 1")
-            cclocation.sendMarker(message: "Test marker 2")
-            cclocation.sendMarker(message: "Test marker 3")
+            cclocation.sendMarker(message: "\(self.kTestMarkerMessage)4")
+            cclocation.sendMarker(message: "\(self.kTestMarkerMessage)5")
+            cclocation.sendMarker(message: "\(self.kTestMarkerMessage)6")
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {

@@ -288,19 +288,24 @@ extension CCLocationManager {
         if region.proximityUUID.uuidString == beacon.proximityUUID.uuidString {
             if let major = region.major {
                 if major == beacon.major {
-                    
-                    if let minor = region.minor {
-                        if minor == beacon.minor {
-                            return true
-                        }
-                    } else {
-                        return true
-                    }
+                    return compareMinor(forBeacon: beacon, andRegion: region)
                 }
             } else {
                 return true
             }
         }
+        return false
+    }
+    
+    private func compareMinor(forBeacon beacon: CLBeacon, andRegion region: CLBeaconRegion) -> Bool {
+        if let minor = region.minor {
+            if minor == beacon.minor {
+                return true
+            }
+        } else {
+            return true
+        }
+        
         return false
     }
     

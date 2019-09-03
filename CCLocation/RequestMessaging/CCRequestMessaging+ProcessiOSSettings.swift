@@ -304,10 +304,10 @@ extension CCRequestMessaging {
         var excludeRegions: [CLBeaconRegion] = []
         var rangingRegions: [CLBeaconRegion] = []
         
-        var maxRuntime:UInt64?
-        var minOffTime:UInt64?
-        var filterWindowSize:UInt64?
-        var maxObservations:UInt32?
+        var maxRuntime: UInt64?
+        var minOffTime: UInt64?
+        var filterWindowSize: UInt64?
+        var maxObservations: UInt32?
         
         var eddystoneScan: Bool?
         
@@ -327,18 +327,8 @@ extension CCRequestMessaging {
         if beaconRanging.hasMinOffTime && beaconRanging.minOffTime > 0 {
             minOffTime = beaconRanging.minOffTime
         }
-        if beaconRanging.hasFilter {
-            let filter = beaconRanging.filter
-            
-            if filter.hasWindowSize && filter.windowSize > 0 {
-                filterWindowSize = filter.windowSize
-            }
-            
-            if filter.hasMaxObservations && filter.maxObservations > 0 {
-                maxObservations = filter.maxObservations
-            }
-        }
-        
+        updateFilters(windowSize: &filterWindowSize, maxObservations: &maxObservations, for: beaconRanging)
+       
         if beaconRanging.hasEddystoneScan {
             eddystoneScan = beaconRanging.eddystoneScan
         }
@@ -365,6 +355,22 @@ extension CCRequestMessaging {
                                                             filterExcludeRegions: excludeRegions.sorted(by: {$0.identifier < $1.identifier}),
                                                             isEddystoneScanEnabled: eddystoneScan,
                                                             isIBeaconRangingEnabled: isIBeaconRangingEnabled))
+            }
+        }
+    }
+    
+    private func updateFilters(windowSize: inout UInt64?,
+                               maxObservations: inout UInt32?,
+                               for beaconRanging: Messaging_BeaconRanging) {
+        if beaconRanging.hasFilter {
+            let filter = beaconRanging.filter
+            
+            if filter.hasWindowSize && filter.windowSize > 0 {
+                windowSize = filter.windowSize
+            }
+            
+            if filter.hasMaxObservations && filter.maxObservations > 0 {
+                maxObservations = filter.maxObservations
             }
         }
     }

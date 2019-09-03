@@ -43,5 +43,6 @@ private func getCurrentStateFromUserDefaults () -> CurrentGeofencesMonitoringSta
     }
 }
 
-private func saveCurrentStateToUserDefaults (currentGEOState: CurrentGeofencesMonitoringState){
+private func saveCurrentStateToUserDefaults(currentGEOState: CurrentGeofencesMonitoringState) {
+    // Monitored circular regions and beacon regions are not saved into UserDefaults
 }

@@ -34,6 +34,7 @@ struct CCSocketConstants {
 
 struct CCRequestMessagingConstants {
     static let messageCounter = "messageCounterKey"
+    static let kNotAvaialble = "Not Available"
 }
 
 struct CCInertialConstants {

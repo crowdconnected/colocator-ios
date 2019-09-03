@@ -86,7 +86,7 @@ extension CCRequestMessaging {
             
             Log.verbose("""
                 Compiled geoMsg: \(geoData?.count ?? -1) and byte array
-                \(geoData?.hexEncodedString() ?? "NOT AVAILABLE")
+                \(geoData?.hexEncodedString() ?? CCRequestMessagingConstants.kNotAvaialble)
                 """)
         }
         
@@ -96,7 +96,7 @@ extension CCRequestMessaging {
             
             Log.verbose("""
                 Compiled geofenceMsg: \(geofenceData?.count ?? -1) and byte array
-                \(geofenceData?.hexEncodedString() ?? "NOT AVAILABLE")
+                \(geofenceData?.hexEncodedString() ?? CCRequestMessagingConstants.kNotAvaialble)
                 """)
         }
         
@@ -106,7 +106,7 @@ extension CCRequestMessaging {
             
             Log.verbose("""
                 Compiled bluetooth message: \(blData?.count ?? -1) and byte array
-                \(blData?.hexEncodedString() ?? "NOT AVAILABLE"))
+                \(blData?.hexEncodedString() ?? CCRequestMessagingConstants.kNotAvaialble))
                 """)
         }
         
@@ -120,7 +120,7 @@ extension CCRequestMessaging {
             
             Log.verbose("""
                 Compiled alias message: \(alData?.count ?? -1)  and byte array
-                \(alData?.hexEncodedString() ?? "NOT AVAILABLE"))
+                \(alData?.hexEncodedString() ?? CCRequestMessagingConstants.kNotAvaialble))
                 """)
         }
     }

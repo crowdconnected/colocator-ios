@@ -12,8 +12,8 @@ import CoreBluetooth
 import CoreMotion
 
 internal struct Constants {
-    static let DEFAULT_END_POINT_PARTIAL_URL = ".colocator.net:443/socket"
-    static let END_POINT_UPDATE_LIBRARY_BACKGROUND = "https://u0piciynxe.execute-api.us-east-1.amazonaws.com/Test/connectping"
+    static let kDefaultEndPointPartialUrl = ".colocator.net:443/socket"
+    static let kEndPointUpdateLibraryBackgroundUrl = "https://u0piciynxe.execute-api.us-east-1.amazonaws.com/Test/connectping"
 }
 
 @objc public protocol CCLocationDelegate: class {
@@ -47,7 +47,7 @@ internal struct Constants {
             
             Log.info("[Colocator] Initialising Colocator")
             
-            var tempUrlString = apiKey + Constants.DEFAULT_END_POINT_PARTIAL_URL
+            var tempUrlString = apiKey + Constants.kDefaultEndPointPartialUrl
             
             if urlString != nil {
                 tempUrlString = urlString!
@@ -127,11 +127,14 @@ internal struct Constants {
     }
     
     @objc public func receivedSilentNotification(userInfo: [AnyHashable : Any], clientKey key: String) {
-        updateLibraryBasedOnClientStatus(clientKey: key, isSilentNotification: true) { _ in }
+        updateLibraryBasedOnClientStatus(clientKey: key, isSilentNotification: true) { _ in
+            // UpdateLibrary method will start or stop the library depending on the server response
+            // There's no need to do anything in the completion
+        }
     }
     
     @objc public func updateLibraryBasedOnClientStatus(clientKey key: String, isSilentNotification: Bool = false, completion: @escaping (Bool) -> Void) {
-        let endpointUrlString = Constants.END_POINT_UPDATE_LIBRARY_BACKGROUND
+        let endpointUrlString = Constants.kEndPointUpdateLibraryBackgroundUrl
         let deviceID = getDeviceId() ?? ""
         let wakeUpSource = isSilentNotification ? "SPN" : "BR"
         

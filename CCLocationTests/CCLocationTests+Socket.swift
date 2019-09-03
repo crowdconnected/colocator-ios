@@ -175,7 +175,7 @@ extension CCLocationTests {
             let sentMessages = ccRequestMessages?.ccSocket?.messagesSentSinceStart ?? -1
             
             let hundredsOfMessages =  messagesToAdd / 100
-            XCTAssert(sentMessages >= sentMessages && sentMessages <= hundredsOfMessages + 2)
+            XCTAssert(sentMessages >= hundredsOfMessages && sentMessages <= hundredsOfMessages + 2)
             expectation.fulfill()
         }
         
