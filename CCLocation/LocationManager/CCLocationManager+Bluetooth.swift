@@ -59,7 +59,6 @@ extension CCLocationManager {
     }
     
     @objc func startBeaconScanning() {
-        
         // start ibeacon scanning if enabled
         if let isIBeaconEnabledUnwrapped = currentBeaconState.isIBeaconRangingEnabled {
             if isIBeaconEnabledUnwrapped {
@@ -70,6 +69,12 @@ extension CCLocationManager {
         // start eddystone beacon scanning if enabled
         if let isEddystoneScanEnabledUnwrapped = currentBeaconState.isEddystoneScanningEnabled {
             if isEddystoneScanEnabledUnwrapped {
+                centralManager = CBCentralManager(delegate: self,
+                                                  queue: nil,
+                                                  options: [CBCentralManagerOptionShowPowerAlertKey: false])
+                
+                eddystoneBeaconScanner = BeaconScanner()
+                eddystoneBeaconScanner?.delegate = self
                 eddystoneBeaconScanner?.startScanning()
             }
         }

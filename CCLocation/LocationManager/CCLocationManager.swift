@@ -100,13 +100,6 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
             }
         }
         
-        centralManager = CBCentralManager(delegate: self,
-                                          queue: nil,
-                                          options: [CBCentralManagerOptionShowPowerAlertKey:false])
-        
-        eddystoneBeaconScanner = BeaconScanner()
-        eddystoneBeaconScanner?.delegate = self
-        
         // initial dispatch of location state
         DispatchQueue.main.async {stateStore.dispatch(LocationAuthStatusChangedAction(locationAuthStatus: CLLocationManager.authorizationStatus()))}
         DispatchQueue.main.async {stateStore.dispatch(IsLocationServicesEnabledAction(isLocationServicesEnabled: CLLocationManager.locationServicesEnabled()))}
