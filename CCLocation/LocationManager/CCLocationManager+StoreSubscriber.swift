@@ -67,7 +67,7 @@ extension CCLocationManager: StoreSubscriber {
                 updateWindowSizeFilter()
             } else {
                 cleanUpBeaconTimers()
-                stopRangingBeaconsFor(timer: nil)
+                stopRangingBeaconsFor()
             }
         }
         

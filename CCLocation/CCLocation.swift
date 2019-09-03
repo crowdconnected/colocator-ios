@@ -8,6 +8,7 @@
 
 import Foundation
 import ReSwift
+import CoreBluetooth
 import CoreMotion
 
 internal struct Constants {
@@ -112,6 +113,17 @@ internal struct Constants {
     
     @objc public func addAlias(key: String, value: String) {
         colocatorManager?.addAlias(key: key, value: value)
+    }
+    
+    @objc public func triggerBluetoothPermissionPopUp() {
+        var centralManager: CBCentralManager? = nil
+        centralManager = CBCentralManager(delegate: nil,
+                                          queue: nil,
+                                          options: [CBCentralManagerOptionShowPowerAlertKey: false])
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+            centralManager?.delegate = nil
+            centralManager = nil
+        })
     }
     
     @objc public func receivedSilentNotification(userInfo: [AnyHashable : Any], clientKey key: String) {

@@ -6,6 +6,7 @@
 //  Copyright © 2019 Crowd Connected. All rights reserved.
 //
 
+import CoreBluetooth
 import CoreLocation
 import Foundation
 
@@ -36,11 +37,9 @@ extension CCLocationManager {
                 }
             }
             
-            if (!regionInMonitoredRegions) {
-                if (CLLocationManager.isMonitoringAvailable(for: CLBeaconRegion.self)) {
-                    region.notifyEntryStateOnDisplay = true
-                    locationManager.startMonitoring(for: region)
-                }
+            if !regionInMonitoredRegions && CLLocationManager.isMonitoringAvailable(for: CLBeaconRegion.self) {
+                region.notifyEntryStateOnDisplay = true
+                locationManager.startMonitoring(for: region)
             }
         }
     }
@@ -48,7 +47,11 @@ extension CCLocationManager {
     func stopMonitoringForBeaconRegions () {
         // first check filter out all regions we are monitoring atm
         let crowdConnectedRegions = locationManager.monitoredRegions.filter {
-            return $0 is CLBeaconRegion ? (($0 as! CLBeaconRegion).identifier.range(of: "CC") != nil) : false
+            if $0 is CLBeaconRegion {
+                return ($0 as! CLBeaconRegion).identifier.range(of: "CC") != nil
+            } else {
+                return false
+            }
         }
         
         // second stop monitoring for beacons that are not included in the current settings
@@ -58,26 +61,25 @@ extension CCLocationManager {
     }
     
     @objc func startBeaconScanning() {
-        
         // start ibeacon scanning if enabled
-        if let isIBeaconEnabledUnwrapped = currentBeaconState.isIBeaconRangingEnabled {
-            if isIBeaconEnabledUnwrapped {
-                updateRangingIBeacons()
-            }
+        if currentBeaconState.isIBeaconRangingEnabled == true {
+            updateRangingIBeacons()
         }
         
         // start eddystone beacon scanning if enabled
-        if let isEddystoneScanEnabledUnwrapped = currentBeaconState.isEddystoneScanningEnabled {
-            if isEddystoneScanEnabledUnwrapped {
-                eddystoneBeaconScanner?.startScanning()
-            }
+        if currentBeaconState.isEddystoneScanningEnabled == true {
+            centralManager = CBCentralManager(delegate: self,
+                                              queue: nil,
+                                              options: [CBCentralManagerOptionShowPowerAlertKey: false])
+            
+            eddystoneBeaconScanner = BeaconScanner()
+            eddystoneBeaconScanner?.delegate = self
+            eddystoneBeaconScanner?.startScanning()
         }
         
         // make sure timers are cleared out
-        if minOffTimeBeaconTimer != nil {
-            minOffTimeBeaconTimer?.invalidate()
-            minOffTimeBeaconTimer = nil
-        }
+        minOffTimeBeaconTimer?.invalidate()
+        minOffTimeBeaconTimer = nil
         
         // make sure that scanning finishes when maxRuntime has expired
         if let maxRuntime = currentBeaconState.maxRuntime {
@@ -113,16 +115,13 @@ extension CCLocationManager {
                 }
             }
             
-            if (!regionInRangedRegions){
-                if (CLLocationManager.isRangingAvailable()){
-                    locationManager.startRangingBeacons(in: region)
-                }
+            if !regionInRangedRegions && CLLocationManager.isRangingAvailable() {
+                locationManager.startRangingBeacons(in: region)
             }
         }
     }
     
-    @objc func stopRangingBeaconsFor (timer: Timer!){
-        
+    @objc func stopRangingBeaconsFor() {
         // stop scanning for Eddystone beacons
         eddystoneBeaconScanner?.stopScanning()
         
@@ -130,10 +129,8 @@ extension CCLocationManager {
         stopRangingiBeacons(forCurrentSettings: false)
         
         // clear timer
-        if (maxBeaconRunTimer != nil) {
-            maxBeaconRunTimer?.invalidate()
-            maxBeaconRunTimer = nil
-        }
+        maxBeaconRunTimer?.invalidate()
+        maxBeaconRunTimer = nil
         
         //        if currentBeaconState.isCyclingEnabled! {
         
@@ -200,12 +197,15 @@ extension CCLocationManager {
         
         // iBeacon first filter for all regions we are ranging in atm
         let crowdConnectedRegions = locationManager.rangedRegions.filter {
-            return $0 is CLBeaconRegion ? (($0 as! CLBeaconRegion).identifier.range(of: "CC") != nil) : false
+            if $0 is CLBeaconRegion {
+                return ($0 as! CLBeaconRegion).identifier.range(of: "CC") != nil
+            } else {
+                return false
+            }
         }
         
         // iterate through all crowdConnectedRegions
         for region in crowdConnectedRegions {
-            
             // check if we only want to stop beacons that are not included in the current settings
             if (forCurrentSettings){
                 if !currentBeaconState.regions.contains(region as! CLBeaconRegion){
@@ -217,130 +217,171 @@ extension CCLocationManager {
             }
         }
     }
-    
-    // MARK: - PROCESS BEACON AND EDDYBEACON TABLES
-    
-    @objc func processBeaconTables() {
-        processiBeaconTable()
-        processEddystoneBeaconTable()
-    }
-    
-    func processiBeaconTable() {
+}
+
+// MARK: - Responding to Eddystone Beacon Discovery Events
+
+extension CCLocationManager: BeaconScannerDelegate {
+    func didFindBeacon(beaconScanner: BeaconScanner, beaconInfo: EddystoneBeaconInfo) {
+        Log.verbose("Finde beacon \(beaconInfo.description)")
         
-        countBeacons()
-        guard let beaconsUnwrapped = getAllBeaconsAndDelete() else {
-            return
-        }
-        
-        // create a key / value list that creates a unquiqe key for each beacon.
-        var newBeacons: [[String:Beacon]] = []
-        
-        for beacon in beaconsUnwrapped {
+        if beaconInfo.beaconID.beaconType == BeaconID.BeaconType.EddystoneEID {
+            var isFilterAvailable = false
+            checkIfWindowSizeAndMaxObservationsAreAvailable(&isFilterAvailable)
             
-            var newBeacon: [String:Beacon] = [:]
-            
-            newBeacon["\(beacon.uuid):\(beacon.major):\(beacon.minor)"] = beacon
-            
-            newBeacons.append(newBeacon)
-        }
-        
-        // group all identical beacons under the unique key
-        let groupedBeacons = newBeacons.group(by: {$0.keys.first!})
-        
-        var youngestBeaconInWindow: Beacon?
-        var beaconsPerWindow : [Beacon] = []
-        
-        for beaconGroup in groupedBeacons {
-            
-            let sortedBeaconGroup = beaconGroup.value.sorted(by: {
-                
-                let value1 = $0.first!.value
-                let value2 = $1.first!.value
-                
-                return value1.timeIntervalSinceBootTime < value2.timeIntervalSinceBootTime
-            })
-            
-            youngestBeaconInWindow = sortedBeaconGroup[0].values.first
-            
-            beaconsPerWindow.append(youngestBeaconInWindow!)
-        }
-        
-        if let maxObservations = stateStore.state.locationSettingsState.currentLocationState?.currentBeaconState?.filterMaxObservations {
-            
-            var sortedValues = beaconsPerWindow.sorted(by: {$0.rssi > $1.rssi})
-            
-            if (sortedValues.count > Int(maxObservations)) {
-                sortedValues = Array(sortedValues.prefix(Int(maxObservations)))
-            }
-            
-            for beacon in sortedValues {
-                
-                delegate?.receivediBeaconInfo(proximityUUID: UUID(uuidString: beacon.uuid as String)!,
-                                              major: Int(beacon.major),
-                                              minor: Int(beacon.minor),
-                                              proximity: Int(beacon.proximity),
-                                              accuracy: beacon.accuracy,
-                                              rssi: Int(beacon.rssi),
-                                              timestamp: beacon.timeIntervalSinceBootTime)
+            if isFilterAvailable {
+                insert(eddystoneBeacon: beaconInfo)
+            } else if let timeIntervalSinceBoot = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {
+                delegate?.receivedEddystoneBeaconInfo(eid: beaconInfo.beaconID.hexBeaconID() as NSString,
+                                                      tx: beaconInfo.txPower,
+                                                      rssi: beaconInfo.RSSI,
+                                                      timestamp: timeIntervalSinceBoot)
             }
         }
     }
     
-    func processEddystoneBeaconTable() {
+    func didLoseBeacon(beaconScanner: BeaconScanner, beaconInfo: EddystoneBeaconInfo) {
+        Log.verbose("Lost beacon \(beaconInfo.description)")
+    }
+    
+    func didUpdateBeacon(beaconScanner: BeaconScanner, beaconInfo: EddystoneBeaconInfo) {
+        Log.verbose("Update beacon \(beaconInfo.description)")
         
-        countEddystoneBeacons()
-        
-        guard let beaconsUnwrapped = getAllEddystoneBeaconsAndDelete() else {
+        if beaconInfo.beaconID.beaconType == BeaconID.BeaconType.EddystoneEID {
+            var isFilterAvailable = false
+            checkIfWindowSizeAndMaxObservationsAreAvailable(&isFilterAvailable)
+            
+            if isFilterAvailable {
+                insert(eddystoneBeacon: beaconInfo)
+            } else if let timeIntervalSinceBoot = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {
+                delegate?.receivedEddystoneBeaconInfo(eid: beaconInfo.beaconID.hexBeaconID() as NSString,
+                                                      tx: beaconInfo.txPower,
+                                                      rssi: beaconInfo.RSSI,
+                                                      timestamp: timeIntervalSinceBoot)
+            }
+        }
+    }
+    
+    func didObserveURLBeacon(beaconScanner: BeaconScanner, URL: NSURL, RSSI: Int) {
+        Log.verbose("URL SEEN: \(URL), RSSI: \(RSSI)")
+    }
+}
+
+// MARK: - Responding to Ranging Events
+
+extension CCLocationManager {
+    
+    fileprivate func checkIfWindowSizeAndMaxObservationsAreAvailable(_ isFilterAvailable: inout Bool) {
+        guard let currentBeaconState = stateStore.state.locationSettingsState.currentLocationState?.currentBeaconState else {
             return
         }
         
-        Log.debug("\(beaconsUnwrapped.count) fetched from Eddystone beacons table")
-        
-        // create a key / value list that creates a unquiqe key for each beacon.
-        var newBeacons: [[String:EddystoneBeacon]] = []
-        
-        for beacon in beaconsUnwrapped {
-            
-            var newBeacon: [String:EddystoneBeacon] = [:]
-            
-            newBeacon["\(beacon.eid)"] = beacon
-            
-            newBeacons.append(newBeacon)
-        }
-        
-        // group all identical beacons under the unique key
-        let groupedBeacons = newBeacons.group(by: {$0.keys.first!})
-        
-        var youngestBeaconInWindow: EddystoneBeacon?
-        var beaconsPerWindow : [EddystoneBeacon] = []
-        
-        for beaconGroup in groupedBeacons {
-            
-            let sortedBeaconGroup = beaconGroup.value.sorted(by: {
-                
-                let value1 = $0.first!.value
-                let value2 = $1.first!.value
-                
-                return value1.timeIntervalSinceBootTime < value2.timeIntervalSinceBootTime
-            })
-            
-            youngestBeaconInWindow = sortedBeaconGroup[0].values.first
-            
-            beaconsPerWindow.append(youngestBeaconInWindow!)
-            Log.verbose("Youngest beacon in window: \(String(describing: youngestBeaconInWindow))")
-        }
-        
-        if let maxObservations = stateStore.state.locationSettingsState.currentLocationState?.currentBeaconState?.filterMaxObservations {
-            
-            var sortedValues = beaconsPerWindow.sorted(by: {$0.rssi > $1.rssi})
-            
-            if (sortedValues.count > Int(maxObservations)) {
-                sortedValues = Array(sortedValues.prefix(Int(maxObservations)))
+        if let windowSize = currentBeaconState.filterWindowSize,
+            let maxObservations = currentBeaconState.filterMaxObservations {
+            if windowSize > 0 && maxObservations > 0 {
+                isFilterAvailable = true
             }
-            
-            for beacon in sortedValues {
-                delegate?.receivedEddystoneBeaconInfo(eid: beacon.eid, tx: Int(beacon.tx), rssi: Int(beacon.rssi), timestamp: beacon.timeIntervalSinceBootTime)
+        }
+    }
+    
+    fileprivate func checkRegionBelonging(_ region: CLBeaconRegion, beacon: CLBeacon) -> Bool {
+        if region.proximityUUID.uuidString == beacon.proximityUUID.uuidString {
+            if let major = region.major {
+                if major == beacon.major {
+                    
+                    if let minor = region.minor {
+                        if minor == beacon.minor {
+                            return true
+                        }
+                    } else {
+                        return true
+                    }
+                }
+            } else {
+                return true
             }
+        }
+        return false
+    }
+    
+    public func locationManager(_ manager: CLLocationManager, didRangeBeacons beacons: [CLBeacon], in region: CLBeaconRegion) {
+        guard !beacons.isEmpty else {
+            return
+        }
+   
+        for beacon in beacons where beacon.rssi < 0 {
+            Log.verbose("""
+                Ranged beacon with UUID \(beacon.proximityUUID.uuidString)
+                MAJOR: \(beacon.major)
+                MINOR: \(beacon.minor)
+                RSSI: \(beacon.rssi)
+                """)
+            
+            var isFilterAvailable: Bool = false
+            checkIfWindowSizeAndMaxObservationsAreAvailable(&isFilterAvailable)
+            
+            let extractedCurrentBeaconState = stateStore.state.locationSettingsState.currentLocationState?.currentBeaconState
+            
+            if let excludeRegions = extractedCurrentBeaconState?.filterExcludeRegions {
+                checkBeaconInExcludedRegions(beacon: beacon,
+                                             excludedregions: excludeRegions,
+                                             filter: isFilterAvailable)
+            } else {
+                if isFilterAvailable {
+                    insert(beacon: beacon)
+                } else {
+                    sendBeaconInfoToDelegate(beacon)
+                }
+            }
+        }
+    }
+    
+    private func checkBeaconInExcludedRegions(beacon: CLBeacon, excludedregions: [CLBeaconRegion], filter: Bool) {
+        let results = Array(excludedregions.filter { region in
+            return checkRegionBelonging(region, beacon: beacon)
+        })
+       
+        if results.count > 0 {
+            Log.verbose("Beacon is in exclude regions")
+        } else {
+            Log.verbose("Beacon is input to reporting")
+           
+            if filter {
+                insert(beacon: beacon)
+            } else {
+                sendBeaconInfoToDelegate(beacon)
+            }
+        }
+    }
+    
+    private func sendBeaconInfoToDelegate(_ beacon: CLBeacon) {
+        if let timeIntervalSinceBoot = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {
+            delegate?.receivediBeaconInfo(proximityUUID: beacon.proximityUUID,
+                                          major: Int(truncating: beacon.major),
+                                          minor: Int(truncating: beacon.minor),
+                                          proximity: beacon.proximity.rawValue,
+                                          accuracy: beacon.accuracy,
+                                          rssi: Int(beacon.rssi),
+                                          timestamp: timeIntervalSinceBoot)
+        }
+    }
+    
+    public func locationManager(_ manager: CLLocationManager, rangingBeaconsDidFailFor region: CLBeaconRegion, withError error: Error) {
+        Log.error("Ranging failed for region with UUID: \(region.proximityUUID.uuidString)")
+    }
+}
+
+// CBCentralManagerDelegate
+extension CCLocationManager {
+    public func centralManagerDidUpdateState(_ central: CBCentralManager) {
+        DispatchQueue.main.async {self.stateStore.dispatch(BluetoothHardwareChangedAction(bluetoothHardware: central.centralManagerState))}
+    }
+}
+
+extension CBCentralManager {
+    internal var centralManagerState: CBCentralManagerState {
+        get {
+            return CBCentralManagerState(rawValue: state.rawValue) ?? .unknown
         }
     }
 }

@@ -168,4 +168,130 @@ extension CCLocationManager {
             }
         }
     }
+    
+    // MARK: - PROCESS BEACON AND EDDYBEACON TABLES
+       
+       @objc func processBeaconTables() {
+           processiBeaconTable()
+           processEddystoneBeaconTable()
+       }
+       
+       func processiBeaconTable() {
+           
+           countBeacons()
+           guard let beaconsUnwrapped = getAllBeaconsAndDelete() else {
+               return
+           }
+           
+           // create a key / value list that creates a unquiqe key for each beacon.
+           var newBeacons: [[String:Beacon]] = []
+           
+           for beacon in beaconsUnwrapped {
+               
+               var newBeacon: [String:Beacon] = [:]
+               
+               newBeacon["\(beacon.uuid):\(beacon.major):\(beacon.minor)"] = beacon
+               
+               newBeacons.append(newBeacon)
+           }
+           
+           // group all identical beacons under the unique key
+           let groupedBeacons = newBeacons.group(by: {$0.keys.first!})
+           
+           var youngestBeaconInWindow: Beacon?
+           var beaconsPerWindow : [Beacon] = []
+           
+           for beaconGroup in groupedBeacons {
+               
+               let sortedBeaconGroup = beaconGroup.value.sorted(by: {
+                   
+                   let value1 = $0.first!.value
+                   let value2 = $1.first!.value
+                   
+                   return value1.timeIntervalSinceBootTime < value2.timeIntervalSinceBootTime
+               })
+               
+               youngestBeaconInWindow = sortedBeaconGroup[0].values.first
+               
+               beaconsPerWindow.append(youngestBeaconInWindow!)
+           }
+           
+           if let maxObservations = stateStore.state.locationSettingsState.currentLocationState?.currentBeaconState?.filterMaxObservations {
+               
+               var sortedValues = beaconsPerWindow.sorted(by: {$0.rssi > $1.rssi})
+               
+               if (sortedValues.count > Int(maxObservations)) {
+                   sortedValues = Array(sortedValues.prefix(Int(maxObservations)))
+               }
+               
+               for beacon in sortedValues {
+                   
+                   delegate?.receivediBeaconInfo(proximityUUID: UUID(uuidString: beacon.uuid as String)!,
+                                                 major: Int(beacon.major),
+                                                 minor: Int(beacon.minor),
+                                                 proximity: Int(beacon.proximity),
+                                                 accuracy: beacon.accuracy,
+                                                 rssi: Int(beacon.rssi),
+                                                 timestamp: beacon.timeIntervalSinceBootTime)
+               }
+           }
+       }
+       
+       func processEddystoneBeaconTable() {
+           
+           countEddystoneBeacons()
+           
+           guard let beaconsUnwrapped = getAllEddystoneBeaconsAndDelete() else {
+               return
+           }
+           
+           Log.debug("\(beaconsUnwrapped.count) fetched from Eddystone beacons table")
+           
+           // create a key / value list that creates a unquiqe key for each beacon.
+           var newBeacons: [[String:EddystoneBeacon]] = []
+           
+           for beacon in beaconsUnwrapped {
+               
+               var newBeacon: [String:EddystoneBeacon] = [:]
+               
+               newBeacon["\(beacon.eid)"] = beacon
+               
+               newBeacons.append(newBeacon)
+           }
+           
+           // group all identical beacons under the unique key
+           let groupedBeacons = newBeacons.group(by: {$0.keys.first!})
+           
+           var youngestBeaconInWindow: EddystoneBeacon?
+           var beaconsPerWindow : [EddystoneBeacon] = []
+           
+           for beaconGroup in groupedBeacons {
+               
+               let sortedBeaconGroup = beaconGroup.value.sorted(by: {
+                   
+                   let value1 = $0.first!.value
+                   let value2 = $1.first!.value
+                   
+                   return value1.timeIntervalSinceBootTime < value2.timeIntervalSinceBootTime
+               })
+               
+               youngestBeaconInWindow = sortedBeaconGroup[0].values.first
+               
+               beaconsPerWindow.append(youngestBeaconInWindow!)
+               Log.verbose("Youngest beacon in window: \(String(describing: youngestBeaconInWindow))")
+           }
+           
+           if let maxObservations = stateStore.state.locationSettingsState.currentLocationState?.currentBeaconState?.filterMaxObservations {
+               
+               var sortedValues = beaconsPerWindow.sorted(by: {$0.rssi > $1.rssi})
+               
+               if (sortedValues.count > Int(maxObservations)) {
+                   sortedValues = Array(sortedValues.prefix(Int(maxObservations)))
+               }
+               
+               for beacon in sortedValues {
+                   delegate?.receivedEddystoneBeaconInfo(eid: beacon.eid, tx: Int(beacon.tx), rssi: Int(beacon.rssi), timestamp: beacon.timeIntervalSinceBootTime)
+               }
+           }
+       }
 }
