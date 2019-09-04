@@ -12,12 +12,28 @@ import SocketRocket
 import CoreLocation
 import TrueTime
 
-struct LocationResponse {
-    var latitude: Double
-    var longitude: Double
-    var headingOffSet: Double
-    var error: Double
-    var timestamp: UInt64
+@objc public class LocationResponse: NSObject {
+    public var latitude: Double
+    public var longitude: Double
+    public var headingOffSet: Double
+    public var error: Double
+    public var timestamp: UInt64
+    
+    init(latitude: Double,
+         longitude: Double,
+         headingOffSet: Double,
+         error: Double,
+         timestamp: UInt64) {
+        
+        self.latitude = latitude
+        self.longitude = longitude
+        self.headingOffSet = headingOffSet
+        self.error = error
+        self.timestamp = timestamp
+        
+        super.init()
+        
+    }
 }
 
 protocol CCSocketDelegate: AnyObject{
