@@ -13,7 +13,7 @@ import CoreMotion
 
 internal struct Constants {
     static let kDefaultEndPointPartialUrl = ".colocator.net:443/socket"
-    static let kEndPointUpdateLibraryBackgroundUrl = "https://u0piciynxe.execute-api.us-east-1.amazonaws.com/Test/connectping"
+    static let kEndPointUpdateLibraryBackgroundUrl = "https://canconnect.colocator.net/connect/connectping"
 }
 
 @objc public protocol CCLocationDelegate: class {
@@ -147,7 +147,9 @@ internal struct Constants {
             completion(false)
             return
         }
-        let request = URLRequest(url: requestURL)
+        var request = URLRequest(url: requestURL)
+        request.httpMethod = "GET"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         
         Log.info("Background Refresh Event detected - Checking client status for \(key.uppercased())")
         
@@ -163,11 +165,13 @@ internal struct Constants {
                 
                 if clientStatus == true {
                     self.start(apiKey: key)
+                    Log.info("Library started from background")
                     completion(true)
                     return
                 }
                 if clientStatus == false {
                     self.stop()
+                    Log.info("Library stopped from background")
                     completion(false)
                     return
                 }
