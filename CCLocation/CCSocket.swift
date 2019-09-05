@@ -19,7 +19,7 @@ import TrueTime
     public var error: Double
     public var timestamp: UInt64
     
-    init(latitude: Double,
+    public init(latitude: Double,
          longitude: Double,
          headingOffSet: Double,
          error: Double,
