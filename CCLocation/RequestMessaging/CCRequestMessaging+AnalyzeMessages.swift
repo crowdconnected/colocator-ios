@@ -16,7 +16,6 @@ extension CCRequestMessaging {
                                   subMessageInitialNumber: Int = 0,
                                   compiledMessage: Messaging_ClientMessage = Messaging_ClientMessage(),
                                   queueMessage: Messaging_ClientMessage = Messaging_ClientMessage()) -> (Int, Messaging_ClientMessage, Messaging_ClientMessage) {
-        
         var compiledClientMessage = compiledMessage
         var backToQueueMessages = queueMessage
         
@@ -25,71 +24,88 @@ extension CCRequestMessaging {
         
         tempClientMessage = try? Messaging_ClientMessage(serializedData: message)
         
-        if (tempClientMessage!.locationMessage.count > 0) {
+        if tempClientMessage!.locationMessage.count > 0 {
             Log.verbose ("Found location messages in queue")
             
-            let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self.checkLocationTypeMessages(tempClientMessage!.locationMessage, subMessageCounter: subMessageCounter)
+            let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) =
+                self.checkLocationTypeMessages(tempClientMessage!.locationMessage, subMessageCounter: subMessageCounter)
             
             subMessageCounter = actualizedSubmessageCounter
             compiledClientMessage.locationMessage.append(contentsOf: toCompileMessages)
             backToQueueMessages.locationMessage.append(contentsOf: toQueueMessages)
         }
         
-        if (tempClientMessage!.step.count > 0) {
+        if tempClientMessage!.circularGeoFenceEvents.count > 0 {
+            Log.verbose ("Found geofence event messages in queue")
+            
+            let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) =
+                self.checkGeofenceTypeMessages(tempClientMessage!.circularGeoFenceEvents, subMessageCounter: subMessageCounter)
+            
+            subMessageCounter = actualizedSubmessageCounter
+            compiledClientMessage.circularGeoFenceEvents.append(contentsOf: toCompileMessages)
+            backToQueueMessages.circularGeoFenceEvents.append(contentsOf: toQueueMessages)
+        }
+        
+        if tempClientMessage!.step.count > 0 {
             Log.verbose ("Found step messages in queue")
             
-            let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self.checkStepsTypeMessages(tempClientMessage!.step, subMessageCounter: subMessageCounter)
+            let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) =
+                self.checkStepsTypeMessages(tempClientMessage!.step, subMessageCounter: subMessageCounter)
             
             subMessageCounter = actualizedSubmessageCounter
             compiledClientMessage.step.append(contentsOf: toCompileMessages)
             backToQueueMessages.step.append(contentsOf: toQueueMessages)
         }
         
-        if (tempClientMessage!.bluetoothMessage.count > 0) {
+        if tempClientMessage!.bluetoothMessage.count > 0 {
             Log.verbose ("Found bluetooth messages in queue")
             
-            let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self.checkBluetoothTypeMessages(tempClientMessage!.bluetoothMessage, subMessageCounter: subMessageCounter)
+            let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) =
+                self.checkBluetoothTypeMessages(tempClientMessage!.bluetoothMessage, subMessageCounter: subMessageCounter)
             
             subMessageCounter = actualizedSubmessageCounter
             compiledClientMessage.bluetoothMessage.append(contentsOf: toCompileMessages)
             backToQueueMessages.bluetoothMessage.append(contentsOf: toQueueMessages)
         }
         
-        if (tempClientMessage!.ibeaconMessage.count > 0) {
+        if tempClientMessage!.ibeaconMessage.count > 0 {
             Log.verbose ("Found ibeacon messages in queue")
             
-            let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self.checkiBeaconTypeMessages(tempClientMessage!.ibeaconMessage, subMessageCounter: subMessageCounter)
+            let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) =
+                self.checkiBeaconTypeMessages(tempClientMessage!.ibeaconMessage, subMessageCounter: subMessageCounter)
             
             subMessageCounter = actualizedSubmessageCounter
             compiledClientMessage.ibeaconMessage.append(contentsOf: toCompileMessages)
             backToQueueMessages.ibeaconMessage.append(contentsOf: toQueueMessages)
         }
         
-        if (tempClientMessage!.eddystonemessage.count > 0) {
+        if tempClientMessage!.eddystonemessage.count > 0 {
             Log.verbose ("Found eddystone messages in queue")
             
-            let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self.checkEddystoneTypeMessages(tempClientMessage!.eddystonemessage, subMessageCounter: subMessageCounter)
+            let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) =
+                self.checkEddystoneTypeMessages(tempClientMessage!.eddystonemessage, subMessageCounter: subMessageCounter)
             
             subMessageCounter = actualizedSubmessageCounter
             compiledClientMessage.eddystonemessage.append(contentsOf: toCompileMessages)
             backToQueueMessages.eddystonemessage.append(contentsOf: toQueueMessages)
         }
         
-        
-        if (tempClientMessage!.alias.count > 0) {
+        if tempClientMessage!.alias.count > 0 {
             Log.verbose ("Found alias messages in queue")
             
-            let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self.checkAliasesTypeMessages(tempClientMessage!.alias, subMessageCounter: subMessageCounter)
+            let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) =
+                self.checkAliasesTypeMessages(tempClientMessage!.alias, subMessageCounter: subMessageCounter)
             
             subMessageCounter = actualizedSubmessageCounter
             compiledClientMessage.alias.append(contentsOf: toCompileMessages)
             backToQueueMessages.alias.append(contentsOf: toQueueMessages)
         }
         
-        if (tempClientMessage!.hasIosCapability){
+        if tempClientMessage!.hasIosCapability {
             Log.verbose ("Found iosCapability messages in queue")
             
-            let (actualizedSubmessageCounter, toCompileMessage, toQueueMessage) = self.checkMessageIOSCapability(tempClientMessage!.iosCapability, subMessageCounter: subMessageCounter)
+            let (actualizedSubmessageCounter, toCompileMessage, toQueueMessage) =
+                self.checkMessageIOSCapability(tempClientMessage!.iosCapability, subMessageCounter: subMessageCounter)
             
             subMessageCounter = actualizedSubmessageCounter
             if let newCompileMessage = toCompileMessage {
@@ -100,7 +116,9 @@ extension CCRequestMessaging {
             }
         }
         
-        let (actualizedSubmessageCounter, toCompileMessage) = self.checkMarkerMessage(tempClientMessage!, subMessageCounter: subMessageCounter)
+        let (actualizedSubmessageCounter, toCompileMessage) =
+            self.checkMarkerMessage(tempClientMessage!, subMessageCounter: subMessageCounter)
+        
         subMessageCounter = actualizedSubmessageCounter
         if let newCompileMessage = toCompileMessage {
             Log.verbose ("Found marker messages in queue")
@@ -117,26 +135,23 @@ extension CCRequestMessaging {
     
     public func checkLocationTypeMessages(_ messages: [Messaging_LocationMessage],
                                           subMessageCounter: Int) -> (Int, [Messaging_LocationMessage], [Messaging_LocationMessage]) {
-        
         var clientMessagesToCompile = [Messaging_LocationMessage]()
         var messagesToQueue = [Messaging_LocationMessage]()
         var subMessageNo = subMessageCounter
         
         for tempLocationMessage in messages {
-            
             var locationMessage = Messaging_LocationMessage()
             
             locationMessage.longitude = tempLocationMessage.longitude
             locationMessage.latitude = tempLocationMessage.latitude
             locationMessage.horizontalAccuracy = tempLocationMessage.horizontalAccuracy
+            locationMessage.timestamp = tempLocationMessage.timestamp
             
-            if (tempLocationMessage.hasAltitude){
+            if tempLocationMessage.hasAltitude {
                 locationMessage.altitude = tempLocationMessage.altitude
             }
             
-            locationMessage.timestamp = tempLocationMessage.timestamp
-            
-            if (subMessageNo >= 0) {
+            if subMessageNo >= 0 {
                 clientMessagesToCompile.append(locationMessage)
             } else {
                 messagesToQueue.append(locationMessage)
@@ -148,21 +163,46 @@ extension CCRequestMessaging {
         return (subMessageNo, clientMessagesToCompile, messagesToQueue)
     }
     
+    public func checkGeofenceTypeMessages (_ messages: [Messaging_CircularGeoFenceEvent],
+                                           subMessageCounter: Int) -> (Int, [Messaging_CircularGeoFenceEvent], [Messaging_CircularGeoFenceEvent]) {
+        var clientMessagesToCompile = [Messaging_CircularGeoFenceEvent]()
+        var messagesToQueue = [Messaging_CircularGeoFenceEvent]()
+        var subMessageNo = subMessageCounter
+        
+        for tempGeofenceMessage in messages {
+            var geofenceMessage = Messaging_CircularGeoFenceEvent()
+            
+            geofenceMessage.longitude = tempGeofenceMessage.longitude
+            geofenceMessage.latitude = tempGeofenceMessage.latitude
+            geofenceMessage.radius = tempGeofenceMessage.radius
+            
+            //TODO Add identifier and type later
+            
+            if subMessageNo >= 0 {
+                clientMessagesToCompile.append(geofenceMessage)
+            } else {
+                messagesToQueue.append(geofenceMessage)
+            }
+            
+            subMessageNo += 1
+        }
+        
+        return (subMessageNo, clientMessagesToCompile, messagesToQueue)
+    }
+    
     public func checkStepsTypeMessages(_ messages: [Messaging_Step],
                                        subMessageCounter: Int) -> (Int, [Messaging_Step], [Messaging_Step]) {
-        
         var clientMessagesToCompile = [Messaging_Step]()
         var messagesToQueue = [Messaging_Step]()
         var subMessageNo = subMessageCounter
         
         for tempStepMessage in messages {
-            
             var stepMessage = Messaging_Step()
             
             stepMessage.timestamp = tempStepMessage.timestamp
             stepMessage.angle = tempStepMessage.angle
             
-            if (subMessageCounter >= 0) {
+            if subMessageCounter >= 0 {
                 clientMessagesToCompile.append(stepMessage)
             } else {
                 messagesToQueue.append(stepMessage)
@@ -176,13 +216,11 @@ extension CCRequestMessaging {
     
     public func checkBluetoothTypeMessages(_ messages: [Messaging_Bluetooth],
                                            subMessageCounter: Int) -> (Int, [Messaging_Bluetooth], [Messaging_Bluetooth]) {
-        
         var clientMessagesToCompile = [Messaging_Bluetooth]()
         var messagesToQueue = [Messaging_Bluetooth]()
         var subMessageNo = subMessageCounter
         
         for tempBluetoothMessage in messages {
-            
             var bluetoothMessage = Messaging_Bluetooth()
             
             bluetoothMessage.identifier = tempBluetoothMessage.identifier
@@ -190,7 +228,7 @@ extension CCRequestMessaging {
             bluetoothMessage.tx = tempBluetoothMessage.tx
             bluetoothMessage.timestamp = tempBluetoothMessage.timestamp
             
-            if (subMessageCounter >= 0) {
+            if subMessageCounter >= 0 {
                 clientMessagesToCompile.append(bluetoothMessage)
             } else {
                 messagesToQueue.append(bluetoothMessage)
@@ -204,13 +242,11 @@ extension CCRequestMessaging {
     
     public func checkiBeaconTypeMessages(_ messages: [Messaging_IBeacon],
                                          subMessageCounter: Int) -> (Int, [Messaging_IBeacon], [Messaging_IBeacon]) {
-        
         var clientMessagesToCompile = [Messaging_IBeacon]()
         var messagesToQueue = [Messaging_IBeacon]()
         var subMessageNo = subMessageCounter
         
         for tempIbeaconMessage in messages {
-            
             var ibeaconMessage = Messaging_IBeacon()
             
             ibeaconMessage.uuid = tempIbeaconMessage.uuid
@@ -221,7 +257,7 @@ extension CCRequestMessaging {
             ibeaconMessage.timestamp = tempIbeaconMessage.timestamp
             ibeaconMessage.proximity = tempIbeaconMessage.proximity
             
-            if (subMessageCounter >= 0) {
+            if subMessageCounter >= 0 {
                 clientMessagesToCompile.append(ibeaconMessage)
             } else {
                 messagesToQueue.append(ibeaconMessage)
@@ -235,13 +271,11 @@ extension CCRequestMessaging {
     
     public func checkEddystoneTypeMessages(_ messages: [Messaging_EddystoneBeacon],
                                            subMessageCounter: Int) -> (Int, [Messaging_EddystoneBeacon], [Messaging_EddystoneBeacon]) {
-        
         var clientMessagesToCompile = [Messaging_EddystoneBeacon]()
         var messagesToQueue = [Messaging_EddystoneBeacon]()
         var subMessageNo = subMessageCounter
         
         for tempEddyStoneMessage in messages {
-            
             var eddyStoneMessage = Messaging_EddystoneBeacon()
             
             eddyStoneMessage.eid = tempEddyStoneMessage.eid
@@ -249,7 +283,7 @@ extension CCRequestMessaging {
             eddyStoneMessage.timestamp = tempEddyStoneMessage.timestamp
             eddyStoneMessage.tx = tempEddyStoneMessage.tx
             
-            if (subMessageCounter >= 0) {
+            if subMessageCounter >= 0 {
                 clientMessagesToCompile.append(eddyStoneMessage)
             } else {
                 messagesToQueue.append(eddyStoneMessage)
@@ -263,19 +297,17 @@ extension CCRequestMessaging {
     
     public func checkAliasesTypeMessages(_ messages: [Messaging_AliasMessage],
                                          subMessageCounter: Int) -> (Int, [Messaging_AliasMessage], [Messaging_AliasMessage]) {
-        
         var clientMessagesToCompile = [Messaging_AliasMessage]()
         var messagesToQueue = [Messaging_AliasMessage]()
         var subMessageNo = subMessageCounter
         
         for tempAliasMessage in messages {
-            
             var aliasMessage = Messaging_AliasMessage()
             
             aliasMessage.key = tempAliasMessage.key
             aliasMessage.value = tempAliasMessage.value
             
-            if (subMessageCounter >= 0) {
+            if subMessageCounter >= 0 {
                 clientMessagesToCompile.append(aliasMessage)
             } else {
                 messagesToQueue.append(aliasMessage)
@@ -289,7 +321,6 @@ extension CCRequestMessaging {
     
     public func checkMessageIOSCapability(_ message: Messaging_IosCapability,
                                           subMessageCounter: Int) -> (Int, Messaging_IosCapability?, Messaging_IosCapability?) {
-        
         let subMessageNo = subMessageCounter
         var capabilityMessage = Messaging_IosCapability()
         let tempCapabilityMessage = message
@@ -297,24 +328,20 @@ extension CCRequestMessaging {
         if tempCapabilityMessage.hasLocationServices {
             capabilityMessage.locationServices = tempCapabilityMessage.locationServices
         }
-        
         if tempCapabilityMessage.hasLowPowerMode {
             capabilityMessage.lowPowerMode = tempCapabilityMessage.lowPowerMode
         }
-        
         if tempCapabilityMessage.hasLocationAuthStatus {
             capabilityMessage.locationAuthStatus = tempCapabilityMessage.locationAuthStatus
         }
-        
         if tempCapabilityMessage.hasBluetoothHardware {
             capabilityMessage.bluetoothHardware = tempCapabilityMessage.bluetoothHardware
         }
-        
         if tempCapabilityMessage.hasBatteryState {
             capabilityMessage.batteryState = tempCapabilityMessage.batteryState
         }
         
-        if (subMessageNo >= 0) {
+        if subMessageNo >= 0 {
             return (subMessageNo + 1, capabilityMessage, nil)
         } else {
             return (subMessageNo + 1, nil, capabilityMessage)
@@ -323,8 +350,7 @@ extension CCRequestMessaging {
     
     public func checkMarkerMessage(_ message: Messaging_ClientMessage,
                                    subMessageCounter: Int) -> (Int, Messaging_MarkerMessage?) {
-        
-        if (message.hasMarker){
+        if message.hasMarker {
             var markerMessage = Messaging_MarkerMessage()
             
             markerMessage.data = message.marker.data
@@ -337,13 +363,15 @@ extension CCRequestMessaging {
     }
     
     public func checkNewBatteryLevelTypeMessage() -> (Messaging_Battery?) {
-        
         var newBatteryMessage: Messaging_Battery? = nil
-        if let isNewBatteryLevel = self.stateStore.state.batteryLevelState.isNewBatteryLevel {
+        guard let stateStore = self.stateStore else {
+            return nil
+        }
+        if let isNewBatteryLevel = stateStore.state.batteryLevelState.isNewBatteryLevel {
             if isNewBatteryLevel {
                 var batteryMessage = Messaging_Battery()
                 
-                if let batteryLevel = self.stateStore.state.batteryLevelState.batteryLevel {
+                if let batteryLevel = stateStore.state.batteryLevelState.batteryLevel {
                     batteryMessage.battery = batteryLevel
                     newBatteryMessage = batteryMessage
                     DispatchQueue.main.async {self.stateStore.dispatch(BatteryLevelReportedAction())}

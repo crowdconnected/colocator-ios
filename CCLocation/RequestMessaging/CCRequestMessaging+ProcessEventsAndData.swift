@@ -15,8 +15,7 @@ import CoreBluetooth
 
 extension CCRequestMessaging {
     
-    public func processIBeaconEvent(uuid:UUID, major:Int, minor:Int, rssi:Int, accuracy:Double, proximity:Int, timestamp:TimeInterval){
-        
+    public func processIBeaconEvent(uuid: UUID, major: Int, minor: Int, rssi: Int, accuracy: Double, proximity: Int, timestamp: TimeInterval) {
         let uuidData = uuid.uuidString.data(using: .utf8)
         
         var clientMessage = Messaging_ClientMessage()
@@ -27,22 +26,19 @@ extension CCRequestMessaging {
         iBeaconMessage.minor = UInt32(minor)
         iBeaconMessage.rssi = Int32(rssi)
         iBeaconMessage.accuracy = accuracy
-        
         iBeaconMessage.timestamp = UInt64(timestamp * 1000)
-        
         iBeaconMessage.proximity = UInt32(proximity)
         
         clientMessage.ibeaconMessage.append(iBeaconMessage)
         
-        Log.debug("iBeacon message built: \(clientMessage)")
+        Log.verbose("iBeacon message built: \(clientMessage)")
         
-        if let data = try? clientMessage.serializedData(){
+        if let data = try? clientMessage.serializedData() {
             sendOrQueueClientMessage(data: data, messageType: .queueable)
         }
     }
     
-    public func processEddystoneEvent(eid:Data, tx:Int, rssi:Int, timestamp:TimeInterval){
-        
+    public func processEddystoneEvent(eid: Data, tx: Int, rssi: Int, timestamp: TimeInterval) {
         var clientMessage = Messaging_ClientMessage()
         var eddyStoneMessage = Messaging_EddystoneBeacon()
         
@@ -53,15 +49,14 @@ extension CCRequestMessaging {
         
         clientMessage.eddystonemessage.append(eddyStoneMessage)
         
-        Log.debug("Eddystone beacon message build: \(clientMessage)")
+        Log.verbose("Eddystone beacon message build: \(clientMessage)")
         
-        if let data = try? clientMessage.serializedData(){
+        if let data = try? clientMessage.serializedData() {
             sendOrQueueClientMessage(data: data, messageType: .queueable)
         }
     }
     
-    public func processBluetoothEvent(uuid:UUID, rssi:Int, timeInterval:TimeInterval) {
-        
+    public func processBluetoothEvent(uuid: UUID, rssi: Int, timeInterval: TimeInterval) {
         let uuidData = uuid.uuidString.data(using: .utf8)
         
         var clientMessage = Messaging_ClientMessage()
@@ -74,7 +69,7 @@ extension CCRequestMessaging {
         
         clientMessage.bluetoothMessage.append(bluetoothMessage)
         
-        Log.debug ("Bluetooth message build: \(clientMessage)")
+        Log.verbose("Bluetooth message build: \(clientMessage)")
         
         if let data = try? clientMessage.serializedData() {
             sendOrQueueClientMessage(data: data, messageType: .queueable)
@@ -82,13 +77,12 @@ extension CCRequestMessaging {
     }
     
     public func processLocationEvent(location: CLLocation) {
-        
         let userDefaults = UserDefaults.standard
         
         var clientMessage = Messaging_ClientMessage()
         var locationMessage = Messaging_LocationMessage()
         
-        var counter = userDefaults.integer(forKey: CCRequestMessagingConstants.messageCounter)
+        var counter = userDefaults.integer(forKey: CCRequestMessagingConstants.kMessageCounter)
         
         if counter < Int.max {
             counter = counter + 1
@@ -104,21 +98,19 @@ extension CCRequestMessaging {
         locationMessage.speed = 1
         
         // a negative value for vertical accuracy indicates that the altitude value is invalid
-        if (location.verticalAccuracy >= 0){
+        if location.verticalAccuracy >= 0 {
             locationMessage.altitude = location.altitude
         }
         
         let trueTimeSame = timeHandling.isRebootTimeSame(stateStore: stateStore, ccSocket: ccSocket)
         
-        if ((stateStore.state.ccRequestMessagingState.libraryTimeState?.lastTrueTime) != nil || trueTimeSame) {
-            
-            let lastSystemTime = stateStore.state.ccRequestMessagingState.libraryTimeState?.systemTimeAtLastTrueTime
-            
+        if stateStore.state.ccRequestMessagingState.libraryTimeState?.lastTrueTime != nil || trueTimeSame {
+            let libraryTimeState = stateStore.state.ccRequestMessagingState.libraryTimeState
+            let lastSystemTime = libraryTimeState?.systemTimeAtLastTrueTime
             let currentTime = Date()
-            
             let beetweenSystemsTimeInterval = currentTime.timeIntervalSince(lastSystemTime!)
             
-            let sendTimeInterval = stateStore.state.ccRequestMessagingState.libraryTimeState?.lastTrueTime?.addingTimeInterval(beetweenSystemsTimeInterval).timeIntervalSince1970
+            let sendTimeInterval = libraryTimeState?.lastTrueTime?.addingTimeInterval(beetweenSystemsTimeInterval).timeIntervalSince1970
             
             locationMessage.timestamp = UInt64(sendTimeInterval! * 1000)
             
@@ -131,16 +123,36 @@ extension CCRequestMessaging {
         
         clientMessage.locationMessage.append(locationMessage)
         
-        Log.debug("Location message build: \(clientMessage)")
+        Log.verbose("Location message build: \(clientMessage)")
         
-        if let data = try? clientMessage.serializedData(){
-            userDefaults.set(counter, forKey: CCRequestMessagingConstants.messageCounter)
+        if let data = try? clientMessage.serializedData() {
+            userDefaults.set(counter, forKey: CCRequestMessagingConstants.kMessageCounter)
+            sendOrQueueClientMessage(data: data, messageType: .queueable)
+        }
+    }
+    
+    public func processGeofenceEvent(type: Int, region: CLCircularRegion) {
+        var clientMessage = Messaging_ClientMessage()
+        var geofenceEventMessage = Messaging_CircularGeoFenceEvent()
+        
+        geofenceEventMessage.latitude = region.center.latitude
+        geofenceEventMessage.longitude = region.center.longitude
+        geofenceEventMessage.radius = region.radius
+        
+        if type == 1 || type == 2 {
+            geofenceEventMessage.type = Messaging_CircularGeoFenceEvent.TypeEnum(rawValue: type)!
+        }
+        
+        clientMessage.circularGeoFenceEvents.append(geofenceEventMessage)
+        
+        Log.verbose("Geofence message build: \(clientMessage)")
+        
+        if let data = try? clientMessage.serializedData() {
             sendOrQueueClientMessage(data: data, messageType: .queueable)
         }
     }
     
     public func processStep(date: Date, angle: Double) {
-        
         var clientMessage = Messaging_ClientMessage()
         var stepMessage = Messaging_Step()
         
@@ -148,32 +160,29 @@ extension CCRequestMessaging {
         
         let trueTimeSame = timeHandling.isRebootTimeSame(stateStore: stateStore, ccSocket: ccSocket)
         
-        if ((stateStore.state.ccRequestMessagingState.libraryTimeState?.lastTrueTime) != nil || trueTimeSame) {
-            
-            let lastSystemTime = stateStore.state.ccRequestMessagingState.libraryTimeState?.systemTimeAtLastTrueTime
-            
+        if stateStore.state.ccRequestMessagingState.libraryTimeState?.lastTrueTime != nil || trueTimeSame {
+            let libraryTimeState = stateStore.state.ccRequestMessagingState.libraryTimeState
+            let lastSystemTime = libraryTimeState?.systemTimeAtLastTrueTime
             let beetweenSystemsTimeInterval = date.timeIntervalSince(lastSystemTime!)
             
-            let sendTimeInterval = stateStore.state.ccRequestMessagingState.libraryTimeState?.lastTrueTime?.addingTimeInterval(beetweenSystemsTimeInterval).timeIntervalSince1970
+            let sendTimeInterval = libraryTimeState?.lastTrueTime?.addingTimeInterval(beetweenSystemsTimeInterval).timeIntervalSince1970
             
             stepMessage.timestamp = UInt64(sendTimeInterval! * 1000)
         }
         
         clientMessage.step.append(stepMessage)
         
-        Log.debug("Step message build: \(clientMessage)")
+        Log.verbose("Step message build: \(clientMessage)")
         
-        if let data = try? clientMessage.serializedData(){
+        if let data = try? clientMessage.serializedData() {
             sendOrQueueClientMessage(data: data, messageType: .queueable)
         }
     }
     
-    public func processAliases(aliases:Dictionary<String,String>) {
-        
+    public func processAliases(aliases: Dictionary<String,String>) {
         var clientMessage = Messaging_ClientMessage()
         
-        for key in aliases.keys{
-            
+        for key in aliases.keys {
             var aliasMessage = Messaging_AliasMessage()
             
             aliasMessage.key = key
@@ -182,17 +191,15 @@ extension CCRequestMessaging {
             clientMessage.alias.append(aliasMessage)
         }
         
-        Log.debug("Alias message build: \(clientMessage)")
+        Log.verbose("Alias message build: \(clientMessage)")
         
         if let data = try? clientMessage.serializedData() {
             sendOrQueueClientMessage(data: data, messageType: .discardable)
         }
     }
     
-    public func processMarker(data:String) {
-        
+    public func processMarker(data: String) {
         if let timeInterval = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {
-            
             var clientMessage = Messaging_ClientMessage()
             var markerMessage = Messaging_MarkerMessage()
             
@@ -201,7 +208,7 @@ extension CCRequestMessaging {
             
             clientMessage.marker = markerMessage
             
-            Log.debug("Marker message build: \(clientMessage)")
+            Log.verbose("Marker message build: \(clientMessage)")
             
             if let data = try? clientMessage.serializedData() {
                 sendOrQueueClientMessage(data: data, messageType: .queueable)

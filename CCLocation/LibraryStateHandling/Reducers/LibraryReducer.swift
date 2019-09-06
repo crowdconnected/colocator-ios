@@ -50,9 +50,11 @@ func libraryReducer(action: Action, state: LibraryState?) -> LibraryState {
             saveCurrentGEOSateToUserDefaults(geoState: state.locationSettingsState.currentLocationState?.currentGEOState)
         }
         
+    case let enableGeofencesMonitoringAction as EnableGeofencesMonitoringAction:
+        state.locationSettingsState.currentLocationState?.currentGeofencesMonitoringState?.monitoringGeofences = enableGeofencesMonitoringAction.geofences!
+        
     case let enableiBeaconMonitoringAction as EnableCurrentiBeaconMonitoringAction:
         state.locationSettingsState.currentLocationState?.currentiBeaconMonitoringState?.monitoringRegions = enableiBeaconMonitoringAction.monitoringRegions!
-        
         
     case let enableForegroundiBeaconAction as EnableForegroundBeaconAction:
 

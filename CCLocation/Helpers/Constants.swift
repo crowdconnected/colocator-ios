@@ -9,34 +9,43 @@
 import Foundation
 
 struct CCLocationTables {
-    static let IBEACON_MESSAGES_TABLE = "IBEACONMESSAGES"
-    static let EDDYSTONE_BEACON_MESSAGES_TABLE = "EDDYSTONEBEACONMESSAGES"
-    static let MESSAGES_TABLE = "MESSAGES"
+    static let kIBeaconMessagesTable = "IBEACONMESSAGES"
+    static let kEddystoneBeaconMessagesTable = "EDDYSTONEBEACONMESSAGES"
+    static let kMessagesTable = "MESSAGES"
 }
 
 struct CCLocationMessageType {
-    static let SYSTEM_SETTINGS = "SYSTEM_SETTINGS"
+    static let kSystemSettings = "SYSTEM_SETTINGS"
 }
 
 struct CCLocationConstants {
-    static let MAX_QUEUE_SIZE = 100000
+    static let kMaxQueueSize = 100000
 }
 
 struct CCSocketConstants {
-    static let LIBRARY_VERSION_TO_REPORT = "2.2.1"
-    static let LAST_DEVICE_ID_KEY = "LastDeviceId"
-    static let MIN_DELAY: Double = 1 * 1000
-    static let MAX_DELAY: Double = 60 * 60 * 1000
-    static let MAX_CYCLE_DELAY: Double = 24 * 60 * 60 * 1000
-    static let WS_PREFIX = "wss://"
-    static let ALIAS_KEY = "Aliases"
+    static let kLibraryVersionToReport = "2.2.1"
+    static let kLastDeviceIDKey = "LastDeviceId"
+    static let kMinDelay: Double = 1 * 1000
+    static let kMaxDelay: Double = 60 * 60 * 1000
+    static let kMaxCycleDelay: Double = 24 * 60 * 60 * 1000
+    static let kWsPrefix = "wss://"
+    static let kAliasKey = "Aliases"
+}
+
+struct TimerHandlingConstants {
+    static let kMaxDifferenceAllowedBetweenSystemTimeAndBootTime: Double = 30
+}
+
+struct ColocatorManagerConstants {
+    static let kMaxTimeSendingDataAtStop = 120 // seconds
 }
 
 struct CCRequestMessagingConstants {
-    static let messageCounter = "messageCounterKey"
+    static let kMessageCounter = "messageCounterKey"
+    static let kNotAvaialble = "Not Available"
 }
 
 struct CCInertialConstants {
-    static let bufferSize = 500 // do not make smaller than 50
-    static let cutOff = 100
+    static let kBufferSize = 500 // do not make smaller than 50
+    static let kCutOff = 100
 }

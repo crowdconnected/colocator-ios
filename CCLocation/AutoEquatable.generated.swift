@@ -128,6 +128,12 @@ public func == (lhs: CurrentiBeaconMonitoringState, rhs: CurrentiBeaconMonitorin
     guard lhs.monitoringRegions == rhs.monitoringRegions else { return false }
     return true
 }
+// MARK: - CurrentGeofencesMonitoringState AutoEquatable
+extension CurrentGeofencesMonitoringState: Equatable {}
+public func == (lhs: CurrentGeofencesMonitoringState, rhs: CurrentGeofencesMonitoringState) -> Bool {
+    guard lhs.monitoringGeofences == rhs.monitoringGeofences else { return false }
+    return true
+}
 // MARK: - ForegroundGEOState AutoEquatable
 extension ForegroundGEOState: Equatable {}
 internal func == (lhs: ForegroundGEOState, rhs: ForegroundGEOState) -> Bool {

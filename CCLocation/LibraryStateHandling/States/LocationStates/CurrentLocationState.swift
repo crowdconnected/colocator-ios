@@ -10,6 +10,7 @@ import ReSwift
 
 public struct CurrentLocationState: StateType, AutoEquatable {
     var currentGEOState: CurrentGEOState?
+    var currentGeofencesMonitoringState: CurrentGeofencesMonitoringState?
     var currentBeaconState: CurrentBeaconState?
     var currentiBeaconMonitoringState: CurrentiBeaconMonitoringState?
     var wakeupState: WakeupState?

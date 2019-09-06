@@ -8,10 +8,12 @@
 
 import Foundation
 import ReSwift
+import CoreBluetooth
 import CoreMotion
 
 internal struct Constants {
-    static let DEFAULT_END_POINT_PARTIAL_URL = ".colocator.net:443/socket"
+    static let kDefaultEndPointPartialUrl = ".colocator.net:443/socket"
+    static let kEndPointUpdateLibraryBackgroundUrl = "https://canconnect.colocator.net/connect/connectping"
 }
 
 @objc public protocol CCLocationDelegate: class {
@@ -45,7 +47,7 @@ internal struct Constants {
             
             Log.info("[Colocator] Initialising Colocator")
             
-            var tempUrlString = apiKey + Constants.DEFAULT_END_POINT_PARTIAL_URL
+            var tempUrlString = apiKey + Constants.kDefaultEndPointPartialUrl
             
             if urlString != nil {
                 tempUrlString = urlString!
@@ -55,8 +57,6 @@ internal struct Constants {
                 reducer: libraryReducer,
                 state: nil
             )
-            
-            Log.info("[Colocator] Attempt to connect to back-end with URL: \(tempUrlString) and APIKey: \(apiKey)")
             
             colocatorManager = ColocatorManager.sharedInstance
             colocatorManager?.start(urlString: tempUrlString,
@@ -106,8 +106,82 @@ internal struct Constants {
         colocatorManager?.sendMarker(data: message)
     }
     
-    @objc public func setAliases(aliases:Dictionary<String, String>) {
+    @available(*, deprecated, message: "Replaced by addAlias(key, value) method")
+    @objc public func setAliases(aliases: Dictionary<String, String>) {
         colocatorManager?.setAliases(aliases: aliases)
+    }
+    
+    @objc public func addAlias(key: String, value: String) {
+        colocatorManager?.addAlias(key: key, value: value)
+    }
+    
+    @objc public func triggerBluetoothPermissionPopUp() {
+        var centralManager: CBCentralManager? = nil
+        centralManager = CBCentralManager(delegate: nil,
+                                          queue: nil,
+                                          options: [CBCentralManagerOptionShowPowerAlertKey: false])
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+            centralManager?.delegate = nil
+            centralManager = nil
+        })
+    }
+    
+    @objc public func receivedSilentNotification(userInfo: [AnyHashable : Any], clientKey key: String) {
+        updateLibraryBasedOnClientStatus(clientKey: key, isSilentNotification: true) { _ in
+            // UpdateLibrary method will start or stop the library depending on the server response
+            // There's no need to do anything in the completion
+        }
+    }
+    
+    @objc public func updateLibraryBasedOnClientStatus(clientKey key: String, isSilentNotification: Bool = false, completion: @escaping (Bool) -> Void) {
+        let endpointUrlString = Constants.kEndPointUpdateLibraryBackgroundUrl
+        let deviceID = getDeviceId() ?? ""
+        let wakeUpSource = isSilentNotification ? "SPN" : "BR"
+        
+         var urlComponents = URLComponents(string: endpointUrlString)
+        urlComponents?.queryItems = [URLQueryItem(name: "app", value: key),
+                                     URLQueryItem(name: "deviceID", value: deviceID),
+                                     URLQueryItem(name: "wakeUp", value: wakeUpSource)]
+        
+        guard let requestURL = urlComponents?.url  else {
+            completion(false)
+            return
+        }
+        var request = URLRequest(url: requestURL)
+        request.httpMethod = "GET"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        Log.info("Background Refresh Event detected - Checking client status for \(key.uppercased())")
+        
+        URLSession.shared.dataTask(with: request) { (data, response, err) in
+            guard err == nil, let dataResponse = data else {
+                completion(false)
+                return
+            }
+            
+            do {
+                let jsonResponse = try JSONSerialization.jsonObject(with: dataResponse, options: []) as? [String: Any]
+                let clientStatus = jsonResponse?["connect"] as? Bool
+                
+                if clientStatus == true {
+                    self.start(apiKey: key)
+                    Log.info("Library started from background")
+                    completion(true)
+                    return
+                }
+                if clientStatus == false {
+                    self.stop()
+                    Log.info("Library stopped from background")
+                    completion(false)
+                    return
+                }
+                completion(false)
+                
+            } catch let parsingError {
+                completion(false)
+                Log.warning("Failed to get client's status in background. Error: \(parsingError)")
+            }
+        }.resume()
     }
 }
 

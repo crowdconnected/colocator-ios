@@ -33,6 +33,9 @@ class ColocatorManager {
     private let iBeaconMessagesDBName = "iBeaconMessages.db"
     private let eddystoneBeaconMessagesDBName = "eddystoneMessages.db"
     
+    var stopLibraryTimer: Timer?
+    var secondsFromStopTrigger = 0
+    
     public static let sharedInstance: ColocatorManager = {
         let instance = ColocatorManager()
         instance.openLocalDatabase()
@@ -45,8 +48,15 @@ class ColocatorManager {
                stateStore: Store<LibraryState>) {
         if !running {
             running = true
+            
+            if stopLibraryTimer != nil {
+                destroyConnection()
+            }
+            stopLibraryTimer?.invalidate()
+            stopLibraryTimer = nil
+            
             startTime = Date()
-            deviceId = UserDefaults.standard.string(forKey: CCSocketConstants.LAST_DEVICE_ID_KEY)
+            deviceId = UserDefaults.standard.string(forKey: CCSocketConstants.kLastDeviceIDKey)
            
             ccServerURLString = urlString
             ccAPIKeyString = apiKey
@@ -63,6 +73,8 @@ class ColocatorManager {
             ccLocationManager!.delegate = self
             ccInertial!.delegate = self
             
+            Log.info("[Colocator] Attempt to connect to back-end with URL: \(urlString) and APIKey: \(apiKey)")
+                       
             ccSocket?.start(urlString: urlString,
                             apiKey: apiKey,
                             ccRequestMessaging: ccRequestMessaging!)
@@ -89,25 +101,90 @@ class ColocatorManager {
             ccLocationManager?.stop()
             ccLocationManager?.delegate = nil
             ccLocationManager = nil
-            ccRequestMessaging = nil
             
-            ccSocket?.stop()
-            ccSocket?.delegate = nil
-            ccSocket = nil
-            
-            Log.debug("[Colocator] Stopping Colocator")
+            Log.info("Sending all messages from local database to server before stopping")
+        
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                self.ccRequestMessaging?.sendQueuedMessagesAndStopTimer()
+            }
+        
+            stopLibraryTimer = Timer.scheduledTimer(timeInterval: 1.0,
+                                                    target: self,
+                                                    selector: #selector(checkDatabaseAndStopLibrary),
+                                                    userInfo: nil,
+                                                    repeats: true)
         }
+    }
+    
+    @objc private func checkDatabaseAndStopLibrary() {
+        secondsFromStopTrigger += 1
+        
+        if secondsFromStopTrigger > ColocatorManagerConstants.kMaxTimeSendingDataAtStop {
+            let leftMessages = ccRequestMessaging?.getMessageCount() ?? 0
+            Log.warning("Library stopped. \(leftMessages) unsent messages")
+            
+            destroyConnection()
+            secondsFromStopTrigger = 0
+            return
+        }
+        
+        if checkDatabaseEmptiness() {
+            destroyConnection()
+        }
+    }
+    
+    private func checkDatabaseEmptiness() -> Bool {
+        if let messagesLeft = ccRequestMessaging?.getMessageCount() {
+            return messagesLeft == 0
+        }
+        return true
+    }
+    
+    private func destroyConnection() {
+        stopLibraryTimer?.invalidate()
+        stopLibraryTimer = nil
+        
+        ccRequestMessaging?.stop()
+        ccRequestMessaging = nil
+        
+        ccSocket?.stop()
+        ccSocket?.delegate = nil
+        ccSocket = nil
+        
+        Log.info("[Colocator] Active back-end connection destroyed")
     }
     
     public func stopLocationObservations() {
         ccLocationManager?.stopAllLocationObservations()
+        ccLocationManager?.updateGEOAndBeaconStatesWithoutObservations()
     }
     
     public func setAliases(aliases: Dictionary<String, String>) {
-        UserDefaults.standard.set(aliases, forKey: CCSocketConstants.ALIAS_KEY)
+        UserDefaults.standard.set(aliases, forKey: CCSocketConstants.kAliasKey)
         if let ccRequestMessaging = self.ccRequestMessaging {
             ccRequestMessaging.processAliases(aliases: aliases)
         }
+    }
+    
+    public func addAlias(key: String, value: String) {
+        let alias = [key: value]
+        updateAliasesInUserDefaults(alias)
+        if let ccRequestMessaging = self.ccRequestMessaging {
+            ccRequestMessaging.processAliases(aliases: alias)
+        }
+    }
+    
+    private func updateAliasesInUserDefaults(_ alias: Dictionary<String, String>) {
+        let defaults = UserDefaults.standard
+        
+        var newAliasesDictionary: Dictionary<String, String> = [:]
+        if let oldAliases = defaults.value(forKey: CCSocketConstants.kAliasKey) as? Dictionary<String, String> {
+            newAliasesDictionary = oldAliases
+        }
+        for (key, value) in alias {
+            newAliasesDictionary.updateValue(value, forKey: key)
+        }
+        defaults.setValue(newAliasesDictionary, forKey: CCSocketConstants.kAliasKey)
     }
     
     public func sendMarker(data: String) {
@@ -120,28 +197,34 @@ class ColocatorManager {
         Log.warning("Attempt to delete all the content inside the database")
         
         do {
-            try messagesDatabase.deleteMessages(messagesTable: CCLocationTables.MESSAGES_TABLE)
+            try messagesDatabase.deleteMessages(messagesTable: CCLocationTables.kMessagesTable)
         } catch {
             Log.error("Failed to delete messages content in database.")
         }
         
         do {
-            try   beaconsDatabase.deleteBeacons(beaconTable: CCLocationTables.IBEACON_MESSAGES_TABLE)
+            try   beaconsDatabase.deleteBeacons(beaconTable: CCLocationTables.kIBeaconMessagesTable)
         } catch {
             Log.error("Failed to delete beacons content in database.")
         }
-        
+
         do {
-            try eddystoneBeaconsDatabase.deleteBeacons(beaconTable: CCLocationTables.EDDYSTONE_BEACON_MESSAGES_TABLE)
+            try eddystoneBeaconsDatabase.deleteBeacons(beaconTable: CCLocationTables.kEddystoneBeaconMessagesTable)
         } catch {
             Log.error("Failed to delete eddystonebeacons content in database.")
         }
     }
     
     deinit {
-        messagesDatabase.close()
-        beaconsDatabase.close()
-        eddystoneBeaconsDatabase.close()
+        if messagesDatabase != nil {
+            messagesDatabase.close()
+        }
+        if beaconsDatabase != nil {
+            beaconsDatabase.close()
+        }
+        if eddystoneBeaconsDatabase != nil {
+            eddystoneBeaconsDatabase.close()
+        }
     }
 }
 
@@ -225,7 +308,7 @@ extension ColocatorManager {
     }
     
     func libraryVersion() -> String {
-        let libraryVersion = CCSocketConstants.LIBRARY_VERSION_TO_REPORT
+        let libraryVersion = CCSocketConstants.kLibraryVersionToReport
         return String(format: "&libVersion=%@" , libraryVersion)
     }
     
@@ -250,6 +333,10 @@ extension ColocatorManager {
 
 // MARK: - CCLocationManagerDelegate
 extension ColocatorManager: CCLocationManagerDelegate {
+    public func receivedGeofenceEvent(type: Int, region: CLCircularRegion) {
+        ccRequestMessaging?.processGeofenceEvent(type: type, region: region)
+    }
+    
     public func receivedEddystoneBeaconInfo(eid: NSString, tx: Int, rssi: Int, timestamp: TimeInterval) {
         let tempString = String(eid).hexa2Bytes
         ccRequestMessaging?.processEddystoneEvent(eid: NSData(bytes: tempString, length: tempString.count) as Data,

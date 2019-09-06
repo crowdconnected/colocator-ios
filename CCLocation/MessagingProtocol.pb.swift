@@ -102,6 +102,11 @@ struct Messaging_ServerMessage {
   /// Clears the value of `stop`. Subsequent reads from it will return its default value.
   mutating func clearStop() {_uniqueStorage()._stop = nil}
 
+  var locationResponses: [Messaging_ClientLocationResponse] {
+    get {return _storage._locationResponses}
+    set {_uniqueStorage()._locationResponses = newValue}
+  }
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   enum StopType: SwiftProtobuf.Enum {
@@ -233,37 +238,6 @@ struct Messaging_IosBeaconSettings {
   init() {}
 
   fileprivate var _storage = _StorageClass.defaultInstance
-}
-
-struct Messaging_IosInertialSettings {
-  // SwiftProtobuf.Message conformance is added in an extension below. See the
-  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
-  // methods supported on all messages.
-
-  var enabled: Bool {
-    get {return _enabled ?? false}
-    set {_enabled = newValue}
-  }
-  /// Returns true if `enabled` has been explicitly set.
-  var hasEnabled: Bool {return self._enabled != nil}
-  /// Clears the value of `enabled`. Subsequent reads from it will return its default value.
-  mutating func clearEnabled() {self._enabled = nil}
-
-  var interval: UInt32 {
-    get {return _interval ?? 0}
-    set {_interval = newValue}
-  }
-  /// Returns true if `interval` has been explicitly set.
-  var hasInterval: Bool {return self._interval != nil}
-  /// Clears the value of `interval`. Subsequent reads from it will return its default value.
-  mutating func clearInterval() {self._interval = nil}
-
-  var unknownFields = SwiftProtobuf.UnknownStorage()
-
-  init() {}
-
-  fileprivate var _enabled: Bool? = nil
-  fileprivate var _interval: UInt32? = nil
 }
 
 ///iOS Geo Settings
@@ -419,11 +393,88 @@ struct Messaging_IosGeoSettings {
   /// Clears the value of `backgroundGeo`. Subsequent reads from it will return its default value.
   mutating func clearBackgroundGeo() {_uniqueStorage()._backgroundGeo = nil}
 
+  var iosCircularGeoFences: [Messaging_IosCircularGeoFence] {
+    get {return _storage._iosCircularGeoFences}
+    set {_uniqueStorage()._iosCircularGeoFences = newValue}
+  }
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   init() {}
 
   fileprivate var _storage = _StorageClass.defaultInstance
+}
+
+struct Messaging_IosCircularGeoFence {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var latitude: Double {
+    get {return _latitude ?? 0}
+    set {_latitude = newValue}
+  }
+  /// Returns true if `latitude` has been explicitly set.
+  var hasLatitude: Bool {return self._latitude != nil}
+  /// Clears the value of `latitude`. Subsequent reads from it will return its default value.
+  mutating func clearLatitude() {self._latitude = nil}
+
+  var longitude: Double {
+    get {return _longitude ?? 0}
+    set {_longitude = newValue}
+  }
+  /// Returns true if `longitude` has been explicitly set.
+  var hasLongitude: Bool {return self._longitude != nil}
+  /// Clears the value of `longitude`. Subsequent reads from it will return its default value.
+  mutating func clearLongitude() {self._longitude = nil}
+
+  var radius: Double {
+    get {return _radius ?? 0}
+    set {_radius = newValue}
+  }
+  /// Returns true if `radius` has been explicitly set.
+  var hasRadius: Bool {return self._radius != nil}
+  /// Clears the value of `radius`. Subsequent reads from it will return its default value.
+  mutating func clearRadius() {self._radius = nil}
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+
+  fileprivate var _latitude: Double? = nil
+  fileprivate var _longitude: Double? = nil
+  fileprivate var _radius: Double? = nil
+}
+
+struct Messaging_IosInertialSettings {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var enabled: Bool {
+    get {return _enabled ?? false}
+    set {_enabled = newValue}
+  }
+  /// Returns true if `enabled` has been explicitly set.
+  var hasEnabled: Bool {return self._enabled != nil}
+  /// Clears the value of `enabled`. Subsequent reads from it will return its default value.
+  mutating func clearEnabled() {self._enabled = nil}
+
+  var interval: UInt32 {
+    get {return _interval ?? 0}
+    set {_interval = newValue}
+  }
+  /// Returns true if `interval` has been explicitly set.
+  var hasInterval: Bool {return self._interval != nil}
+  /// Clears the value of `interval`. Subsequent reads from it will return its default value.
+  mutating func clearInterval() {self._interval = nil}
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+
+  fileprivate var _enabled: Bool? = nil
+  fileprivate var _interval: UInt32? = nil
 }
 
 ///Top level wrapper for Android specific messages
@@ -468,6 +519,15 @@ struct Messaging_AndroidSettings {
   /// Clears the value of `foregroundService`. Subsequent reads from it will return its default value.
   mutating func clearForegroundService() {_uniqueStorage()._foregroundService = nil}
 
+  var inertialSettings: Messaging_AndroidInertialSettings {
+    get {return _storage._inertialSettings ?? Messaging_AndroidInertialSettings()}
+    set {_uniqueStorage()._inertialSettings = newValue}
+  }
+  /// Returns true if `inertialSettings` has been explicitly set.
+  var hasInertialSettings: Bool {return _storage._inertialSettings != nil}
+  /// Clears the value of `inertialSettings`. Subsequent reads from it will return its default value.
+  mutating func clearInertialSettings() {_uniqueStorage()._inertialSettings = nil}
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   init() {}
@@ -475,6 +535,7 @@ struct Messaging_AndroidSettings {
   fileprivate var _storage = _StorageClass.defaultInstance
 }
 
+///Android Geo Settings
 struct Messaging_AndroidGeoSettings {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -576,6 +637,7 @@ extension Messaging_AndroidGeoSettings.Priority: CaseIterable {
 
 #endif  // swift(>=4.2)
 
+///Android Beacon Settings
 struct Messaging_AndroidBeaconSettings {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -604,6 +666,7 @@ struct Messaging_AndroidBeaconSettings {
   fileprivate var _storage = _StorageClass.defaultInstance
 }
 
+///Android Wifi Settings
 struct Messaging_AndroidWifiSettings {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -665,6 +728,7 @@ struct Messaging_AndroidWifiSettings {
   fileprivate var _rttInterval: UInt64? = nil
 }
 
+///Cross platform Beacon / Bluetooth messages
 struct Messaging_BeaconRegion {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -1048,6 +1112,79 @@ struct Messaging_BeaconFilter {
   fileprivate var _maxObservations: UInt32? = nil
 }
 
+/// Android Inertial Settings
+struct Messaging_AndroidInertialSettings {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var enabled: Bool {
+    get {return _enabled ?? false}
+    set {_enabled = newValue}
+  }
+  /// Returns true if `enabled` has been explicitly set.
+  var hasEnabled: Bool {return self._enabled != nil}
+  /// Clears the value of `enabled`. Subsequent reads from it will return its default value.
+  mutating func clearEnabled() {self._enabled = nil}
+
+  var frequency: Messaging_AndroidInertialSettings.Frequency {
+    get {return _frequency ?? .fastest}
+    set {_frequency = newValue}
+  }
+  /// Returns true if `frequency` has been explicitly set.
+  var hasFrequency: Bool {return self._frequency != nil}
+  /// Clears the value of `frequency`. Subsequent reads from it will return its default value.
+  mutating func clearFrequency() {self._frequency = nil}
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  enum Frequency: SwiftProtobuf.Enum {
+    typealias RawValue = Int
+    case fastest // = 1
+    case game // = 2
+    case ui // = 3
+    case normal // = 4
+
+    init() {
+      self = .fastest
+    }
+
+    init?(rawValue: Int) {
+      switch rawValue {
+      case 1: self = .fastest
+      case 2: self = .game
+      case 3: self = .ui
+      case 4: self = .normal
+      default: return nil
+      }
+    }
+
+    var rawValue: Int {
+      switch self {
+      case .fastest: return 1
+      case .game: return 2
+      case .ui: return 3
+      case .normal: return 4
+      }
+    }
+
+  }
+
+  init() {}
+
+  fileprivate var _enabled: Bool? = nil
+  fileprivate var _frequency: Messaging_AndroidInertialSettings.Frequency? = nil
+}
+
+#if swift(>=4.2)
+
+extension Messaging_AndroidInertialSettings.Frequency: CaseIterable {
+  // Support synthesized by the compiler.
+}
+
+#endif  // swift(>=4.2)
+
+///Cross Platform System Messages
 struct Messaging_GlobalSettings {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -1079,6 +1216,125 @@ struct Messaging_GlobalSettings {
 
   fileprivate var _id: Data? = nil
   fileprivate var _radioSilence: UInt64? = nil
+}
+
+struct Messaging_ClientLocationRequest {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var type: Messaging_ClientLocationRequest.TypeEnum {
+    get {return _type ?? .single}
+    set {_type = newValue}
+  }
+  /// Returns true if `type` has been explicitly set.
+  var hasType: Bool {return self._type != nil}
+  /// Clears the value of `type`. Subsequent reads from it will return its default value.
+  mutating func clearType() {self._type = nil}
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  enum TypeEnum: SwiftProtobuf.Enum {
+    typealias RawValue = Int
+    case single // = 1
+    case ongoing // = 2
+    case stop // = 3
+
+    init() {
+      self = .single
+    }
+
+    init?(rawValue: Int) {
+      switch rawValue {
+      case 1: self = .single
+      case 2: self = .ongoing
+      case 3: self = .stop
+      default: return nil
+      }
+    }
+
+    var rawValue: Int {
+      switch self {
+      case .single: return 1
+      case .ongoing: return 2
+      case .stop: return 3
+      }
+    }
+
+  }
+
+  init() {}
+
+  fileprivate var _type: Messaging_ClientLocationRequest.TypeEnum? = nil
+}
+
+#if swift(>=4.2)
+
+extension Messaging_ClientLocationRequest.TypeEnum: CaseIterable {
+  // Support synthesized by the compiler.
+}
+
+#endif  // swift(>=4.2)
+
+struct Messaging_ClientLocationResponse {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var latitude: Double {
+    get {return _latitude ?? 0}
+    set {_latitude = newValue}
+  }
+  /// Returns true if `latitude` has been explicitly set.
+  var hasLatitude: Bool {return self._latitude != nil}
+  /// Clears the value of `latitude`. Subsequent reads from it will return its default value.
+  mutating func clearLatitude() {self._latitude = nil}
+
+  var longitude: Double {
+    get {return _longitude ?? 0}
+    set {_longitude = newValue}
+  }
+  /// Returns true if `longitude` has been explicitly set.
+  var hasLongitude: Bool {return self._longitude != nil}
+  /// Clears the value of `longitude`. Subsequent reads from it will return its default value.
+  mutating func clearLongitude() {self._longitude = nil}
+
+  var error: Double {
+    get {return _error ?? 0}
+    set {_error = newValue}
+  }
+  /// Returns true if `error` has been explicitly set.
+  var hasError: Bool {return self._error != nil}
+  /// Clears the value of `error`. Subsequent reads from it will return its default value.
+  mutating func clearError() {self._error = nil}
+
+  var headingOffset: Double {
+    get {return _headingOffset ?? 0}
+    set {_headingOffset = newValue}
+  }
+  /// Returns true if `headingOffset` has been explicitly set.
+  var hasHeadingOffset: Bool {return self._headingOffset != nil}
+  /// Clears the value of `headingOffset`. Subsequent reads from it will return its default value.
+  mutating func clearHeadingOffset() {self._headingOffset = nil}
+
+  var timestamp: UInt64 {
+    get {return _timestamp ?? 0}
+    set {_timestamp = newValue}
+  }
+  /// Returns true if `timestamp` has been explicitly set.
+  var hasTimestamp: Bool {return self._timestamp != nil}
+  /// Clears the value of `timestamp`. Subsequent reads from it will return its default value.
+  mutating func clearTimestamp() {self._timestamp = nil}
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+
+  fileprivate var _latitude: Double? = nil
+  fileprivate var _longitude: Double? = nil
+  fileprivate var _error: Double? = nil
+  fileprivate var _headingOffset: Double? = nil
+  fileprivate var _timestamp: UInt64? = nil
 }
 
 ///Client Messages
@@ -1225,12 +1481,111 @@ struct Messaging_ClientMessage {
     set {_uniqueStorage()._step = newValue}
   }
 
+  var locationRequest: Messaging_ClientLocationRequest {
+    get {return _storage._locationRequest ?? Messaging_ClientLocationRequest()}
+    set {_uniqueStorage()._locationRequest = newValue}
+  }
+  /// Returns true if `locationRequest` has been explicitly set.
+  var hasLocationRequest: Bool {return _storage._locationRequest != nil}
+  /// Clears the value of `locationRequest`. Subsequent reads from it will return its default value.
+  mutating func clearLocationRequest() {_uniqueStorage()._locationRequest = nil}
+
+  var circularGeoFenceEvents: [Messaging_CircularGeoFenceEvent] {
+    get {return _storage._circularGeoFenceEvents}
+    set {_uniqueStorage()._circularGeoFenceEvents = newValue}
+  }
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   init() {}
 
   fileprivate var _storage = _StorageClass.defaultInstance
 }
+
+struct Messaging_CircularGeoFenceEvent {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var latitude: Double {
+    get {return _latitude ?? 0}
+    set {_latitude = newValue}
+  }
+  /// Returns true if `latitude` has been explicitly set.
+  var hasLatitude: Bool {return self._latitude != nil}
+  /// Clears the value of `latitude`. Subsequent reads from it will return its default value.
+  mutating func clearLatitude() {self._latitude = nil}
+
+  var longitude: Double {
+    get {return _longitude ?? 0}
+    set {_longitude = newValue}
+  }
+  /// Returns true if `longitude` has been explicitly set.
+  var hasLongitude: Bool {return self._longitude != nil}
+  /// Clears the value of `longitude`. Subsequent reads from it will return its default value.
+  mutating func clearLongitude() {self._longitude = nil}
+
+  var radius: Double {
+    get {return _radius ?? 0}
+    set {_radius = newValue}
+  }
+  /// Returns true if `radius` has been explicitly set.
+  var hasRadius: Bool {return self._radius != nil}
+  /// Clears the value of `radius`. Subsequent reads from it will return its default value.
+  mutating func clearRadius() {self._radius = nil}
+
+  var type: Messaging_CircularGeoFenceEvent.TypeEnum {
+    get {return _type ?? .entry}
+    set {_type = newValue}
+  }
+  /// Returns true if `type` has been explicitly set.
+  var hasType: Bool {return self._type != nil}
+  /// Clears the value of `type`. Subsequent reads from it will return its default value.
+  mutating func clearType() {self._type = nil}
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  enum TypeEnum: SwiftProtobuf.Enum {
+    typealias RawValue = Int
+    case entry // = 1
+    case exit // = 2
+
+    init() {
+      self = .entry
+    }
+
+    init?(rawValue: Int) {
+      switch rawValue {
+      case 1: self = .entry
+      case 2: self = .exit
+      default: return nil
+      }
+    }
+
+    var rawValue: Int {
+      switch self {
+      case .entry: return 1
+      case .exit: return 2
+      }
+    }
+
+  }
+
+  init() {}
+
+  fileprivate var _latitude: Double? = nil
+  fileprivate var _longitude: Double? = nil
+  fileprivate var _radius: Double? = nil
+  fileprivate var _type: Messaging_CircularGeoFenceEvent.TypeEnum? = nil
+}
+
+#if swift(>=4.2)
+
+extension Messaging_CircularGeoFenceEvent.TypeEnum: CaseIterable {
+  // Support synthesized by the compiler.
+}
+
+#endif  // swift(>=4.2)
 
 struct Messaging_UserInputLocationMessage {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
@@ -2314,6 +2669,7 @@ extension Messaging_ServerMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
     6: .same(proto: "sentTimestamp"),
     7: .same(proto: "messageIdentifier"),
     8: .same(proto: "stop"),
+    9: .same(proto: "locationResponses"),
   ]
 
   fileprivate class _StorageClass {
@@ -2325,6 +2681,7 @@ extension Messaging_ServerMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
     var _sentTimestamp: UInt64? = nil
     var _messageIdentifier: Data? = nil
     var _stop: Messaging_ServerMessage.StopType? = nil
+    var _locationResponses: [Messaging_ClientLocationResponse] = []
 
     static let defaultInstance = _StorageClass()
 
@@ -2339,6 +2696,7 @@ extension Messaging_ServerMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
       _sentTimestamp = source._sentTimestamp
       _messageIdentifier = source._messageIdentifier
       _stop = source._stop
+      _locationResponses = source._locationResponses
     }
   }
 
@@ -2362,6 +2720,7 @@ extension Messaging_ServerMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
         case 6: try decoder.decodeSingularUInt64Field(value: &_storage._sentTimestamp)
         case 7: try decoder.decodeSingularBytesField(value: &_storage._messageIdentifier)
         case 8: try decoder.decodeSingularEnumField(value: &_storage._stop)
+        case 9: try decoder.decodeRepeatedMessageField(value: &_storage._locationResponses)
         default: break
         }
       }
@@ -2394,6 +2753,9 @@ extension Messaging_ServerMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
       if let v = _storage._stop {
         try visitor.visitSingularEnumField(value: v, fieldNumber: 8)
       }
+      if !_storage._locationResponses.isEmpty {
+        try visitor.visitRepeatedMessageField(value: _storage._locationResponses, fieldNumber: 9)
+      }
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -2411,6 +2773,7 @@ extension Messaging_ServerMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
         if _storage._sentTimestamp != rhs_storage._sentTimestamp {return false}
         if _storage._messageIdentifier != rhs_storage._messageIdentifier {return false}
         if _storage._stop != rhs_storage._stop {return false}
+        if _storage._locationResponses != rhs_storage._locationResponses {return false}
         return true
       }
       if !storagesAreEqual {return false}
@@ -2589,41 +2952,6 @@ extension Messaging_IosBeaconSettings: SwiftProtobuf.Message, SwiftProtobuf._Mes
   }
 }
 
-extension Messaging_IosInertialSettings: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".IosInertialSettings"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "enabled"),
-    2: .same(proto: "interval"),
-  ]
-
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    while let fieldNumber = try decoder.nextFieldNumber() {
-      switch fieldNumber {
-      case 1: try decoder.decodeSingularBoolField(value: &self._enabled)
-      case 2: try decoder.decodeSingularUInt32Field(value: &self._interval)
-      default: break
-      }
-    }
-  }
-
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if let v = self._enabled {
-      try visitor.visitSingularBoolField(value: v, fieldNumber: 1)
-    }
-    if let v = self._interval {
-      try visitor.visitSingularUInt32Field(value: v, fieldNumber: 2)
-    }
-    try unknownFields.traverse(visitor: &visitor)
-  }
-
-  static func ==(lhs: Messaging_IosInertialSettings, rhs: Messaging_IosInertialSettings) -> Bool {
-    if lhs._enabled != rhs._enabled {return false}
-    if lhs._interval != rhs._interval {return false}
-    if lhs.unknownFields != rhs.unknownFields {return false}
-    return true
-  }
-}
-
 extension Messaging_IosStandardGeoSettings: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".IosStandardGeoSettings"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
@@ -2698,12 +3026,14 @@ extension Messaging_IosGeoSettings: SwiftProtobuf.Message, SwiftProtobuf._Messag
     1: .same(proto: "significantUpates"),
     2: .same(proto: "foregroundGeo"),
     3: .same(proto: "backgroundGeo"),
+    4: .same(proto: "iosCircularGeoFences"),
   ]
 
   fileprivate class _StorageClass {
     var _significantUpates: Bool? = nil
     var _foregroundGeo: Messaging_IosStandardGeoSettings? = nil
     var _backgroundGeo: Messaging_IosStandardGeoSettings? = nil
+    var _iosCircularGeoFences: [Messaging_IosCircularGeoFence] = []
 
     static let defaultInstance = _StorageClass()
 
@@ -2713,6 +3043,7 @@ extension Messaging_IosGeoSettings: SwiftProtobuf.Message, SwiftProtobuf._Messag
       _significantUpates = source._significantUpates
       _foregroundGeo = source._foregroundGeo
       _backgroundGeo = source._backgroundGeo
+      _iosCircularGeoFences = source._iosCircularGeoFences
     }
   }
 
@@ -2731,6 +3062,7 @@ extension Messaging_IosGeoSettings: SwiftProtobuf.Message, SwiftProtobuf._Messag
         case 1: try decoder.decodeSingularBoolField(value: &_storage._significantUpates)
         case 2: try decoder.decodeSingularMessageField(value: &_storage._foregroundGeo)
         case 3: try decoder.decodeSingularMessageField(value: &_storage._backgroundGeo)
+        case 4: try decoder.decodeRepeatedMessageField(value: &_storage._iosCircularGeoFences)
         default: break
         }
       }
@@ -2748,6 +3080,9 @@ extension Messaging_IosGeoSettings: SwiftProtobuf.Message, SwiftProtobuf._Messag
       if let v = _storage._backgroundGeo {
         try visitor.visitSingularMessageField(value: v, fieldNumber: 3)
       }
+      if !_storage._iosCircularGeoFences.isEmpty {
+        try visitor.visitRepeatedMessageField(value: _storage._iosCircularGeoFences, fieldNumber: 4)
+      }
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -2760,10 +3095,87 @@ extension Messaging_IosGeoSettings: SwiftProtobuf.Message, SwiftProtobuf._Messag
         if _storage._significantUpates != rhs_storage._significantUpates {return false}
         if _storage._foregroundGeo != rhs_storage._foregroundGeo {return false}
         if _storage._backgroundGeo != rhs_storage._backgroundGeo {return false}
+        if _storage._iosCircularGeoFences != rhs_storage._iosCircularGeoFences {return false}
         return true
       }
       if !storagesAreEqual {return false}
     }
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Messaging_IosCircularGeoFence: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = _protobuf_package + ".IosCircularGeoFence"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "latitude"),
+    2: .same(proto: "longitude"),
+    3: .same(proto: "radius"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      switch fieldNumber {
+      case 1: try decoder.decodeSingularDoubleField(value: &self._latitude)
+      case 2: try decoder.decodeSingularDoubleField(value: &self._longitude)
+      case 3: try decoder.decodeSingularDoubleField(value: &self._radius)
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if let v = self._latitude {
+      try visitor.visitSingularDoubleField(value: v, fieldNumber: 1)
+    }
+    if let v = self._longitude {
+      try visitor.visitSingularDoubleField(value: v, fieldNumber: 2)
+    }
+    if let v = self._radius {
+      try visitor.visitSingularDoubleField(value: v, fieldNumber: 3)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Messaging_IosCircularGeoFence, rhs: Messaging_IosCircularGeoFence) -> Bool {
+    if lhs._latitude != rhs._latitude {return false}
+    if lhs._longitude != rhs._longitude {return false}
+    if lhs._radius != rhs._radius {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Messaging_IosInertialSettings: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = _protobuf_package + ".IosInertialSettings"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "enabled"),
+    2: .same(proto: "interval"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      switch fieldNumber {
+      case 1: try decoder.decodeSingularBoolField(value: &self._enabled)
+      case 2: try decoder.decodeSingularUInt32Field(value: &self._interval)
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if let v = self._enabled {
+      try visitor.visitSingularBoolField(value: v, fieldNumber: 1)
+    }
+    if let v = self._interval {
+      try visitor.visitSingularUInt32Field(value: v, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Messaging_IosInertialSettings, rhs: Messaging_IosInertialSettings) -> Bool {
+    if lhs._enabled != rhs._enabled {return false}
+    if lhs._interval != rhs._interval {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -2776,6 +3188,7 @@ extension Messaging_AndroidSettings: SwiftProtobuf.Message, SwiftProtobuf._Messa
     2: .same(proto: "beaconSettings"),
     3: .same(proto: "wifiSettings"),
     4: .same(proto: "foregroundService"),
+    5: .same(proto: "inertialSettings"),
   ]
 
   fileprivate class _StorageClass {
@@ -2783,6 +3196,7 @@ extension Messaging_AndroidSettings: SwiftProtobuf.Message, SwiftProtobuf._Messa
     var _beaconSettings: Messaging_AndroidBeaconSettings? = nil
     var _wifiSettings: Messaging_AndroidWifiSettings? = nil
     var _foregroundService: Bool? = nil
+    var _inertialSettings: Messaging_AndroidInertialSettings? = nil
 
     static let defaultInstance = _StorageClass()
 
@@ -2793,6 +3207,7 @@ extension Messaging_AndroidSettings: SwiftProtobuf.Message, SwiftProtobuf._Messa
       _beaconSettings = source._beaconSettings
       _wifiSettings = source._wifiSettings
       _foregroundService = source._foregroundService
+      _inertialSettings = source._inertialSettings
     }
   }
 
@@ -2812,6 +3227,7 @@ extension Messaging_AndroidSettings: SwiftProtobuf.Message, SwiftProtobuf._Messa
         case 2: try decoder.decodeSingularMessageField(value: &_storage._beaconSettings)
         case 3: try decoder.decodeSingularMessageField(value: &_storage._wifiSettings)
         case 4: try decoder.decodeSingularBoolField(value: &_storage._foregroundService)
+        case 5: try decoder.decodeSingularMessageField(value: &_storage._inertialSettings)
         default: break
         }
       }
@@ -2832,6 +3248,9 @@ extension Messaging_AndroidSettings: SwiftProtobuf.Message, SwiftProtobuf._Messa
       if let v = _storage._foregroundService {
         try visitor.visitSingularBoolField(value: v, fieldNumber: 4)
       }
+      if let v = _storage._inertialSettings {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 5)
+      }
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -2845,6 +3264,7 @@ extension Messaging_AndroidSettings: SwiftProtobuf.Message, SwiftProtobuf._Messa
         if _storage._beaconSettings != rhs_storage._beaconSettings {return false}
         if _storage._wifiSettings != rhs_storage._wifiSettings {return false}
         if _storage._foregroundService != rhs_storage._foregroundService {return false}
+        if _storage._inertialSettings != rhs_storage._inertialSettings {return false}
         return true
       }
       if !storagesAreEqual {return false}
@@ -3427,6 +3847,50 @@ extension Messaging_BeaconFilter: SwiftProtobuf.Message, SwiftProtobuf._MessageI
   }
 }
 
+extension Messaging_AndroidInertialSettings: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = _protobuf_package + ".AndroidInertialSettings"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "enabled"),
+    2: .same(proto: "frequency"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      switch fieldNumber {
+      case 1: try decoder.decodeSingularBoolField(value: &self._enabled)
+      case 2: try decoder.decodeSingularEnumField(value: &self._frequency)
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if let v = self._enabled {
+      try visitor.visitSingularBoolField(value: v, fieldNumber: 1)
+    }
+    if let v = self._frequency {
+      try visitor.visitSingularEnumField(value: v, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Messaging_AndroidInertialSettings, rhs: Messaging_AndroidInertialSettings) -> Bool {
+    if lhs._enabled != rhs._enabled {return false}
+    if lhs._frequency != rhs._frequency {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Messaging_AndroidInertialSettings.Frequency: SwiftProtobuf._ProtoNameProviding {
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "FASTEST"),
+    2: .same(proto: "GAME"),
+    3: .same(proto: "UI"),
+    4: .same(proto: "NORMAL"),
+  ]
+}
+
 extension Messaging_GlobalSettings: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".GlobalSettings"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
@@ -3462,6 +3926,96 @@ extension Messaging_GlobalSettings: SwiftProtobuf.Message, SwiftProtobuf._Messag
   }
 }
 
+extension Messaging_ClientLocationRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = _protobuf_package + ".ClientLocationRequest"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "type"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      switch fieldNumber {
+      case 1: try decoder.decodeSingularEnumField(value: &self._type)
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if let v = self._type {
+      try visitor.visitSingularEnumField(value: v, fieldNumber: 1)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Messaging_ClientLocationRequest, rhs: Messaging_ClientLocationRequest) -> Bool {
+    if lhs._type != rhs._type {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Messaging_ClientLocationRequest.TypeEnum: SwiftProtobuf._ProtoNameProviding {
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "SINGLE"),
+    2: .same(proto: "ONGOING"),
+    3: .same(proto: "STOP"),
+  ]
+}
+
+extension Messaging_ClientLocationResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = _protobuf_package + ".ClientLocationResponse"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "latitude"),
+    2: .same(proto: "longitude"),
+    3: .same(proto: "error"),
+    4: .same(proto: "headingOffset"),
+    5: .same(proto: "timestamp"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      switch fieldNumber {
+      case 1: try decoder.decodeSingularDoubleField(value: &self._latitude)
+      case 2: try decoder.decodeSingularDoubleField(value: &self._longitude)
+      case 3: try decoder.decodeSingularDoubleField(value: &self._error)
+      case 4: try decoder.decodeSingularDoubleField(value: &self._headingOffset)
+      case 5: try decoder.decodeSingularUInt64Field(value: &self._timestamp)
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if let v = self._latitude {
+      try visitor.visitSingularDoubleField(value: v, fieldNumber: 1)
+    }
+    if let v = self._longitude {
+      try visitor.visitSingularDoubleField(value: v, fieldNumber: 2)
+    }
+    if let v = self._error {
+      try visitor.visitSingularDoubleField(value: v, fieldNumber: 3)
+    }
+    if let v = self._headingOffset {
+      try visitor.visitSingularDoubleField(value: v, fieldNumber: 4)
+    }
+    if let v = self._timestamp {
+      try visitor.visitSingularUInt64Field(value: v, fieldNumber: 5)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Messaging_ClientLocationResponse, rhs: Messaging_ClientLocationResponse) -> Bool {
+    if lhs._latitude != rhs._latitude {return false}
+    if lhs._longitude != rhs._longitude {return false}
+    if lhs._error != rhs._error {return false}
+    if lhs._headingOffset != rhs._headingOffset {return false}
+    if lhs._timestamp != rhs._timestamp {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
 extension Messaging_ClientMessage: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".ClientMessage"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
@@ -3484,6 +4038,8 @@ extension Messaging_ClientMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
     17: .same(proto: "wifiRttMessage"),
     18: .same(proto: "eddystonemessage"),
     19: .same(proto: "step"),
+    20: .same(proto: "locationRequest"),
+    21: .same(proto: "circularGeoFenceEvents"),
   ]
 
   fileprivate class _StorageClass {
@@ -3506,6 +4062,8 @@ extension Messaging_ClientMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
     var _wifiRttMessage: [Messaging_WifiRTTMessage] = []
     var _eddystonemessage: [Messaging_EddystoneBeacon] = []
     var _step: [Messaging_Step] = []
+    var _locationRequest: Messaging_ClientLocationRequest? = nil
+    var _circularGeoFenceEvents: [Messaging_CircularGeoFenceEvent] = []
 
     static let defaultInstance = _StorageClass()
 
@@ -3531,6 +4089,8 @@ extension Messaging_ClientMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
       _wifiRttMessage = source._wifiRttMessage
       _eddystonemessage = source._eddystonemessage
       _step = source._step
+      _locationRequest = source._locationRequest
+      _circularGeoFenceEvents = source._circularGeoFenceEvents
     }
   }
 
@@ -3565,6 +4125,8 @@ extension Messaging_ClientMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
         case 17: try decoder.decodeRepeatedMessageField(value: &_storage._wifiRttMessage)
         case 18: try decoder.decodeRepeatedMessageField(value: &_storage._eddystonemessage)
         case 19: try decoder.decodeRepeatedMessageField(value: &_storage._step)
+        case 20: try decoder.decodeSingularMessageField(value: &_storage._locationRequest)
+        case 21: try decoder.decodeRepeatedMessageField(value: &_storage._circularGeoFenceEvents)
         default: break
         }
       }
@@ -3630,6 +4192,12 @@ extension Messaging_ClientMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
       if !_storage._step.isEmpty {
         try visitor.visitRepeatedMessageField(value: _storage._step, fieldNumber: 19)
       }
+      if let v = _storage._locationRequest {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 20)
+      }
+      if !_storage._circularGeoFenceEvents.isEmpty {
+        try visitor.visitRepeatedMessageField(value: _storage._circularGeoFenceEvents, fieldNumber: 21)
+      }
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -3658,6 +4226,8 @@ extension Messaging_ClientMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
         if _storage._wifiRttMessage != rhs_storage._wifiRttMessage {return false}
         if _storage._eddystonemessage != rhs_storage._eddystonemessage {return false}
         if _storage._step != rhs_storage._step {return false}
+        if _storage._locationRequest != rhs_storage._locationRequest {return false}
+        if _storage._circularGeoFenceEvents != rhs_storage._circularGeoFenceEvents {return false}
         return true
       }
       if !storagesAreEqual {return false}
@@ -3665,6 +4235,60 @@ extension Messaging_ClientMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
+}
+
+extension Messaging_CircularGeoFenceEvent: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = _protobuf_package + ".CircularGeoFenceEvent"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "latitude"),
+    2: .same(proto: "longitude"),
+    3: .same(proto: "radius"),
+    4: .same(proto: "type"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      switch fieldNumber {
+      case 1: try decoder.decodeSingularDoubleField(value: &self._latitude)
+      case 2: try decoder.decodeSingularDoubleField(value: &self._longitude)
+      case 3: try decoder.decodeSingularDoubleField(value: &self._radius)
+      case 4: try decoder.decodeSingularEnumField(value: &self._type)
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if let v = self._latitude {
+      try visitor.visitSingularDoubleField(value: v, fieldNumber: 1)
+    }
+    if let v = self._longitude {
+      try visitor.visitSingularDoubleField(value: v, fieldNumber: 2)
+    }
+    if let v = self._radius {
+      try visitor.visitSingularDoubleField(value: v, fieldNumber: 3)
+    }
+    if let v = self._type {
+      try visitor.visitSingularEnumField(value: v, fieldNumber: 4)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Messaging_CircularGeoFenceEvent, rhs: Messaging_CircularGeoFenceEvent) -> Bool {
+    if lhs._latitude != rhs._latitude {return false}
+    if lhs._longitude != rhs._longitude {return false}
+    if lhs._radius != rhs._radius {return false}
+    if lhs._type != rhs._type {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Messaging_CircularGeoFenceEvent.TypeEnum: SwiftProtobuf._ProtoNameProviding {
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "ENTRY"),
+    2: .same(proto: "EXIT"),
+  ]
 }
 
 extension Messaging_UserInputLocationMessage: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {

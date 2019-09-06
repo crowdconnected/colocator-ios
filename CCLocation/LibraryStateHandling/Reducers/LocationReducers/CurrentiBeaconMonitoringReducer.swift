@@ -31,6 +31,6 @@ private func getCurrentStateFromUserDefaults () -> CurrentiBeaconMonitoringState
     }
 }
 
-private func saveCurrentStateToUserDefaults (currentGEOState: CurrentiBeaconMonitoringState){
-    
+private func saveCurrentStateToUserDefaults (currentGEOState: CurrentiBeaconMonitoringState) {
+    // Beacon monitoring is not saved in UserDefaults at the moment
 }

@@ -33,27 +33,20 @@ class TimeHandling {
     
     static func getCurrentTimePeriodSince1970(stateStore: Store<LibraryState>) -> TimeInterval? {
         let currentTime = timeIntervalSinceBoot()
-//        Log.verbose("TIME INTERVAL SINCE BOOT: \(currentTime)")
-
-        if let bootTimeAtLastTrueTime = stateStore.state.ccRequestMessagingState.libraryTimeState?.bootTimeIntervalAtLastTrueTime {
+        let libraryTimeState = stateStore.state.ccRequestMessagingState.libraryTimeState
+        
+        if let bootTimeAtLastTrueTime = libraryTimeState?.bootTimeIntervalAtLastTrueTime,
+            let timeSince1970 = libraryTimeState?.lastTrueTime?.timeIntervalSince1970 {
             
             let timeIntervalPast = currentTime - bootTimeAtLastTrueTime
-            
-            let currentTimePeriodSince1970 = (stateStore.state.ccRequestMessagingState.libraryTimeState?.lastTrueTime?.timeIntervalSince1970)! + timeIntervalPast
-            
-//            Log.verbose("TIME INTERVAL: \(currentTimePeriodSince1970)")
-            
+            let currentTimePeriodSince1970 = timeSince1970 + timeIntervalPast
             return currentTimePeriodSince1970
         }
-        
         return nil
     }
     
     static func timeIntervalSinceBoot() -> TimeInterval {
-
         let timeIntervalSinceBoot = ProcessInfo.processInfo.systemUptime
-//        Log.verbose("time interval since boot: \(timeIntervalSinceBoot)")
-        
         return timeIntervalSinceBoot
     }
     
@@ -66,60 +59,57 @@ class TimeHandling {
         }
     }
     
-    func fetchTrueTimeInBackground(){
-        if (!isFetchingTrueTime){
-            isFetchingTrueTime = true
-            
-            trueTimeClient.fetchIfNeeded(success: { (referenceTime) in
-                NSLog("[Colocator] True time: " + referenceTime.now().description)
-                let lastRebootTime: Date = referenceTime.now().addingTimeInterval(TimeHandling.timeIntervalSinceBoot())
-                
-                self.delegate?.newTrueTimeAvailable(trueTime: referenceTime.now(),
-                                                    timeIntervalSinceBootTime: TimeHandling.timeIntervalSinceBoot(),
-                                                    systemTime: Date.init(),
-                                                    lastRebootTime: lastRebootTime)
-                
-                self.isFetchingTrueTime = false
-            }, failure: { (error) in
-                Log.error("[Colocator] Truetime error! " + error.description)
-                
-                self.isFetchingTrueTime = false
-            })
+    func fetchTrueTimeInBackground() {
+        guard !isFetchingTrueTime else {
+            return
         }
+        isFetchingTrueTime = true
+            
+        trueTimeClient.fetchIfNeeded(success: { referenceTime in
+            NSLog("[Colocator] True time: " + referenceTime.now().description)
+            
+            let lastRebootTime = referenceTime.now().addingTimeInterval(TimeHandling.timeIntervalSinceBoot())
+            
+            self.delegate?.newTrueTimeAvailable(trueTime: referenceTime.now(),
+                                                timeIntervalSinceBootTime: TimeHandling.timeIntervalSinceBoot(),
+                                                systemTime: Date(),
+                                                lastRebootTime: lastRebootTime)
+                
+            self.isFetchingTrueTime = false
+        }, failure: { (error) in
+            Log.error("[Colocator] Truetime error! " + error.description)
+            self.isFetchingTrueTime = false
+        })
     }
 
     func isRebootTimeSame (stateStore: Store<LibraryState>, ccSocket: CCSocket?) -> Bool {
-        
-        if !isFetchingTrueTime {
-
-            guard let lastBootTimeInterval = stateStore.state.ccRequestMessagingState.libraryTimeState?.bootTimeIntervalAtLastTrueTime else {
-                return false
-            }
-            
-            guard let lastSystemTime = stateStore.state.ccRequestMessagingState.libraryTimeState?.systemTimeAtLastTrueTime else {
-                return false
-            }
-            
-            let currentBootTimeInterval = TimeHandling.timeIntervalSinceBoot()
-            
-            let currentTime = Date()
-            
-            let beetweenBootsTimeInterval = currentBootTimeInterval - lastBootTimeInterval
-            
-            let beetweenSystemsTimeInterval = currentTime.timeIntervalSince(lastSystemTime)
-            
-            let isSame = abs(beetweenBootsTimeInterval - beetweenSystemsTimeInterval) < 30
-            
-            Log.verbose("Comparing bootTimeIntervalDiff \(String(describing: beetweenBootsTimeInterval)) with systemTimeInterval \(String(describing: beetweenSystemsTimeInterval)) result = \(isSame)")
-            
-            // if there has been some drift or similar fetch a new true time
-            if !isSame {
-                fetchTrueTime()
-            }
-            
-            return isSame
-        } else {
+        guard !isFetchingTrueTime else {
             return false
         }
+        guard let lastBootTimeInterval = stateStore.state.ccRequestMessagingState.libraryTimeState?.bootTimeIntervalAtLastTrueTime else {
+            return false
+        }
+        guard let lastSystemTime = stateStore.state.ccRequestMessagingState.libraryTimeState?.systemTimeAtLastTrueTime else {
+            return false
+        }
+        
+        let currentBootTimeInterval = TimeHandling.timeIntervalSinceBoot()
+        let currentTime = Date()
+        let beetweenBootsTimeInterval = currentBootTimeInterval - lastBootTimeInterval
+        let beetweenSystemsTimeInterval = currentTime.timeIntervalSince(lastSystemTime)
+        
+        let absDifference = abs(beetweenBootsTimeInterval - beetweenSystemsTimeInterval)
+        let isSame = absDifference < TimerHandlingConstants.kMaxDifferenceAllowedBetweenSystemTimeAndBootTime
+        
+        Log.verbose("""
+            Comparing bootTimeIntervalDiff \(String(describing: beetweenBootsTimeInterval))
+            With systemTimeInterval        \(String(describing: beetweenSystemsTimeInterval))
+            Result = \(isSame)
+            """)
+        
+        if !isSame {
+            fetchTrueTime()
+        }
+        return isSame
     }
 }

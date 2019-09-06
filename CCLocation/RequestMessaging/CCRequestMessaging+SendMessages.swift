@@ -42,29 +42,27 @@ extension CCRequestMessaging {
                 var tempMessageData: [Data]?
                 var subMessageCounter: Int = 0
                 
-                while self?.getMessageCount() ?? -1 > 0
-                    && subMessageCounter < maxMessagesToReturn {
-                        
-                        tempMessageData = self?.popMessagesFromLocalDatabase(maxMessagesToReturn: maxMessagesToReturn)
-                        
-                        if let unwrappedTempMessageData = tempMessageData {
-                            for tempMessage in unwrappedTempMessageData {
-                               
-                                let (newSubMessageCounter,
-                                     newCompiledClientMessage,
-                                     newBackToQueueMessages) = self?.handleMessageType(message: tempMessage,
-                                                                                       subMessageInitialNumber: subMessageCounter,
-                                                                                       compiledMessage: compiledClientMessage,
-                                                                                       queueMessage: backToQueueMessages)
+                while self?.getMessageCount() ?? -1 > 0 && subMessageCounter < maxMessagesToReturn {
+                    tempMessageData = self?.popMessagesFromLocalDatabase(maxMessagesToReturn: maxMessagesToReturn)
+                    
+                    if let unwrappedTempMessageData = tempMessageData {
+                        for tempMessage in unwrappedTempMessageData {
+                            
+                            let (newSubMessageCounter,
+                                 newCompiledClientMessage,
+                                 newBackToQueueMessages) = self?.handleMessageType(message: tempMessage,
+                                                                                   subMessageInitialNumber: subMessageCounter,
+                                                                                   compiledMessage: compiledClientMessage,
+                                                                                   queueMessage: backToQueueMessages)
                                                             ?? (subMessageCounter,
                                                                 Messaging_ClientMessage(),
                                                                 Messaging_ClientMessage())
-                                
-                                subMessageCounter = newSubMessageCounter
-                                compiledClientMessage = newCompiledClientMessage
-                                backToQueueMessages = newBackToQueueMessages
-                            }
+                            
+                            subMessageCounter = newSubMessageCounter
+                            compiledClientMessage = newCompiledClientMessage
+                            backToQueueMessages = newBackToQueueMessages
                         }
+                    }
                 }
                 
                 self?.logMessageContent(compiledClientMessage, subMessageCounter: subMessageCounter)
@@ -80,18 +78,36 @@ extension CCRequestMessaging {
     }
     
     private func logMessageContent(_ message: Messaging_ClientMessage, subMessageCounter: Int) {
-        Log.verbose("Compiled \(subMessageCounter) message(s)")
+        Log.debug("Compiled \(subMessageCounter) message(s)")
         
         if message.locationMessage.count > 0 {
             let geoMsg = message.locationMessage[0]
             let geoData = try? geoMsg.serializedData()
-            Log.verbose("Compiled geoMsg: \(geoData?.count ?? -1) and byte array: \(geoData?.hexEncodedString() ?? "NOT AVAILABLE")")
+            
+            Log.verbose("""
+                Compiled geoMsg: \(geoData?.count ?? -1) and byte array
+                \(geoData?.hexEncodedString() ?? CCRequestMessagingConstants.kNotAvaialble)
+                """)
+        }
+        
+        if message.circularGeoFenceEvents.count > 0 {
+            let geofenceMsg = message.circularGeoFenceEvents[0]
+            let geofenceData = try? geofenceMsg.serializedData()
+            
+            Log.verbose("""
+                Compiled geofenceMsg: \(geofenceData?.count ?? -1) and byte array
+                \(geofenceData?.hexEncodedString() ?? CCRequestMessagingConstants.kNotAvaialble)
+                """)
         }
         
         if message.bluetoothMessage.count > 0 {
             let blMsg = message.bluetoothMessage[0]
             let blData = try? blMsg.serializedData()
-            Log.verbose("Compiled bluetooth message: \(blData?.count ?? -1) and byte array: \(blData?.hexEncodedString() ?? "NOT AVAILABLE"))")
+            
+            Log.verbose("""
+                Compiled bluetooth message: \(blData?.count ?? -1) and byte array
+                \(blData?.hexEncodedString() ?? CCRequestMessagingConstants.kNotAvaialble))
+                """)
         }
         
         for beacon in message.ibeaconMessage {
@@ -101,7 +117,11 @@ extension CCRequestMessaging {
         if message.alias.count > 0 {
             let alMsg = message.alias[0]
             let alData = try? alMsg.serializedData()
-            Log.verbose("Compiled alias message: \(alData?.count ?? -1)  and byte array: \(alData?.hexEncodedString() ?? "NOT AVAILABLE"))")
+            
+            Log.verbose("""
+                Compiled alias message: \(alData?.count ?? -1)  and byte array
+                \(alData?.hexEncodedString() ?? CCRequestMessagingConstants.kNotAvaialble))
+                """)
         }
     }
     
@@ -153,7 +173,7 @@ extension CCRequestMessaging {
             
             ccSocket?.sendWebSocketMessage(data: messageData)
             
-            Log.info("Message sent to server")
+            Log.info("Sent message to server")
         }
     }
 }
