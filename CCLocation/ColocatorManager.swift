@@ -33,8 +33,6 @@ class ColocatorManager {
     private let iBeaconMessagesDBName = "iBeaconMessages.db"
     private let eddystoneBeaconMessagesDBName = "eddystoneMessages.db"
     
-    private let maxTimeSendingDataAtStop = 120 // seconds
-    
     var stopLibraryTimer: Timer?
     var secondsFromStopTrigger = 0
     
@@ -58,7 +56,7 @@ class ColocatorManager {
             stopLibraryTimer = nil
             
             startTime = Date()
-            deviceId = UserDefaults.standard.string(forKey: CCSocketConstants.LAST_DEVICE_ID_KEY)
+            deviceId = UserDefaults.standard.string(forKey: CCSocketConstants.kLastDeviceIDKey)
            
             ccServerURLString = urlString
             ccAPIKeyString = apiKey
@@ -121,7 +119,7 @@ class ColocatorManager {
     @objc private func checkDatabaseAndStopLibrary() {
         secondsFromStopTrigger += 1
         
-        if secondsFromStopTrigger > maxTimeSendingDataAtStop {
+        if secondsFromStopTrigger > ColocatorManagerConstants.kMaxTimeSendingDataAtStop {
             let leftMessages = ccRequestMessaging?.getMessageCount() ?? 0
             Log.warning("Library stopped. \(leftMessages) unsent messages")
             
@@ -162,7 +160,7 @@ class ColocatorManager {
     }
     
     public func setAliases(aliases: Dictionary<String, String>) {
-        UserDefaults.standard.set(aliases, forKey: CCSocketConstants.ALIAS_KEY)
+        UserDefaults.standard.set(aliases, forKey: CCSocketConstants.kAliasKey)
         if let ccRequestMessaging = self.ccRequestMessaging {
             ccRequestMessaging.processAliases(aliases: aliases)
         }
@@ -180,13 +178,13 @@ class ColocatorManager {
         let defaults = UserDefaults.standard
         
         var newAliasesDictionary: Dictionary<String, String> = [:]
-        if let oldAliases = defaults.value(forKey: CCSocketConstants.ALIAS_KEY) as? Dictionary<String, String> {
+        if let oldAliases = defaults.value(forKey: CCSocketConstants.kAliasKey) as? Dictionary<String, String> {
             newAliasesDictionary = oldAliases
         }
         for (key, value) in alias {
             newAliasesDictionary.updateValue(value, forKey: key)
         }
-        defaults.setValue(newAliasesDictionary, forKey: CCSocketConstants.ALIAS_KEY)
+        defaults.setValue(newAliasesDictionary, forKey: CCSocketConstants.kAliasKey)
     }
     
     public func sendMarker(data: String) {
@@ -199,19 +197,19 @@ class ColocatorManager {
         Log.warning("Attempt to delete all the content inside the database")
         
         do {
-            try messagesDatabase.deleteMessages(messagesTable: CCLocationTables.MESSAGES_TABLE)
+            try messagesDatabase.deleteMessages(messagesTable: CCLocationTables.kMessagesTable)
         } catch {
             Log.error("Failed to delete messages content in database.")
         }
         
         do {
-            try   beaconsDatabase.deleteBeacons(beaconTable: CCLocationTables.IBEACON_MESSAGES_TABLE)
+            try   beaconsDatabase.deleteBeacons(beaconTable: CCLocationTables.kIBeaconMessagesTable)
         } catch {
             Log.error("Failed to delete beacons content in database.")
         }
 
         do {
-            try eddystoneBeaconsDatabase.deleteBeacons(beaconTable: CCLocationTables.EDDYSTONE_BEACON_MESSAGES_TABLE)
+            try eddystoneBeaconsDatabase.deleteBeacons(beaconTable: CCLocationTables.kEddystoneBeaconMessagesTable)
         } catch {
             Log.error("Failed to delete eddystonebeacons content in database.")
         }
@@ -310,7 +308,7 @@ extension ColocatorManager {
     }
     
     func libraryVersion() -> String {
-        let libraryVersion = CCSocketConstants.LIBRARY_VERSION_TO_REPORT
+        let libraryVersion = CCSocketConstants.kLibraryVersionToReport
         return String(format: "&libVersion=%@" , libraryVersion)
     }
     

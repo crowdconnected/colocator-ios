@@ -78,9 +78,9 @@ extension CCRequestMessaging {
         
         do {
             if self.messagesDB == nil {
-                return -1
+                return count
             }
-            count = try self.messagesDB.count(table: CCLocationTables.MESSAGES_TABLE)
+            count = try self.messagesDB.count(table: CCLocationTables.kMessagesTable)
         } catch SQLiteError.Prepare(let error) {
             Log.error("SQL Prepare Error: \(error)")
         } catch {

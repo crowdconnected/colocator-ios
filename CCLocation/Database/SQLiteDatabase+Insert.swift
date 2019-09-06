@@ -25,9 +25,9 @@ extension SQLiteDatabase {
                 return
             }
             
-            let total_count = try count(table: CCLocationTables.IBEACON_MESSAGES_TABLE)
+            let total_count = try count(table: CCLocationTables.kIBeaconMessagesTable)
             
-            try saveResetAutoincrement(table: CCLocationTables.IBEACON_MESSAGES_TABLE)
+            try saveResetAutoincrement(table: CCLocationTables.kIBeaconMessagesTable)
             
             Log.info("Flushing iBeacon buffer with \(ibeaconBeaconBuffer.count)")
             
@@ -35,7 +35,7 @@ extension SQLiteDatabase {
                 throw SQLiteError.Exec(message: errorMessage)
             }
             
-            let insertSql = "INSERT INTO \(CCLocationTables.IBEACON_MESSAGES_TABLE) (UUID, MAJOR, MINOR, PROXIMITY, ACCURACY, RSSI, TIMEINTERVAL) VALUES (?, ?, ?, ?, ?, ?, ?);"
+            let insertSql = "INSERT INTO \(CCLocationTables.kIBeaconMessagesTable) (UUID, MAJOR, MINOR, PROXIMITY, ACCURACY, RSSI, TIMEINTERVAL) VALUES (?, ?, ?, ?, ?, ?, ?);"
             let insertStatement = try prepareStatement(sql: insertSql)
             
             for beacon in ibeaconBeaconBuffer {
@@ -65,14 +65,14 @@ extension SQLiteDatabase {
                 }
             }
             
-            if total_count >= CCLocationConstants.MAX_QUEUE_SIZE {
+            if total_count >= CCLocationConstants.kMaxQueueSize {
                 
-                let deleteDiff = total_count - CCLocationConstants.MAX_QUEUE_SIZE
+                let deleteDiff = total_count - CCLocationConstants.kMaxQueueSize
                 
                 sqlite3_clear_bindings(insertStatement)
                 sqlite3_reset(insertStatement)
                 
-                let deleteSql = "DELETE FROM \(CCLocationTables.IBEACON_MESSAGES_TABLE) WHERE ID IN (SELECT ID FROM \(CCLocationTables.IBEACON_MESSAGES_TABLE) ORDER BY ID LIMIT \(deleteDiff));"
+                let deleteSql = "DELETE FROM \(CCLocationTables.kIBeaconMessagesTable) WHERE ID IN (SELECT ID FROM \(CCLocationTables.kIBeaconMessagesTable) ORDER BY ID LIMIT \(deleteDiff));"
                 
                 Log.debug("DB: \(deleteSql)")
                 
@@ -108,17 +108,17 @@ extension SQLiteDatabase {
                 return
             }
             
-            let total_count = try count(table: CCLocationTables.EDDYSTONE_BEACON_MESSAGES_TABLE)
+            let total_count = try count(table: CCLocationTables.kEddystoneBeaconMessagesTable)
             
             Log.info("Flushing eddystone beacon buffer with \(eddystoneBeaconBuffer.count)")
             
-            try saveResetAutoincrement(table: CCLocationTables.EDDYSTONE_BEACON_MESSAGES_TABLE)
+            try saveResetAutoincrement(table: CCLocationTables.kEddystoneBeaconMessagesTable)
             
             guard sqlite3_exec(dbPointer, constants.kBeginImmediateTransactionCommand, nil, nil, nil) == SQLITE_OK else  {
                 throw SQLiteError.Exec(message: errorMessage)
             }
             
-            let insertSql = "INSERT INTO \(CCLocationTables.EDDYSTONE_BEACON_MESSAGES_TABLE) (EID, TX, RSSI, TIMEINTERVAL) VALUES (?, ?, ?, ?);"
+            let insertSql = "INSERT INTO \(CCLocationTables.kEddystoneBeaconMessagesTable) (EID, TX, RSSI, TIMEINTERVAL) VALUES (?, ?, ?, ?);"
             let insertStatement = try prepareStatement(sql: insertSql)
             
             for eddystoneBeacon in eddystoneBeaconBuffer {
@@ -142,13 +142,13 @@ extension SQLiteDatabase {
                 }
             }
             
-            if total_count >= CCLocationConstants.MAX_QUEUE_SIZE {
-                let deleteDiff = total_count - CCLocationConstants.MAX_QUEUE_SIZE
+            if total_count >= CCLocationConstants.kMaxQueueSize {
+                let deleteDiff = total_count - CCLocationConstants.kMaxQueueSize
                 
                 sqlite3_clear_bindings(insertStatement)
                 sqlite3_reset(insertStatement)
                 
-                let deleteSql = "DELETE FROM \(CCLocationTables.EDDYSTONE_BEACON_MESSAGES_TABLE) WHERE ID IN (SELECT ID FROM \(CCLocationTables.EDDYSTONE_BEACON_MESSAGES_TABLE) ORDER BY ID LIMIT \(deleteDiff));"
+                let deleteSql = "DELETE FROM \(CCLocationTables.kEddystoneBeaconMessagesTable) WHERE ID IN (SELECT ID FROM \(CCLocationTables.kEddystoneBeaconMessagesTable) ORDER BY ID LIMIT \(deleteDiff));"
                 
                 Log.debug("DB: \(deleteSql)")
                 
@@ -185,15 +185,15 @@ extension SQLiteDatabase {
                 return
             }
             
-            var total_count = try count(table: CCLocationTables.MESSAGES_TABLE)
+            var total_count = try count(table: CCLocationTables.kMessagesTable)
             
-            try saveResetAutoincrement(table: CCLocationTables.MESSAGES_TABLE)
+            try saveResetAutoincrement(table: CCLocationTables.kMessagesTable)
             
             guard sqlite3_exec(dbPointer, constants.kBeginImmediateTransactionCommand, nil, nil, nil) == SQLITE_OK else  {
                 throw SQLiteError.Exec(message: errorMessage)
             }
             
-            let insertSql = "INSERT INTO \(CCLocationTables.MESSAGES_TABLE) (OBSERVATION) VALUES (?);"
+            let insertSql = "INSERT INTO \(CCLocationTables.kMessagesTable) (OBSERVATION) VALUES (?);"
             let insertStatement = try prepareStatement(sql: insertSql)
             
             for message in messagesBuffer {
@@ -213,19 +213,19 @@ extension SQLiteDatabase {
                 }
             }
             
-            total_count = try count(table: CCLocationTables.MESSAGES_TABLE)
+            total_count = try count(table: CCLocationTables.kMessagesTable)
             
-            if total_count >= CCLocationConstants.MAX_QUEUE_SIZE {
+            if total_count >= CCLocationConstants.kMaxQueueSize {
                 Log.warning("Attempt to insert more messages than maximum number in database")
                 
-                let deleteDiff = total_count - CCLocationConstants.MAX_QUEUE_SIZE
+                let deleteDiff = total_count - CCLocationConstants.kMaxQueueSize
                 
                 Log.debug("Current messages number in database \(total_count)\nTry to delete \(deleteDiff) messages")
                 
                 sqlite3_clear_bindings(insertStatement)
                 sqlite3_reset(insertStatement)
                 
-                let deleteSql = "DELETE FROM \(CCLocationTables.MESSAGES_TABLE) WHERE ID IN (SELECT ID FROM \(CCLocationTables.MESSAGES_TABLE) ORDER BY ID LIMIT \(deleteDiff));"
+                let deleteSql = "DELETE FROM \(CCLocationTables.kMessagesTable) WHERE ID IN (SELECT ID FROM \(CCLocationTables.kMessagesTable) ORDER BY ID LIMIT \(deleteDiff));"
                 
                 Log.debug("DB: \(deleteSql)")
                 

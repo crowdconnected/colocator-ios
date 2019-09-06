@@ -47,7 +47,7 @@ class CCLocationTests: XCTestCase {
         }
         
         override func getDeviceId() -> String? {
-            return UserDefaults.standard.string(forKey: CCSocketConstants.LAST_DEVICE_ID_KEY)
+            return UserDefaults.standard.string(forKey: CCSocketConstants.kLastDeviceIDKey)
         }
         
         override func setAliases(aliases: Dictionary<String, String>) {
@@ -158,7 +158,7 @@ class CCLocationTests: XCTestCase {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             let finalMessagesCount = ccRequestMessages?.getMessageCount() ?? 0
             
-            let aliases = UserDefaults.standard.value(forKey: CCSocketConstants.ALIAS_KEY) as? Dictionary<String, String> ?? [:]
+            let aliases = UserDefaults.standard.value(forKey: CCSocketConstants.kAliasKey) as? Dictionary<String, String> ?? [:]
             let value = aliases[aliasKey]
             
             XCTAssert(initialMessagesCount >= finalMessagesCount && aliasValue == value)

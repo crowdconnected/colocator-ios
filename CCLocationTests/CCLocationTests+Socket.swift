@@ -30,7 +30,7 @@ extension CCLocationTests {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
             ccSocket.stop()
-            XCTAssert(ccSocket.delay == CCSocketConstants.MIN_DELAY)
+            XCTAssert(ccSocket.delay == CCSocketConstants.kMinDelay)
             expectation.fulfill()
         }
         wait(for: [expectation], timeout: 6.0)
@@ -46,7 +46,7 @@ extension CCLocationTests {
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
             cclocation.stop()
-            XCTAssert(ccSocket?.delay == CCSocketConstants.MIN_DELAY)
+            XCTAssert(ccSocket?.delay == CCSocketConstants.kMinDelay)
             expectation.fulfill()
         }
         wait(for: [expectation], timeout: 6.0)
@@ -70,7 +70,7 @@ extension CCLocationTests {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
             ccSocket.stop()
-            XCTAssert(ccSocket.delay > CCSocketConstants.MIN_DELAY)
+            XCTAssert(ccSocket.delay > CCSocketConstants.kMinDelay)
             expectation.fulfill()
         }
         
@@ -124,7 +124,7 @@ extension CCLocationTests {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + Double(timeRunningInSeconds)) {
             cclocation.stop()
-            XCTAssert(ccSocket?.delay == CCSocketConstants.MIN_DELAY)
+            XCTAssert(ccSocket?.delay == CCSocketConstants.kMinDelay)
             expectation.fulfill()
         }
         wait(for: [expectation], timeout: Double(timeRunningInSeconds + 5))

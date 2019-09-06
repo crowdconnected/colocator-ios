@@ -25,14 +25,14 @@ extension CCRequestMessaging: StoreSubscriber {
                 //Send queued messages to server on new connection without radioSilencer delay
                 sendQueuedClientMessages(firstMessage: nil)
                     
-                if let aliases = UserDefaults.standard.dictionary(forKey: CCSocketConstants.ALIAS_KEY) {
+                if let aliases = UserDefaults.standard.dictionary(forKey: CCSocketConstants.kAliasKey) {
                     processAliases(aliases: aliases as! Dictionary<String, String>)
                 }
             }
         }
         
         if let newTimerState = state.radiosilenceTimerState, newTimerState != currentRadioSilenceTimerState {
-            actualizeTimerState(newState: newTimerState)
+            updateTimerState(newState: newTimerState)
         }
         
         if let newLibraryTimeState = state.libraryTimeState, newLibraryTimeState != currentLibraryTimerState {
@@ -55,7 +55,7 @@ extension CCRequestMessaging: StoreSubscriber {
         }
     }
     
-    public func actualizeTimerState(newState: TimerState) {
+    public func updateTimerState(newState: TimerState) {
         currentRadioSilenceTimerState = newState
         
         // Covers case were app starts from terminated and no timer is available yet

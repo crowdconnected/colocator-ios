@@ -112,8 +112,8 @@ class CCInertial: NSObject {
             
             self.yawDataBuffer.append(yawData)
             
-            let bufferSize = CCInertialConstants.bufferSize
-            let cutOff = CCInertialConstants.cutOff
+            let bufferSize = CCInertialConstants.kBufferSize
+            let cutOff = CCInertialConstants.kCutOff
             
             if self.yawDataBuffer.count >= bufferSize {
                 let upperLimit = bufferSize - cutOff - 1

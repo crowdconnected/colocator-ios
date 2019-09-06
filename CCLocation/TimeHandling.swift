@@ -98,7 +98,8 @@ class TimeHandling {
         let beetweenBootsTimeInterval = currentBootTimeInterval - lastBootTimeInterval
         let beetweenSystemsTimeInterval = currentTime.timeIntervalSince(lastSystemTime)
         
-        let isSame = abs(beetweenBootsTimeInterval - beetweenSystemsTimeInterval) < 30
+        let absDifference = abs(beetweenBootsTimeInterval - beetweenSystemsTimeInterval)
+        let isSame = absDifference < TimerHandlingConstants.kMaxDifferenceAllowedBetweenSystemTimeAndBootTime
         
         Log.verbose("""
             Comparing bootTimeIntervalDiff \(String(describing: beetweenBootsTimeInterval))
