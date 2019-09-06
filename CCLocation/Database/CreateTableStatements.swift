@@ -11,7 +11,7 @@ import Foundation
 extension Beacon : SQLTable {
     static var createStatement: String {
         return """
-        CREATE TABLE IF NOT EXISTS \(CCLocationTables.IBEACON_MESSAGES_TABLE) (
+        CREATE TABLE IF NOT EXISTS \(CCLocationTables.kIBeaconMessagesTable) (
         ID INTEGER PRIMARY KEY AUTOINCREMENT,
         UUID TEXT,
         MAJOR INTEGER,
@@ -28,7 +28,7 @@ extension Beacon : SQLTable {
 extension EddystoneBeacon : SQLTable {
     static var createStatement: String {
         return """
-        CREATE TABLE IF NOT EXISTS \(CCLocationTables.EDDYSTONE_BEACON_MESSAGES_TABLE) (
+        CREATE TABLE IF NOT EXISTS \(CCLocationTables.kEddystoneBeaconMessagesTable) (
         ID INTEGER PRIMARY KEY AUTOINCREMENT,
         EID TEXT,
         TX INTEGER,
@@ -42,7 +42,7 @@ extension EddystoneBeacon : SQLTable {
 extension CCMessage : SQLTable {
     static var createStatement: String {
         return """
-        CREATE TABLE IF NOT EXISTS \(CCLocationTables.MESSAGES_TABLE) (
+        CREATE TABLE IF NOT EXISTS \(CCLocationTables.kMessagesTable) (
         ID INTEGER PRIMARY KEY AUTOINCREMENT,
         OBSERVATION BLOB
         );

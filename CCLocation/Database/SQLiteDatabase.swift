@@ -135,7 +135,7 @@ extension SQLiteDatabase {
             }
             
             do {
-                try deleteBeacons(beaconTable: CCLocationTables.IBEACON_MESSAGES_TABLE)
+                try deleteBeacons(beaconTable: CCLocationTables.kIBeaconMessagesTable)
             } catch SQLiteError.Prepare(let message) {
                 throw SQLiteError.Prepare(message: message)
             }
@@ -156,7 +156,7 @@ extension SQLiteDatabase {
             }
              
             do {
-                try deleteBeacons(beaconTable: CCLocationTables.EDDYSTONE_BEACON_MESSAGES_TABLE)
+                try deleteBeacons(beaconTable: CCLocationTables.kEddystoneBeaconMessagesTable)
             } catch SQLiteError.Prepare(let message) {
                 throw SQLiteError.Prepare(message: message)
             }

@@ -25,7 +25,7 @@ extension CCRequestMessaging: StoreSubscriber {
                 //Send queued messages to server on new connection without radioSilencer delay
                 sendQueuedClientMessages(firstMessage: nil)
                     
-                if let aliases = UserDefaults.standard.dictionary(forKey: CCSocketConstants.ALIAS_KEY) {
+                if let aliases = UserDefaults.standard.dictionary(forKey: CCSocketConstants.kAliasKey) {
                     processAliases(aliases: aliases as! Dictionary<String, String>)
                 }
             }

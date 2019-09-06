@@ -16,7 +16,7 @@ extension CCLocationManager {
     public func countBeacons() {
         
         do {
-            let beaconCount = try iBeaconMessagesDB.count(table:CCLocationTables.IBEACON_MESSAGES_TABLE)
+            let beaconCount = try iBeaconMessagesDB.count(table:CCLocationTables.kIBeaconMessagesTable)
             Log.debug("Process beacon table, beacon count: \(String(describing: beaconCount))")
         } catch {
             Log.error("Beacon database error: \(iBeaconMessagesDB.errorMessage)")
@@ -26,7 +26,7 @@ extension CCLocationManager {
     public func countEddystoneBeacons() {
         
         do {
-            let beaconCount = try eddystoneBeaconMessagesDB.count(table:CCLocationTables.EDDYSTONE_BEACON_MESSAGES_TABLE)
+            let beaconCount = try eddystoneBeaconMessagesDB.count(table:CCLocationTables.kEddystoneBeaconMessagesTable)
             Log.debug("Process Eddystone beacon table, beacon count: \(String(describing: beaconCount))")
         } catch {
             Log.debug("Eddystone beacon database error: \(eddystoneBeaconMessagesDB.errorMessage)")

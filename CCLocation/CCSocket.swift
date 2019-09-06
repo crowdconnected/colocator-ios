@@ -49,10 +49,10 @@ class CCSocket:NSObject {
                apiKey: String,
                ccRequestMessaging: CCRequestMessaging) {
         startTime = Date()
-        deviceId = UserDefaults.standard.string(forKey: CCSocketConstants.LAST_DEVICE_ID_KEY)
+        deviceId = UserDefaults.standard.string(forKey: CCSocketConstants.kLastDeviceIDKey)
         colocatorManager = ColocatorManager.sharedInstance
         
-        ccWebsocketBaseURL = CCSocketConstants.WS_PREFIX.appendingFormat("%@/%@",
+        ccWebsocketBaseURL = CCSocketConstants.kWsPrefix.appendingFormat("%@/%@",
                                                                          urlString,
                                                                          apiKey)
         
@@ -152,7 +152,7 @@ class CCSocket:NSObject {
     
     private func delayReconnect() {
         if delay == 0 {
-            delay = CCSocketConstants.MIN_DELAY
+            delay = CCSocketConstants.kMinDelay
         }
         
         if pingTimer != nil {
@@ -167,16 +167,16 @@ class CCSocket:NSObject {
                                               userInfo: nil,
                                               repeats: false)
         
-        if delay * 1.2 < CCSocketConstants.MAX_DELAY {
+        if delay * 1.2 < CCSocketConstants.kMaxDelay {
             delay = delay * 1.2
         } else {
-            delay = CCSocketConstants.MAX_DELAY
+            delay = CCSocketConstants.kMaxDelay
         }
         
         if maxCycleTimer == nil && firstReconnect {
-            Log.warning("Fired timer for stop collecting data in \(CCSocketConstants.MAX_CYCLE_DELAY / 1000) seconds")
+            Log.warning("Fired timer for stop collecting data in \(CCSocketConstants.kMaxCycleDelay / 1000) seconds")
 
-            maxCycleTimer = Timer.scheduledTimer(timeInterval: CCSocketConstants.MAX_CYCLE_DELAY / 1000,
+            maxCycleTimer = Timer.scheduledTimer(timeInterval: CCSocketConstants.kMaxCycleDelay / 1000,
                                                  target: self,
                                                  selector: #selector(self.stopCycler(timer:)),
                                                  userInfo: nil,
@@ -187,7 +187,7 @@ class CCSocket:NSObject {
     
     func setDeviceId(deviceId: String) {
         self.deviceId = deviceId
-        UserDefaults.standard.set(self.deviceId!, forKey: CCSocketConstants.LAST_DEVICE_ID_KEY)
+        UserDefaults.standard.set(self.deviceId!, forKey: CCSocketConstants.kLastDeviceIDKey)
     }
     
     func sendWebSocketMessage(data: Data) {
@@ -249,7 +249,7 @@ extension CCSocket: SRWebSocketDelegate {
         
         ccRequestMessagingUnwrapped.webSocketDidOpen()
         
-        delay = CCSocketConstants.MIN_DELAY
+        delay = CCSocketConstants.kMinDelay
                 
         if let timer = maxCycleTimer {
             timer.invalidate()

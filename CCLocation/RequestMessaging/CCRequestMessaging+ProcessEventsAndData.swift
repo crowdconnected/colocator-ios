@@ -82,7 +82,7 @@ extension CCRequestMessaging {
         var clientMessage = Messaging_ClientMessage()
         var locationMessage = Messaging_LocationMessage()
         
-        var counter = userDefaults.integer(forKey: CCRequestMessagingConstants.messageCounter)
+        var counter = userDefaults.integer(forKey: CCRequestMessagingConstants.kMessageCounter)
         
         if counter < Int.max {
             counter = counter + 1
@@ -126,7 +126,7 @@ extension CCRequestMessaging {
         Log.verbose("Location message build: \(clientMessage)")
         
         if let data = try? clientMessage.serializedData() {
-            userDefaults.set(counter, forKey: CCRequestMessagingConstants.messageCounter)
+            userDefaults.set(counter, forKey: CCRequestMessagingConstants.kMessageCounter)
             sendOrQueueClientMessage(data: data, messageType: .queueable)
         }
     }

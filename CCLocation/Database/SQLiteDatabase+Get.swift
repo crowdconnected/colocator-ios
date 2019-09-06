@@ -26,7 +26,7 @@ extension SQLiteDatabase {
                 throw SQLiteError.Exec(message: errorMessage)
             }
             
-            let sql = "SELECT * FROM \(CCLocationTables.MESSAGES_TABLE) ORDER BY ID ASC LIMIT \(num);"
+            let sql = "SELECT * FROM \(CCLocationTables.kMessagesTable) ORDER BY ID ASC LIMIT \(num);"
             let statement = try prepareStatement(sql: sql)
             
             while sqlite3_step(statement) == SQLITE_ROW {
@@ -48,7 +48,7 @@ extension SQLiteDatabase {
             sqlite3_reset(statement)
             
             let idsJoined = ids.joined(separator: ",")
-            let deleteSql = "DELETE FROM \(CCLocationTables.MESSAGES_TABLE) WHERE ID IN (\(idsJoined));"
+            let deleteSql = "DELETE FROM \(CCLocationTables.kMessagesTable) WHERE ID IN (\(idsJoined));"
             let deleteStatement = try prepareStatement(sql: deleteSql)
             
             guard sqlite3_step(deleteStatement) == SQLITE_DONE else {
@@ -72,7 +72,7 @@ extension SQLiteDatabase {
     // MARK: - Beacons
     
     func getAllBeacons() throws -> [Beacon]? {
-        let querySql = "SELECT * FROM \(CCLocationTables.IBEACON_MESSAGES_TABLE) ORDER BY ID ASC;"
+        let querySql = "SELECT * FROM \(CCLocationTables.kIBeaconMessagesTable) ORDER BY ID ASC;"
         var beacons:[Beacon]?
         
         guard let queryStatement = try? prepareStatement(sql: querySql) else {
@@ -107,7 +107,7 @@ extension SQLiteDatabase {
     // MARK: - EddyStone Beacons
     
     func getAllEddystoneBeacons() throws -> [EddystoneBeacon]? {
-        let querySql = "SELECT * FROM \(CCLocationTables.EDDYSTONE_BEACON_MESSAGES_TABLE) ORDER BY ID ASC;"
+        let querySql = "SELECT * FROM \(CCLocationTables.kEddystoneBeaconMessagesTable) ORDER BY ID ASC;"
         var beacons:[EddystoneBeacon]?
         
         guard let queryStatement = try? prepareStatement(sql: querySql) else {
