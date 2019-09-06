@@ -32,6 +32,10 @@ struct CCSocketConstants {
     static let kAliasKey = "Aliases"
 }
 
+struct TimerHandlingConstants {
+    static let kMaxDifferenceAllowedBetweenSystemTimeAndBootTime: Double = 30
+}
+
 struct ColocatorManagerConstants {
     static let kMaxTimeSendingDataAtStop = 120 // seconds
 }

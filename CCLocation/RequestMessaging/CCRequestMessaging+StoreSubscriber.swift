@@ -32,7 +32,7 @@ extension CCRequestMessaging: StoreSubscriber {
         }
         
         if let newTimerState = state.radiosilenceTimerState, newTimerState != currentRadioSilenceTimerState {
-            actualizeTimerState(newState: newTimerState)
+            updateTimerState(newState: newTimerState)
         }
         
         if let newLibraryTimeState = state.libraryTimeState, newLibraryTimeState != currentLibraryTimerState {
@@ -55,7 +55,7 @@ extension CCRequestMessaging: StoreSubscriber {
         }
     }
     
-    public func actualizeTimerState(newState: TimerState) {
+    public func updateTimerState(newState: TimerState) {
         currentRadioSilenceTimerState = newState
         
         // Covers case were app starts from terminated and no timer is available yet
