@@ -174,7 +174,7 @@ class Log {
     public static func configureLoggerLevelsDisplayed(verbose: Bool,
                                                info: Bool,
                                                debug: Bool,
-                                               warninig: Bool,
+                                               warning: Bool,
                                                error: Bool,
                                                severe: Bool) {
         var newLogLevelsAllowed = [LogEvent]()
@@ -187,7 +187,7 @@ class Log {
         if debug {
             newLogLevelsAllowed.append(.d)
         }
-        if warninig {
+        if warning {
             newLogLevelsAllowed.append(.w)
         }
         if error {

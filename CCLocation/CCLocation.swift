@@ -87,13 +87,13 @@ internal struct Constants {
     @objc public func setLoggerLevels(verbose: Bool,
                                       info: Bool,
                                       debug: Bool,
-                                      warninig: Bool,
+                                      warning: Bool,
                                       error: Bool,
                                       severe: Bool) {
         Log.configureLoggerLevelsDisplayed(verbose: verbose,
                                            info: info,
                                            debug: debug,
-                                           warninig: warninig,
+                                           warning: warning,
                                            error: error,
                                            severe: severe)
     }
