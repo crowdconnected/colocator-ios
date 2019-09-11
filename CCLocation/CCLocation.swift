@@ -126,10 +126,9 @@ internal struct Constants {
         })
     }
     
-    @objc public func receivedSilentNotification(userInfo: [AnyHashable : Any], clientKey key: String) {
-        updateLibraryBasedOnClientStatus(clientKey: key, isSilentNotification: true) { _ in
-            // UpdateLibrary method will start or stop the library depending on the server response
-            // There's no need to do anything in the completion
+    @objc public func receivedSilentNotification(userInfo: [AnyHashable : Any], clientKey key: String, completion: @escaping (Bool) -> Void) {
+        updateLibraryBasedOnClientStatus(clientKey: key, isSilentNotification: true) { isNewData in
+            completion(isNewData)
         }
     }
     
@@ -151,7 +150,7 @@ internal struct Constants {
         request.httpMethod = "GET"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        Log.info("Background Refresh Event detected - Checking client status for \(key.uppercased())")
+        Log.info("Updating library in background from \(wakeUpSource) - Checking client status for \(key.uppercased())")
         
         URLSession.shared.dataTask(with: request) { (data, response, err) in
             guard err == nil, let dataResponse = data else {
@@ -182,6 +181,7 @@ internal struct Constants {
                 Log.warning("Failed to get client's status in background. Error: \(parsingError)")
             }
         }.resume()
+        
     }
 }
 
