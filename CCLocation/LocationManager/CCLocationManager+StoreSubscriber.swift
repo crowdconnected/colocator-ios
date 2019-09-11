@@ -60,9 +60,8 @@ extension CCLocationManager: StoreSubscriber {
             let isEddystoneScanEnabled = currentBeaconState.isEddystoneScanningEnabled
                 
             if isIBeaconRangingEnabled != nil || isEddystoneScanEnabled != nil {
-                if maxBeaconRunTimer == nil && minOffTimeBeaconTimer == nil {
-                    startBeaconScanning()
-                }
+                //TODO Add maxRunTime and minOffTime dependency
+                startBeaconScanning()
                 
                 updateWindowSizeFilter()
             } else {
