@@ -116,6 +116,21 @@ extension CCRequestMessaging {
             }
         }
         
+        if tempClientMessage!.hasLocationRequest {
+            Log.verbose ("Found locationRequest messages in queue")
+            
+            let (actualizedSubmessageCounter, toCompileMessage, toQueueMessage) =
+                self.checkMessageLocationRequest(tempClientMessage!.locationRequest, subMessageCounter: subMessageCounter)
+            
+            subMessageCounter = actualizedSubmessageCounter
+            if let newCompileMessage = toCompileMessage {
+                compiledClientMessage.locationRequest = newCompileMessage
+            }
+            if let newQueueMessage = toQueueMessage {
+                backToQueueMessages.locationRequest = newQueueMessage
+            }
+        }
+        
         let (actualizedSubmessageCounter, toCompileMessage) =
             self.checkMarkerMessage(tempClientMessage!, subMessageCounter: subMessageCounter)
         
@@ -379,6 +394,23 @@ extension CCRequestMessaging {
             }
         }
         return newBatteryMessage
+    }
+    
+    public func checkMessageLocationRequest(_ message: Messaging_ClientLocationRequest, subMessageCounter: Int)
+                                            -> (Int, Messaging_ClientLocationRequest?, Messaging_ClientLocationRequest?) {
+        let subMessageNo = subMessageCounter
+        var locationRequestMessage = Messaging_ClientLocationRequest()
+        let tempCapabilityMessage = message
+                          
+        if tempCapabilityMessage.hasType {
+            locationRequestMessage.type = tempCapabilityMessage.type
+        }
+        
+        if subMessageNo >= 0 {
+            return (subMessageNo + 1, locationRequestMessage, nil)
+        } else {
+            return (subMessageNo + 1, nil, locationRequestMessage)
+        }
     }
 }
 

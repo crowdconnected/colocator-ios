@@ -73,6 +73,24 @@ class CCRequestMessaging: NSObject {
         
         processGlobalSettings(serverMessage: serverMessage, store: stateStore)
         processIosSettings(serverMessage: serverMessage, store: stateStore)
+        processLocationResponseMessages(serverMessage: serverMessage)
+    }
+    
+    func processLocationResponseMessages(serverMessage: Messaging_ServerMessage) {
+        if !serverMessage.locationResponses.isEmpty {
+            var messages: [LocationResponse] = []
+            
+            for locationResponse in serverMessage.locationResponses {
+                let newLocationMessage = LocationResponse(latitude: locationResponse.latitude,
+                                                          longitude: locationResponse.longitude,
+                                                          headingOffSet: locationResponse.headingOffset,
+                                                          error: locationResponse.error,
+                                                          timestamp: locationResponse.timestamp)
+                
+                messages.append(newLocationMessage)
+            }
+            ccSocket?.delegate?.receivedLocationMessages(messages)
+        }
     }
     
     func processGlobalSettings(serverMessage: Messaging_ServerMessage, store: Store<LibraryState>) {

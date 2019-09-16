@@ -19,6 +19,7 @@ internal struct Constants {
 @objc public protocol CCLocationDelegate: class {
     @objc func ccLocationDidConnect()
     @objc func ccLocationDidFailWithError(error: Error)
+    @objc func ccLocationDidReceiveServerLocation(_ location: LocationResponse)
 }
 
 @objc public class CCLocation: NSObject {
@@ -183,9 +184,36 @@ internal struct Constants {
         }.resume()
         
     }
+    
+    //MARK: - Location Callbacks
+    
+    @objc public func requestLocation() {
+        if libraryStarted == true {
+            colocatorManager?.ccRequestMessaging?.sendLocationRequestMessage(type: 1)
+        }
+    }
+    
+    @objc public func registerLocationListener() {
+        if libraryStarted == true {
+            colocatorManager?.ccRequestMessaging?.sendLocationRequestMessage(type: 2)
+        }
+    }
+    
+    @objc public func unregisterLocationListener() {
+        if libraryStarted == true {
+            colocatorManager?.ccRequestMessaging?.sendLocationRequestMessage(type: 3)
+        }
+    }
 }
 
+//MARK: - CCSocketDelegate
+
 extension CCLocation: CCSocketDelegate {
+    func receivedLocationMessages(_ messages: [LocationResponse]) {
+        Log.info("Received LocationResponse messages\n\(messages)")
+        delegate?.ccLocationDidReceiveServerLocation(messages.last!)
+    }
+    
     func receivedTextMessage(message: NSDictionary) {
         Log.verbose("Received text message from socket")
     }
