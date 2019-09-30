@@ -205,7 +205,7 @@ class CCRequestMessaging: NSObject {
     
     // sendQueuedClientMessage for timeBetweenSendsTimer firing
     @objc internal func sendQueuedClientMessagesTimerFired() {
-        Log.debug("Flushing queued messages")
+        Log.verbose("Flushing queued messages")
         if stateStore != nil {
             if stateStore.state.ccRequestMessagingState.webSocketState?.connectionState == .online {
                 self.sendQueuedClientMessages(firstMessage: nil)
