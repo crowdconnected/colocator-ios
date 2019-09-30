@@ -211,7 +211,9 @@ internal struct Constants {
 extension CCLocation: CCSocketDelegate {
     func receivedLocationMessages(_ messages: [LocationResponse]) {
         Log.info("Received LocationResponse messages\n\(messages)")
-        delegate?.ccLocationDidReceiveServerLocation(messages.last!)
+        for message in messages {
+            delegate?.ccLocationDidReceiveServerLocation(message)
+        }
     }
     
     func receivedTextMessage(message: NSDictionary) {
