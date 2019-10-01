@@ -19,7 +19,8 @@ internal struct Constants {
 @objc public protocol CCLocationDelegate: class {
     @objc func ccLocationDidConnect()
     @objc func ccLocationDidFailWithError(error: Error)
-    @objc func ccLocationDidReceiveServerLocation(_ location: LocationResponse)
+    @objc func ccLocationDidReceiveLocationResponse(_ location: LocationResponse)
+    @objc func ccLocationRequestDidFail()
 }
 
 @objc public class CCLocation: NSObject {
@@ -188,20 +189,32 @@ internal struct Constants {
     //MARK: - Location Callbacks
     
     @objc public func requestLocation() {
-        if libraryStarted == true {
+        if libraryStarted == true && colocatorManager?.ccRequestMessaging != nil {
             colocatorManager?.ccRequestMessaging?.sendLocationRequestMessage(type: 1)
+            Log.info("Requested one CC location")
+        } else {
+            delegate?.ccLocationRequestDidFail()
+            Log.warning("Failed to request one CC location")
         }
     }
     
     @objc public func registerLocationListener() {
-        if libraryStarted == true {
+        if libraryStarted == true && colocatorManager?.ccRequestMessaging != nil {
             colocatorManager?.ccRequestMessaging?.sendLocationRequestMessage(type: 2)
+            Log.info("Registered for CC locations")
+        } else {
+            delegate?.ccLocationRequestDidFail()
+            Log.warning("Failed to register for CC locations")
         }
     }
     
     @objc public func unregisterLocationListener() {
-        if libraryStarted == true {
+        if libraryStarted == true && colocatorManager?.ccRequestMessaging != nil {
+            Log.info("Unregistered for CC locations")
             colocatorManager?.ccRequestMessaging?.sendLocationRequestMessage(type: 3)
+        } else {
+            delegate?.ccLocationRequestDidFail()
+            Log.warning("Failed to unregister for CC locations")
         }
     }
 }
@@ -212,7 +225,7 @@ extension CCLocation: CCSocketDelegate {
     func receivedLocationMessages(_ messages: [LocationResponse]) {
         Log.info("Received LocationResponse messages\n\(messages)")
         for message in messages {
-            delegate?.ccLocationDidReceiveServerLocation(message)
+            delegate?.ccLocationDidReceiveLocationResponse(message)
         }
     }
     
