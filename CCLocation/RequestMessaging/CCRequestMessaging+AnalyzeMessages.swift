@@ -25,7 +25,7 @@ extension CCRequestMessaging {
         tempClientMessage = try? Messaging_ClientMessage(serializedData: message)
         
         if tempClientMessage!.locationMessage.count > 0 {
-            Log.verbose ("Found location messages in queue")
+            Log.debug ("Found location messages in queue")
             
             let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) =
                 self.checkLocationTypeMessages(tempClientMessage!.locationMessage, subMessageCounter: subMessageCounter)
@@ -36,7 +36,7 @@ extension CCRequestMessaging {
         }
         
         if tempClientMessage!.circularGeoFenceEvents.count > 0 {
-            Log.verbose ("Found geofence event messages in queue")
+            Log.debug ("Found geofence event messages in queue")
             
             let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) =
                 self.checkGeofenceTypeMessages(tempClientMessage!.circularGeoFenceEvents, subMessageCounter: subMessageCounter)
@@ -47,7 +47,7 @@ extension CCRequestMessaging {
         }
         
         if tempClientMessage!.step.count > 0 {
-            Log.verbose ("Found step messages in queue")
+            Log.debug ("Found step messages in queue")
             
             let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) =
                 self.checkStepsTypeMessages(tempClientMessage!.step, subMessageCounter: subMessageCounter)
@@ -58,7 +58,7 @@ extension CCRequestMessaging {
         }
         
         if tempClientMessage!.bluetoothMessage.count > 0 {
-            Log.verbose ("Found bluetooth messages in queue")
+            Log.debug ("Found bluetooth messages in queue")
             
             let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) =
                 self.checkBluetoothTypeMessages(tempClientMessage!.bluetoothMessage, subMessageCounter: subMessageCounter)
@@ -69,7 +69,7 @@ extension CCRequestMessaging {
         }
         
         if tempClientMessage!.ibeaconMessage.count > 0 {
-            Log.verbose ("Found ibeacon messages in queue")
+            Log.debug ("Found ibeacon messages in queue")
             
             let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) =
                 self.checkiBeaconTypeMessages(tempClientMessage!.ibeaconMessage, subMessageCounter: subMessageCounter)
@@ -80,7 +80,7 @@ extension CCRequestMessaging {
         }
         
         if tempClientMessage!.eddystonemessage.count > 0 {
-            Log.verbose ("Found eddystone messages in queue")
+            Log.debug ("Found eddystone messages in queue")
             
             let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) =
                 self.checkEddystoneTypeMessages(tempClientMessage!.eddystonemessage, subMessageCounter: subMessageCounter)
@@ -91,7 +91,7 @@ extension CCRequestMessaging {
         }
         
         if tempClientMessage!.alias.count > 0 {
-            Log.verbose ("Found alias messages in queue")
+            Log.debug ("Found alias messages in queue")
             
             let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) =
                 self.checkAliasesTypeMessages(tempClientMessage!.alias, subMessageCounter: subMessageCounter)
@@ -102,7 +102,7 @@ extension CCRequestMessaging {
         }
         
         if tempClientMessage!.hasIosCapability {
-            Log.verbose ("Found iosCapability messages in queue")
+            Log.debug ("Found iosCapability messages in queue")
             
             let (actualizedSubmessageCounter, toCompileMessage, toQueueMessage) =
                 self.checkMessageIOSCapability(tempClientMessage!.iosCapability, subMessageCounter: subMessageCounter)
@@ -116,17 +116,32 @@ extension CCRequestMessaging {
             }
         }
         
+        if tempClientMessage!.hasLocationRequest {
+            Log.debug ("Found locationRequest messages in queue")
+            
+            let (actualizedSubmessageCounter, toCompileMessage, toQueueMessage) =
+                self.checkMessageLocationRequest(tempClientMessage!.locationRequest, subMessageCounter: subMessageCounter)
+            
+            subMessageCounter = actualizedSubmessageCounter
+            if let newCompileMessage = toCompileMessage {
+                compiledClientMessage.locationRequest = newCompileMessage
+            }
+            if let newQueueMessage = toQueueMessage {
+                backToQueueMessages.locationRequest = newQueueMessage
+            }
+        }
+        
         let (actualizedSubmessageCounter, toCompileMessage) =
             self.checkMarkerMessage(tempClientMessage!, subMessageCounter: subMessageCounter)
         
         subMessageCounter = actualizedSubmessageCounter
         if let newCompileMessage = toCompileMessage {
-            Log.verbose ("Found marker messages in queue")
+            Log.debug ("Found marker messages in queue")
             compiledClientMessage.marker = newCompileMessage
         }
         
         if let newBatteryMessage = self.checkNewBatteryLevelTypeMessage() {
-            Log.verbose ("Found new battery level messages in queue")
+            Log.debug ("Found new battery level messages in queue")
             compiledClientMessage.battery = newBatteryMessage
         }
         
@@ -379,6 +394,23 @@ extension CCRequestMessaging {
             }
         }
         return newBatteryMessage
+    }
+    
+    public func checkMessageLocationRequest(_ message: Messaging_ClientLocationRequest, subMessageCounter: Int)
+                                            -> (Int, Messaging_ClientLocationRequest?, Messaging_ClientLocationRequest?) {
+        let subMessageNo = subMessageCounter
+        var locationRequestMessage = Messaging_ClientLocationRequest()
+        let tempCapabilityMessage = message
+                          
+        if tempCapabilityMessage.hasType {
+            locationRequestMessage.type = tempCapabilityMessage.type
+        }
+        
+        if subMessageNo >= 0 {
+            return (subMessageNo + 1, locationRequestMessage, nil)
+        } else {
+            return (subMessageNo + 1, nil, locationRequestMessage)
+        }
     }
 }
 

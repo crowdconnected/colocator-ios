@@ -16,6 +16,7 @@ class CCRequestMessaging: NSObject {
     enum MessageType {
         case queueable
         case discardable
+        case urgent
     }
     
     weak var ccSocket: CCSocket?
@@ -73,6 +74,24 @@ class CCRequestMessaging: NSObject {
         
         processGlobalSettings(serverMessage: serverMessage, store: stateStore)
         processIosSettings(serverMessage: serverMessage, store: stateStore)
+        processLocationResponseMessages(serverMessage: serverMessage)
+    }
+    
+    func processLocationResponseMessages(serverMessage: Messaging_ServerMessage) {
+        if !serverMessage.locationResponses.isEmpty {
+            var messages: [LocationResponse] = []
+            
+            for locationResponse in serverMessage.locationResponses {
+                let newLocationMessage = LocationResponse(latitude: locationResponse.latitude,
+                                                          longitude: locationResponse.longitude,
+                                                          headingOffSet: locationResponse.headingOffset,
+                                                          error: locationResponse.error,
+                                                          timestamp: locationResponse.timestamp)
+                
+                messages.append(newLocationMessage)
+            }
+            ccSocket?.delegate?.receivedLocationMessages(messages)
+        }
     }
     
     func processGlobalSettings(serverMessage: Messaging_ServerMessage, store: Store<LibraryState>) {
@@ -171,23 +190,29 @@ class CCRequestMessaging: NSObject {
                     Log.verbose("Websocket online, buffer timer present, message discardable, send new and queued messages")
                     sendQueuedClientMessages(firstMessage: data)
                 }
+                if messageType == .urgent {
+                    Log.verbose("Websocket online, buffer timer present,  urgent message, send current messages")
+                    sendSingleMessage(data)
+                }
             }
         } else {
-            
             if messageType == .queueable {
                 Log.verbose("Websocket offline, message queuable, queue message")
                 insertMessageInLocalDatabase(message: data)
             }
-            
             if messageType == .discardable {
                 Log.verbose("Websocket offline, message discardable, discard message")
+            }
+            if messageType == .urgent {
+                Log.verbose("Websocket offline, urgent message , add into database")
+                insertMessageInLocalDatabase(message: data)
             }
         }
     }
     
     // sendQueuedClientMessage for timeBetweenSendsTimer firing
     @objc internal func sendQueuedClientMessagesTimerFired() {
-        Log.debug("Flushing queued messages")
+        Log.verbose("Flushing queued messages")
         if stateStore != nil {
             if stateStore.state.ccRequestMessagingState.webSocketState?.connectionState == .online {
                 self.sendQueuedClientMessages(firstMessage: nil)

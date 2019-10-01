@@ -125,7 +125,7 @@ extension CCRequestMessaging {
         }
     }
     
-    private func sendSingleMessage(_ message: Data) {
+    func sendSingleMessage(_ message: Data) {
         DispatchQueue.global(qos: .background).async { [weak self] in
             var (_,
                  compiledClientMessage,
