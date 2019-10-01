@@ -24,15 +24,12 @@ import TrueTime
          headingOffSet: Double,
          error: Double,
          timestamp: UInt64) {
-        
         self.latitude = latitude
         self.longitude = longitude
         self.headingOffSet = headingOffSet
         self.error = error
         self.timestamp = timestamp
-        
         super.init()
-        
     }
 }
 

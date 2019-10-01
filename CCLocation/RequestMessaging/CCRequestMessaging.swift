@@ -16,6 +16,7 @@ class CCRequestMessaging: NSObject {
     enum MessageType {
         case queueable
         case discardable
+        case urgent
     }
     
     weak var ccSocket: CCSocket?
@@ -189,16 +190,22 @@ class CCRequestMessaging: NSObject {
                     Log.verbose("Websocket online, buffer timer present, message discardable, send new and queued messages")
                     sendQueuedClientMessages(firstMessage: data)
                 }
+                if messageType == .urgent {
+                    Log.verbose("Websocket online, buffer timer present,  urgent message, send current messages")
+                    sendSingleMessage(data)
+                }
             }
         } else {
-            
             if messageType == .queueable {
                 Log.verbose("Websocket offline, message queuable, queue message")
                 insertMessageInLocalDatabase(message: data)
             }
-            
             if messageType == .discardable {
                 Log.verbose("Websocket offline, message discardable, discard message")
+            }
+            if messageType == .urgent {
+                Log.verbose("Websocket offline, urgent message , add into database")
+                insertMessageInLocalDatabase(message: data)
             }
         }
     }

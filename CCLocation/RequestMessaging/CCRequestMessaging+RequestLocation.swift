@@ -25,10 +25,10 @@ extension CCRequestMessaging {
         requestLocationMessage.type = Messaging_ClientLocationRequest.TypeEnum(rawValue: type)!
         clientMessage.locationRequest = requestLocationMessage
         
-        Log.verbose("Requesst location message build: \(clientMessage)")
+        Log.verbose("Request location message build: \(clientMessage)")
         
         if let data = try? clientMessage.serializedData() {
-            sendOrQueueClientMessage(data: data, messageType: .queueable)
+            sendOrQueueClientMessage(data: data, messageType: .urgent)
         }
     }
 }
