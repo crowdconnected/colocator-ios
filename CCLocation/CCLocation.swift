@@ -19,8 +19,8 @@ internal struct Constants {
 @objc public protocol CCLocationDelegate: class {
     @objc func ccLocationDidConnect()
     @objc func ccLocationDidFailWithError(error: Error)
-    @objc func ccLocationDidReceiveLocationResponse(_ location: LocationResponse)
-    @objc func ccLocationRequestDidFail()
+    @objc func didReceiveCCLocation(_ location: LocationResponse)
+    @objc func didFailToUpdateCCLocation()
 }
 
 @objc public class CCLocation: NSObject {
@@ -193,7 +193,7 @@ internal struct Constants {
             colocatorManager?.ccRequestMessaging?.sendLocationRequestMessage(type: 1)
             Log.info("Requested one CC location")
         } else {
-            delegate?.ccLocationRequestDidFail()
+            delegate?.didFailToUpdateCCLocation()
             Log.warning("Failed to request one CC location")
         }
     }
@@ -203,7 +203,7 @@ internal struct Constants {
             colocatorManager?.ccRequestMessaging?.sendLocationRequestMessage(type: 2)
             Log.info("Registered for CC locations")
         } else {
-            delegate?.ccLocationRequestDidFail()
+            delegate?.didFailToUpdateCCLocation()
             Log.warning("Failed to register for CC locations")
         }
     }
@@ -213,7 +213,7 @@ internal struct Constants {
             Log.info("Unregistered for CC locations")
             colocatorManager?.ccRequestMessaging?.sendLocationRequestMessage(type: 3)
         } else {
-            delegate?.ccLocationRequestDidFail()
+            delegate?.didFailToUpdateCCLocation()
             Log.warning("Failed to unregister for CC locations")
         }
     }
@@ -225,7 +225,7 @@ extension CCLocation: CCSocketDelegate {
     func receivedLocationMessages(_ messages: [LocationResponse]) {
         Log.info("Received LocationResponse messages\n\(messages)")
         for message in messages {
-            delegate?.ccLocationDidReceiveLocationResponse(message)
+            delegate?.didReceiveCCLocation(message)
         }
     }
     
