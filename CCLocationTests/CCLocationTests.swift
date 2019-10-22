@@ -15,8 +15,6 @@ class CCLocationTests: XCTestCase {
     let testAPIKey = "iosrtest"
     let stagingWrongURL = "staging.colocator.net:443/wrongURLString"
     
-    let kTestMarkerMessage = "Test marker"
-    
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -110,31 +108,6 @@ class CCLocationTests: XCTestCase {
         wait(for: [expectation], timeout: 6.0)
     }
     
-    func testSendMarker() {
-        let expectation = XCTestExpectation(description: "Marker should be sent immediately")
-        
-        let ccLocation = CCLocation.sharedInstance
-        ccLocation.start(apiKey: testAPIKey)
-        
-        let colocatorManager = ccLocation.colocatorManager
-        let ccRequestMessages = colocatorManager?.ccRequestMessaging
-
-        let initialMessagesCount = ccRequestMessages?.getMessageCount() ?? 0
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            ccLocation.sendMarker(message: self.kTestMarkerMessage)
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            let finalMessagesCount = ccRequestMessages?.getMessageCount() ?? 0
-            
-            XCTAssert(initialMessagesCount >= finalMessagesCount)
-            expectation.fulfill()
-        }
-        
-        wait(for: [expectation], timeout: 3.0)
-    }
-    
     func testSetAliasesAndPersistence() {
         let expectation = XCTestExpectation(description: "Aliases should be sent and persist in User Defaults")
         
@@ -184,7 +157,7 @@ class CCLocationTests: XCTestCase {
         XCTAssert(mockDeviceID == realDeviceID)
     }
     
-    func testSavingDataInDatabase() {
+    func testSavingDataInDatabase() { // no internet connect is required for this test
         let expectation = XCTestExpectation(description: "Data should be saved in database if cannot be sent")
         
         let cclocation = CCLocation.sharedInstance
@@ -196,9 +169,9 @@ class CCLocationTests: XCTestCase {
         let initialMessagesCount = ccRequestMessages?.getMessageCount() ?? 0
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            cclocation.sendMarker(message: "\(self.kTestMarkerMessage)1")
-            cclocation.sendMarker(message: "\(self.kTestMarkerMessage)2")
-            cclocation.sendMarker(message: "\(self.kTestMarkerMessage)3")
+            cclocation.requestLocation()
+            cclocation.requestLocation()
+            cclocation.requestLocation()
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
@@ -316,20 +289,19 @@ class CCLocationTests: XCTestCase {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             ccRequestMessages?.stateStore.dispatch( TimeBetweenSendsTimerReceivedAction(timeInMilliseconds: 0))
+            ccRequestMessages?.stateStore.dispatch( EnableForegroundGEOAction(activityType: .fitness, maxRuntime: nil, minOffTime: nil, desiredAccuracy: -1, distanceFilter: -1, pausesUpdates: false))
             
-            cclocation.sendMarker(message: "\(self.kTestMarkerMessage)1")
-            cclocation.sendMarker(message: "\(self.kTestMarkerMessage)2")
-            cclocation.sendMarker(message: "\(self.kTestMarkerMessage)3")
+            // location messages are received
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
             let finalMessagesCount = ccRequestMessages?.getMessageCount() ?? 0
             cclocation.stop()
             
             XCTAssert(finalMessagesCount <= initialMessagesCount)
             expectation.fulfill()
         }
-        wait(for: [expectation], timeout: 2.5)
+        wait(for: [expectation], timeout: 6.5)
     }
     
     // connection available
@@ -348,10 +320,7 @@ class CCLocationTests: XCTestCase {
               
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             ccRequestMessages?.stateStore.dispatch( TimeBetweenSendsTimerReceivedAction(timeInMilliseconds: 5000))
-            
-            cclocation.sendMarker(message: "\(self.kTestMarkerMessage)4")
-            cclocation.sendMarker(message: "\(self.kTestMarkerMessage)5")
-            cclocation.sendMarker(message: "\(self.kTestMarkerMessage)6")
+            ccRequestMessages?.stateStore.dispatch( EnableForegroundGEOAction(activityType: .fitness, maxRuntime: nil, minOffTime: nil, desiredAccuracy: -1, distanceFilter: -1, pausesUpdates: false))
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
