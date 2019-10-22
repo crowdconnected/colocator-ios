@@ -187,12 +187,6 @@ class ColocatorManager {
         defaults.setValue(newAliasesDictionary, forKey: CCSocketConstants.kAliasKey)
     }
     
-    public func sendMarker(data: String) {
-        if let ccRequestMessaging = self.ccRequestMessaging {
-            ccRequestMessaging.processMarker(data: data)
-        }
-    }
-    
     func deleteDatabaseContent() {
         Log.warning("Attempt to delete all the content inside the database")
         

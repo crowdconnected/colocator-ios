@@ -104,10 +104,6 @@ internal struct Constants {
         return CCSocket.sharedInstance.deviceId
     }
     
-    @objc public func sendMarker(message: String) {
-        colocatorManager?.sendMarker(data: message)
-    }
-    
     @available(*, deprecated, message: "Replaced by addAlias(key, value) method")
     @objc public func setAliases(aliases: Dictionary<String, String>) {
         colocatorManager?.setAliases(aliases: aliases)
