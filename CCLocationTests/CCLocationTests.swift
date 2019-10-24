@@ -320,7 +320,9 @@ class CCLocationTests: XCTestCase {
               
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             ccRequestMessages?.stateStore.dispatch( TimeBetweenSendsTimerReceivedAction(timeInMilliseconds: 5000))
-            ccRequestMessages?.stateStore.dispatch( EnableForegroundGEOAction(activityType: .fitness, maxRuntime: nil, minOffTime: nil, desiredAccuracy: -1, distanceFilter: -1, pausesUpdates: false))
+            ccRequestMessages?.processLocationEvent(location: CLLocation(latitude: 2.0, longitude: 3.0))
+            ccRequestMessages?.processLocationEvent(location: CLLocation(latitude: 4.0, longitude: 3.0))
+            ccRequestMessages?.processLocationEvent(location: CLLocation(latitude: 7.0, longitude: 3.0))
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
