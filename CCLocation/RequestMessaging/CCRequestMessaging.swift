@@ -69,7 +69,7 @@ class CCRequestMessaging: NSObject {
         
         let serverMessageJSON = try serverMessage.jsonString()
         if serverMessageJSON.count > 2 {
-            Log.info("Received message from server \n\(serverMessage)")
+            Log.info("[Colocator] Received message from server \n\(serverMessage)")
         }
         
         processGlobalSettings(serverMessage: serverMessage, store: stateStore)

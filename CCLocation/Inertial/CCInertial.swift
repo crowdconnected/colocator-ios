@@ -43,7 +43,7 @@ class CCInertial: NSObject {
            let pedometerAuthStatus = CMPedometer.authorizationStatus()
            
            if pedometerAuthStatus == .authorized || pedometerAuthStatus == .notDetermined {
-               Log.debug("Starting intertial")
+               Log.info("[Colocator] Starting inertial")
                
                startCountingSteps()
                startMotionUpdates()
@@ -51,7 +51,7 @@ class CCInertial: NSObject {
                Log.debug("Authorisation status is .denied or .restriced, no inertial updates requested")
            }
        } else {
-           Log.debug("Starting intertial")
+           Log.info("Starting inertial")
            
            startCountingSteps()
            startMotionUpdates()
@@ -59,7 +59,7 @@ class CCInertial: NSObject {
     }
        
     internal func stop() {
-        Log.debug("Stopping inertial")
+        Log.info("[Colocator] Stopping inertial")
            
         pedometer.stopUpdates()
         motion.stopDeviceMotionUpdates()
@@ -75,7 +75,7 @@ class CCInertial: NSObject {
         
         pedometer.startUpdates(from: pedometerStartDate) { [weak self] pedometerData, error in
             guard let pedometerData = pedometerData, error == nil else {
-                Log.error("Received: \(error.debugDescription)")
+                Log.error("[Colocator] Received: \(error.debugDescription)")
                 return
             }
             
@@ -96,7 +96,7 @@ class CCInertial: NSObject {
             guard let data = deviceMotion, error == nil else {
                 let cmError = error as? CMError
                 
-                Log.error("Received motion update error: \(cmError.debugDescription)")
+                Log.error("[Colocator] Received motion update error: \(cmError.debugDescription)")
                 return
             }
             
@@ -155,7 +155,7 @@ class CCInertial: NSObject {
             let stepsBetweenStepCounts = numberOfSteps - tempPreviousPedometerData.numberOfSteps
             let oneStepTimeInterval = TimeInterval(periodBetweenStepCounts / Double(stepsBetweenStepCounts))
             
-            Log.debug("""
+            Log.verbose("""
                 Pedometer Data
                 Step count: \(numberOfSteps)
                 Previous step count: \(tempPreviousPedometerData.numberOfSteps)

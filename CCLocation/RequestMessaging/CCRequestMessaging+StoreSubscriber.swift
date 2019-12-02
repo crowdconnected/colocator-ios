@@ -20,7 +20,7 @@ extension CCRequestMessaging: StoreSubscriber {
             currentWebSocketState = webSocketState
                 
             if webSocketState.connectionState == ConnectionState.online {
-                Log.info("New connection has started")
+                Log.info("[Colocator] New connection has started")
                     
                 //Send queued messages to server on new connection without radioSilencer delay
                 sendQueuedClientMessages(firstMessage: nil)

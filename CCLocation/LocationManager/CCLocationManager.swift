@@ -125,7 +125,7 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
     }
     
     @objc func stopLocationUpdates() {
-        Log.info("Stop collecting GEO")
+        Log.info("[Colocator] Stop collecting GEO")
         
         locationManager.stopUpdatingLocation()
         
@@ -153,7 +153,7 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
     func updateMonitoringGeofences() {
         stopMonitoringRemovedGeofences()
         
-        Log.debug("\nUpdate monitored geofences\n\n")
+        Log.debug("Update monitored geofences")
         
         Log.verbose("------- List of monitored geofences before adding new ones -------")
         for monitoredGeofence in locationManager.monitoredRegions {
@@ -181,7 +181,7 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
     }
     
     func stopMonitoringRemovedGeofences() {
-        Log.debug("\nStop monitoring previous geofences")
+        Log.debug("Stop monitoring previous geofences")
         
         let crowdConnectedGeofences = locationManager.monitoredRegions.filter {
             return $0 is CLCircularRegion ? (($0 as! CLCircularRegion).identifier.range(of: "CC") != nil) : false
@@ -299,25 +299,25 @@ extension CCLocationManager {
     public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         switch (error) {
         case CLError.headingFailure:
-            Log.error("LocationManager didFailWithError kCLErrorHeadingFailure: \(error.localizedDescription)")
+            Log.error("[Colocator] LocationManager didFailWithError kCLErrorHeadingFailure: \(error.localizedDescription)")
             //LocationUnknown error occures when the location service is unable to retrieve a location right away, but keeps trying, simply to ignore and wait for new event
         case CLError.locationUnknown:
-            Log.error("LocationManager didFailWithError kCLErrorLocationUnknown: \(error.localizedDescription)")
+            Log.error("[Colocator] LocationManager didFailWithError kCLErrorLocationUnknown: \(error.localizedDescription)")
             //Denied error occures when the user denies location services, if that happens we should stop location services
         case CLError.denied:
-            Log.error("LocationManager didFailWithError kCLErrorDenied: \(error.localizedDescription)")
+            Log.error("[Colocator] LocationManager didFailWithError kCLErrorDenied: \(error.localizedDescription)")
             // According to API reference on denied error occures, when users stops location services, so we should stop them as well here
             
             // TODO: wrap into stop function to stop everything
             //            self.locationManager.stopUpdatingLocation()
             //            self.locationManager.stopMonitoringSignificantLocationChanges()
         default:
-            Log.error("LocationManager didFailWithError Unknown: \(error.localizedDescription)")
+            Log.error("[Colocator] LocationManager didFailWithError Unknown: \(error.localizedDescription)")
         }
     }
     
     public func locationManager(_ manager: CLLocationManager, didFinishDeferredUpdatesWithError error: Error?) {
-        Log.error("Did finish deferred updates with error \(error?.localizedDescription ?? "nil"))")
+        Log.error("[Colocator] Did finish deferred updates with error \(error?.localizedDescription ?? "nil"))")
     }
 }
 
@@ -373,7 +373,7 @@ extension CCLocationManager {
             return
         }
         
-        Log.error(String(format:"Monitoring did fail for Region: %@", region.identifier))
+        Log.error(String(format:"[Colocator] Monitoring did fail for Region: %@", region.identifier))
     }
     
     public func locationManager(_ manager: CLLocationManager, didStartMonitoringFor region: CLRegion) {
@@ -400,9 +400,9 @@ extension CCLocationManager {
         
         switch (status) {
         case .notDetermined:
-            Log.info("CLLocationManager authorization status not determined")
+            Log.info("[Colocator] CLLocationManager authorization status not determined")
         case .restricted:
-            Log.info("CLLocationManager authorization status restricted, can not use location services")
+            Log.info("[Colocator] CLLocationManager authorization status restricted, can not use location services")
             
             if #available(iOS 9.0, *) {
                 locationManager.allowsBackgroundLocationUpdates = false
@@ -410,7 +410,7 @@ extension CCLocationManager {
                 // Fallback on earlier versions
             }
         case .denied:
-            Log.info("CLLocationManager authorization status denied in user settings, can not use location services, until user enables them")
+            Log.info("[Colocator] CLLocationManager authorization status denied in user settings, can not use location services, until user enables them")
             // might consider here to ask a question to the user to enable location services again
             
             if #available(iOS 9.0, *) {
@@ -419,7 +419,7 @@ extension CCLocationManager {
                 // Fallback on earlier versions
             }
         case .authorizedAlways:
-            Log.info("CLLocationManager authorization status set to always authorized, we are ready to go")
+            Log.info("[Colocator] CLLocationManager authorization status set to always authorized, we are ready to go")
             
             if #available(iOS 9.0, *) {
                 locationManager.allowsBackgroundLocationUpdates = true
@@ -427,7 +427,7 @@ extension CCLocationManager {
                 // Fallback on earlier versions
             }
         case .authorizedWhenInUse:
-            Log.info("CLLocationManager authorization status set to in use, no background updates enabled")
+            Log.info("[Colocator] CLLocationManager authorization status set to in use, no background updates enabled")
         
             if #available(iOS 9.0, *) {
                 locationManager.allowsBackgroundLocationUpdates = false

@@ -22,7 +22,7 @@ extension CCRequestMessaging {
         let messageDBPath = URL.init(string: docsDir)?.appendingPathComponent(messagesDBName).absoluteString
         
         guard let messageDBPathStringUnwrapped = messageDBPath else {
-            Log.error("Unable to observation messages database path")
+            Log.error("[Colocator] Unable to observation messages database path")
             return
         }
         
@@ -30,9 +30,9 @@ extension CCRequestMessaging {
             messagesDB = try SQLiteDatabase.open(path: messageDBPathStringUnwrapped)
             Log.debug("Successfully opened connection to observation messages database.")
         } catch SQLiteError.OpenDatabase(let message) {
-            Log.error("Unable to open observation messages database. \(message)")
+            Log.error("[Colocator] Unable to open observation messages database. \(message)")
         } catch {
-            Log.error("An unexpected error was thrown, when trying to open a connection to observation messages database")
+            Log.error("[Colocator] An unexpected error was thrown, when trying to open a connection to observation messages database")
         }
     }
     
@@ -40,7 +40,7 @@ extension CCRequestMessaging {
         do {
             try messagesDB.createTable(table: CCMessage.self)
         } catch {
-            Log.error("message database error: \(messagesDB.errorMessage)")
+            Log.error("[Colocator] Message database error: \(messagesDB.errorMessage)")
         }
     }
     
@@ -51,9 +51,9 @@ extension CCRequestMessaging {
             do {
                 try database.insertMessage(ccMessage: CCMessage.init(observation: message))
             } catch SQLiteError.Prepare(let error) {
-                Log.error("SQL Prepare Error: \(error)")
+                Log.error("[Colocator] SQL Prepare Error: \(error)")
             } catch {
-                Log.error("Error while executing messagesDB.insertMessage \(error)")
+                Log.error("[Colocator] Error while executing messagesDB.insertMessage \(error)")
             }
         }
     }
@@ -65,9 +65,9 @@ extension CCRequestMessaging {
             do {
                 popMessages = try database.popMessages(num: maxMessagesToReturn)
             } catch SQLiteError.Prepare(let error) {
-                Log.error("SQL Prepare Error: \(error)")
+                Log.error("[Colocator] SQL Prepare Error: \(error)")
             } catch {
-                Log.error("Error while executing messagesDB.popMessage \(error)")
+                Log.error("[Colocator] Error while executing messagesDB.popMessage \(error)")
             }
         }
         return popMessages
@@ -82,9 +82,9 @@ extension CCRequestMessaging {
             }
             count = try self.messagesDB.count(table: CCLocationTables.kMessagesTable)
         } catch SQLiteError.Prepare(let error) {
-            Log.error("SQL Prepare Error: \(error)")
+            Log.error("[Colocator] SQL Prepare Error: \(error)")
         } catch {
-            Log.error("Error while executing messagesDB.count \(error)")
+            Log.error("[Colocator] Error while executing messagesDB.count \(error)")
         }
         
         return count
