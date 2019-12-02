@@ -37,17 +37,13 @@ internal struct Constants {
         return instance
     }()
     
-    @objc public static func askMotionPermissions () {
-        CMPedometer().stopUpdates()
-    }
-    
     /// Start the Colocator library with credentials
     ///
     @objc public func start(apiKey: String, urlString: String? = nil) {
         if libraryStarted == false {
             libraryStarted = true
             
-            Log.info("[Colocator] Initialising Colocator")
+            NSLog("[Colocator] Initialising Colocator")
             
             var tempUrlString = apiKey + Constants.kDefaultEndPointPartialUrl
             
@@ -66,7 +62,7 @@ internal struct Constants {
                                     ccLocation: self,
                                     stateStore: stateStore!)
         } else {
-            Log.info("[Colocator] already running: Colocator start method called more than once in a row")
+            NSLog("[Colocator] already running: Colocator start method called more than once in a row")
         }
     }
     
@@ -113,6 +109,15 @@ internal struct Constants {
         colocatorManager?.addAlias(key: key, value: value)
     }
     
+    @available(*, deprecated, message: "Replaced by triggerMotionPermissionPopUp() method")
+    @objc public static func askMotionPermissions() {
+        CMPedometer().stopUpdates()
+    }
+   
+    @objc public func triggerMotionPermissionPopUp() {
+        CMPedometer().stopUpdates()
+    }
+    
     @objc public func triggerBluetoothPermissionPopUp() {
         var centralManager: CBCentralManager? = nil
         centralManager = CBCentralManager(delegate: nil,
@@ -148,7 +153,7 @@ internal struct Constants {
         request.httpMethod = "GET"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        Log.info("Updating library in background from \(wakeUpSource) - Checking client status for \(key.uppercased())")
+        Log.info("[Colocator] Updating library in background from \(wakeUpSource) - Checking client status for \(key.uppercased())")
         
         URLSession.shared.dataTask(with: request) { (data, response, err) in
             guard err == nil, let dataResponse = data else {
@@ -162,13 +167,13 @@ internal struct Constants {
                 
                 if clientStatus == true {
                     self.start(apiKey: key)
-                    Log.info("Library started from background")
+                    Log.info("[Colocator] Library started from background")
                     completion(true)
                     return
                 }
                 if clientStatus == false {
                     self.stop()
-                    Log.info("Library stopped from background")
+                    Log.info("[Colocator] Library stopped from background")
                     completion(false)
                     return
                 }
@@ -176,7 +181,7 @@ internal struct Constants {
                 
             } catch let parsingError {
                 completion(false)
-                Log.warning("Failed to get client's status in background. Error: \(parsingError)")
+                Log.warning("[Colocator] Failed to get client's status in background. Error: \(parsingError)")
             }
         }.resume()
         
@@ -187,30 +192,30 @@ internal struct Constants {
     @objc public func requestLocation() {
         if libraryStarted == true && colocatorManager?.ccRequestMessaging != nil {
             colocatorManager?.ccRequestMessaging?.sendLocationRequestMessage(type: 1)
-            Log.info("Requested one CC location")
+            Log.info("[Colocator] Requested one Colocator location")
         } else {
             delegate?.didFailToUpdateCCLocation()
-            Log.warning("Failed to request one CC location")
+            Log.warning("[Colocator] Failed to request one Colocator location")
         }
     }
     
     @objc public func registerLocationListener() {
         if libraryStarted == true && colocatorManager?.ccRequestMessaging != nil {
             colocatorManager?.ccRequestMessaging?.sendLocationRequestMessage(type: 2)
-            Log.info("Registered for CC locations")
+            Log.info("[Colocator] Registered for Colocator location updates")
         } else {
             delegate?.didFailToUpdateCCLocation()
-            Log.warning("Failed to register for CC locations")
+            Log.warning("[Colocator] Failed to register for Colocator location updates")
         }
     }
     
     @objc public func unregisterLocationListener() {
         if libraryStarted == true && colocatorManager?.ccRequestMessaging != nil {
-            Log.info("Unregistered for CC locations")
+            Log.info("[Colocator] Unregistered for Colocator location updates")
             colocatorManager?.ccRequestMessaging?.sendLocationRequestMessage(type: 3)
         } else {
             delegate?.didFailToUpdateCCLocation()
-            Log.warning("Failed to unregister for CC locations")
+            Log.warning("[Colocator] Failed to unregister for Colocaor location updates")
         }
     }
 }
@@ -219,14 +224,14 @@ internal struct Constants {
 
 extension CCLocation: CCSocketDelegate {
     func receivedLocationMessages(_ messages: [LocationResponse]) {
-        Log.info("Received LocationResponse messages\n\(messages)")
+        Log.info("[Colocator] Received LocationResponse messages from Colocator\n\(messages)")
         for message in messages {
             delegate?.didReceiveCCLocation(message)
         }
     }
     
     func receivedTextMessage(message: NSDictionary) {
-        Log.verbose("Received text message from socket")
+        Log.verbose("Received text message from Colocator\n\(message)")
     }
     
     func ccSocketDidConnect() {
