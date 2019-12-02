@@ -13,11 +13,11 @@ import CoreLocation
 import TrueTime
 
 @objc public class LocationResponse: NSObject {
-    public var latitude: Double
-    public var longitude: Double
-    public var headingOffSet: Double
-    public var error: Double
-    public var timestamp: UInt64
+    @objc public var latitude: Double
+    @objc public var longitude: Double
+    @objc public var headingOffSet: Double
+    @objc public var error: Double
+    @objc public var timestamp: UInt64
     
     public init(latitude: Double,
          longitude: Double,
@@ -107,14 +107,7 @@ class CCSocket:NSObject {
     }
     
     @objc public func connect(timer: Timer?) {
-        Log.debug("[Colocator] Establishing connection to Colocator servers ...")
-        
-        if timer == nil {
-            Log.debug("first connect")
-        } else {
-            Log.debug("Timer fired")
-        }
-        
+        Log.debug("Establishing connection to Colocator servers ...")
         if webSocket == nil {
             configureWebSocket()
         }
@@ -196,7 +189,7 @@ class CCSocket:NSObject {
         }
         
         if maxCycleTimer == nil && firstReconnect {
-            Log.warning("Fired timer for stop collecting data in \(CCSocketConstants.kMaxCycleDelay / 1000) seconds")
+            Log.warning("[Colocator] Fired timer for stop collecting data in \(CCSocketConstants.kMaxCycleDelay / 1000) seconds")
 
             maxCycleTimer = Timer.scheduledTimer(timeInterval: CCSocketConstants.kMaxCycleDelay / 1000,
                                                  target: self,
@@ -253,7 +246,7 @@ class CCSocket:NSObject {
         Log.debug("CCRequestMessaging DEINIT")
         
         if #available(iOS 10.0, *) {
-            Log.debug("[CC] CCRequestMessaging DEINIT")
+            Log.debug("CCRequestMessaging DEINIT")
         } else {
             // Fallback on earlier versions
         }
@@ -263,7 +256,7 @@ class CCSocket:NSObject {
 // MARK: SRWebSocketDelegate
 extension CCSocket: SRWebSocketDelegate {
     public func webSocketDidOpen(_ webSocket: SRWebSocket!) {
-        Log.debug("[Colocator] ... connection to back-end established")
+        Log.info("[Colocator] Connection to back-end established")
         
         guard let ccRequestMessagingUnwrapped = ccRequestMessaging else {
             return
@@ -286,7 +279,7 @@ extension CCSocket: SRWebSocketDelegate {
     }
     
     public func webSocket(_ webSocket: SRWebSocket!, didFailWithError error: Error!) {
-        Log.error("[Colocator] :( Connection failed With Error " + error.localizedDescription)
+        Log.error("[Colocator] Connection failed With Error " + error.localizedDescription)
         
         guard let ccRequestMessaging = self.ccRequestMessaging else {
             return
@@ -323,7 +316,7 @@ extension CCSocket: SRWebSocketDelegate {
         do {
             try ccRequestMessaging.processServerMessage(data: messageData!)
         } catch {
-            Log.error("[Colocator] :( processing server message failed");
+            Log.error("[Colocator] Processing server message failed");
         }
     }
     

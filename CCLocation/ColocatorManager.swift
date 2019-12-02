@@ -78,8 +78,6 @@ class ColocatorManager {
             ccSocket?.start(urlString: urlString,
                             apiKey: apiKey,
                             ccRequestMessaging: ccRequestMessaging!)
-            
-            Log.debug("[Colocator] Started Colocator Framework")
         } else {
             stop()
             start(urlString: urlString,
@@ -102,7 +100,7 @@ class ColocatorManager {
             ccLocationManager?.delegate = nil
             ccLocationManager = nil
             
-            Log.info("Sending all messages from local database to server before stopping")
+            Log.info("[Colocator] Sending all messages from local database to server before stopping")
         
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 self.ccRequestMessaging?.sendQueuedMessagesAndStopTimer()
@@ -121,7 +119,7 @@ class ColocatorManager {
         
         if secondsFromStopTrigger > ColocatorManagerConstants.kMaxTimeSendingDataAtStop {
             let leftMessages = ccRequestMessaging?.getMessageCount() ?? 0
-            Log.warning("Library stopped. \(leftMessages) unsent messages")
+            Log.warning("[Colocator] Library stopped. \(leftMessages) unsent messages")
             
             destroyConnection()
             secondsFromStopTrigger = 0
@@ -187,31 +185,25 @@ class ColocatorManager {
         defaults.setValue(newAliasesDictionary, forKey: CCSocketConstants.kAliasKey)
     }
     
-    public func sendMarker(data: String) {
-        if let ccRequestMessaging = self.ccRequestMessaging {
-            ccRequestMessaging.processMarker(data: data)
-        }
-    }
-    
     func deleteDatabaseContent() {
-        Log.warning("Attempt to delete all the content inside the database")
+        Log.warning("[Colocator] Attempt to delete all the content inside the database")
         
         do {
             try messagesDatabase.deleteMessages(messagesTable: CCLocationTables.kMessagesTable)
         } catch {
-            Log.error("Failed to delete messages content in database.")
+            Log.error("[Colocator] Failed to delete messages content in database.")
         }
         
         do {
             try   beaconsDatabase.deleteBeacons(beaconTable: CCLocationTables.kIBeaconMessagesTable)
         } catch {
-            Log.error("Failed to delete beacons content in database.")
+            Log.error("[Colocator] Failed to delete beacons content in database.")
         }
 
         do {
             try eddystoneBeaconsDatabase.deleteBeacons(beaconTable: CCLocationTables.kEddystoneBeaconMessagesTable)
         } catch {
-            Log.error("Failed to delete eddystonebeacons content in database.")
+            Log.error("[Colocator] Failed to delete eddystonebeacons content in database.")
         }
     }
     
@@ -238,7 +230,7 @@ extension ColocatorManager {
         // Build the path to the database messages file
         let messageDBPath = URL.init(string: docsDir)?.appendingPathComponent(messagesDBName).absoluteString
         guard let messagesDBPathStringUnwrapped = messageDBPath else {
-            Log.error("Unable to create messages database path")
+            Log.error("[Colocator] Unable to create messages database path")
             return
         }
         
@@ -246,15 +238,15 @@ extension ColocatorManager {
             messagesDatabase = try SQLiteDatabase.open(path: messagesDBPathStringUnwrapped)
             Log.debug("Successfully opened connection to messages database.")
         } catch SQLiteError.OpenDatabase(let message) {
-            Log.error("Unable to open observation messages database. \(message)")
+            Log.error("[Colocator] Unable to open observation messages database. \(message)")
         } catch {
-            Log.error("An unexpected error was thrown, when trying to open a connection to observation messages database")
+            Log.error("[Colocator] An unexpected error was thrown, when trying to open a connection to observation messages database")
         }
         
         // Build the path to the database beacons file
         let beaconsDBPath = URL.init(string: docsDir)?.appendingPathComponent(iBeaconMessagesDBName).absoluteString
         guard let beaconsDBPathStringUnwrapped = beaconsDBPath else {
-            Log.error("Unable to create messages database path")
+            Log.error("[Colocator] Unable to create messages database path")
             return
         }
         
@@ -262,15 +254,15 @@ extension ColocatorManager {
             beaconsDatabase = try SQLiteDatabase.open(path: beaconsDBPathStringUnwrapped)
             Log.debug("Successfully opened connection to beacons database.")
         } catch SQLiteError.OpenDatabase(let message) {
-            Log.error("Unable to open observation beacons database. \(message)")
+            Log.error("[Colocator] Unable to open observation beacons database. \(message)")
         } catch {
-            Log.error("An unexpected error was thrown, when trying to open a connection to observation beacons database")
+            Log.error("[Colocator] An unexpected error was thrown, when trying to open a connection to observation beacons database")
         }
         
         // Build the path to the database eddystone beacons file
         let eddystoneBeaconsDBPath = URL.init(string: docsDir)?.appendingPathComponent(eddystoneBeaconMessagesDBName).absoluteString
         guard let eddystoneBeaconsDBPathStringUnwrapped = eddystoneBeaconsDBPath else {
-            Log.error("Unable to create eddystone beacons database path")
+            Log.error("[Colocator] Unable to create eddystone beacons database path")
             return
         }
         
@@ -278,9 +270,9 @@ extension ColocatorManager {
             eddystoneBeaconsDatabase = try SQLiteDatabase.open(path: eddystoneBeaconsDBPathStringUnwrapped)
             Log.debug("Successfully opened connection to eddystone beacons database.")
         } catch SQLiteError.OpenDatabase(let message) {
-            Log.error("Unable to open observation eddystone beacons database. \(message)")
+            Log.error("[Colocator] Unable to open observation eddystone beacons database. \(message)")
         } catch {
-            Log.error("An unexpected error was thrown, when trying to open a connection to eddystone beacons database")
+            Log.error("[Colocator] An unexpected error was thrown, when trying to open a connection to eddystone beacons database")
         }
     }
 }

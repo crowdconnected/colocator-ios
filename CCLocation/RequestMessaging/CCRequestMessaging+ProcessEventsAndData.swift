@@ -197,23 +197,4 @@ extension CCRequestMessaging {
             sendOrQueueClientMessage(data: data, messageType: .discardable)
         }
     }
-    
-    public func processMarker(data: String) {
-        if let timeInterval = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {
-            var clientMessage = Messaging_ClientMessage()
-            var markerMessage = Messaging_MarkerMessage()
-            
-            markerMessage.data = data
-            markerMessage.time = UInt64(fabs(timeInterval * Double(1000.0)))
-            
-            clientMessage.marker = markerMessage
-            
-            Log.verbose("Marker message build: \(clientMessage)")
-            
-            if let data = try? clientMessage.serializedData() {
-                sendOrQueueClientMessage(data: data, messageType: .queueable)
-            }
-        }
-    }
 }
-

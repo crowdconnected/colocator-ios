@@ -77,7 +77,7 @@ class TimeHandling {
                 
             self.isFetchingTrueTime = false
         }, failure: { (error) in
-            Log.error("[Colocator] Truetime error! " + error.description)
+            NSLog("[Colocator] Truetime error! \(error.description)")
             self.isFetchingTrueTime = false
         })
     }

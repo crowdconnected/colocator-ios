@@ -19,7 +19,7 @@ extension CCLocationManager {
             let beaconCount = try iBeaconMessagesDB.count(table:CCLocationTables.kIBeaconMessagesTable)
             Log.debug("Process beacon table, beacon count: \(String(describing: beaconCount))")
         } catch {
-            Log.error("Beacon database error: \(iBeaconMessagesDB.errorMessage)")
+            Log.error("[Colocator]  Beacon database error: \(iBeaconMessagesDB.errorMessage)")
         }
     }
     
@@ -29,7 +29,7 @@ extension CCLocationManager {
             let beaconCount = try eddystoneBeaconMessagesDB.count(table:CCLocationTables.kEddystoneBeaconMessagesTable)
             Log.debug("Process Eddystone beacon table, beacon count: \(String(describing: beaconCount))")
         } catch {
-            Log.debug("Eddystone beacon database error: \(eddystoneBeaconMessagesDB.errorMessage)")
+            Log.error("[Colocator] Eddystone beacon database error: \(eddystoneBeaconMessagesDB.errorMessage)")
         }
     }
     
@@ -40,7 +40,7 @@ extension CCLocationManager {
         do {
             try beacons = iBeaconMessagesDB.getAllBeaconsAndDelete()
         } catch {
-            Log.error("Beacon database error: \(iBeaconMessagesDB.errorMessage)")
+            Log.error("[Colocator] Beacon database error: \(iBeaconMessagesDB.errorMessage)")
         }
         
         return beacons
@@ -54,7 +54,7 @@ extension CCLocationManager {
             try beacons = eddystoneBeaconMessagesDB.getAllEddystoneBeaconsAndDelete()
             
         } catch {
-            Log.error("Eddystone beacon database error: \(eddystoneBeaconMessagesDB.errorMessage)")
+            Log.error("[Colocator] Eddystone beacon database error: \(eddystoneBeaconMessagesDB.errorMessage)")
         }
         
         return beacons
@@ -73,7 +73,7 @@ extension CCLocationManager {
         let beaconDBPath = URL.init(string: docsDir)?.appendingPathComponent(iBeaconMessagesDBName).absoluteString
         
         guard let beaconDBPathStringUnwrapped = beaconDBPath else {
-            Log.error("Unable to create beacon database path")
+            Log.error("[Colocator] Unable to create beacon database path")
             return
         }
         
@@ -81,9 +81,9 @@ extension CCLocationManager {
             iBeaconMessagesDB = try SQLiteDatabase.open(path: beaconDBPathStringUnwrapped)
             Log.debug("Successfully opened connection to beacon database.")
         } catch SQLiteError.OpenDatabase(let message) {
-            Log.error("Unable to open database. \(message)")
+            Log.error("[Colocator] Unable to open database. \(message)")
         } catch {
-            Log.error("An unexpected error was thrown, when trying to open a connection to beacon database")
+            Log.error("[Colocator] An unexpected error was thrown, when trying to open a connection to beacon database")
         }
     }
     
@@ -92,7 +92,7 @@ extension CCLocationManager {
         do {
             try iBeaconMessagesDB.createTable(table: Beacon.self)
         } catch {
-            Log.error("Beacon database error: \(iBeaconMessagesDB.errorMessage)")
+            Log.error("[Colocator] Beacon database error: \(iBeaconMessagesDB.errorMessage)")
         }
     }
     
@@ -111,7 +111,7 @@ extension CCLocationManager {
                     timeIntervalSinceBootTime: timeIntervalSinceBoot
                 ))
             } catch {
-                Log.error("Beacon database error: \(iBeaconMessagesDB.errorMessage)")
+                Log.error("[Colocator] Beacon database error: \(iBeaconMessagesDB.errorMessage)")
             }
         }
     }
@@ -129,7 +129,7 @@ extension CCLocationManager {
         let beaconDBPath = URL.init(string: docsDir)?.appendingPathComponent(eddystoneBeaconMessagesDBName).absoluteString
         
         guard let beaconDBPathStringUnwrapped = beaconDBPath else {
-            Log.error("Unable to create beacon database path")
+            Log.error("[Colocator] Unable to create beacon database path")
             return
         }
         
@@ -137,9 +137,9 @@ extension CCLocationManager {
             eddystoneBeaconMessagesDB = try SQLiteDatabase.open(path: beaconDBPathStringUnwrapped)
             Log.debug("Successfully opened connection to Eddystone database.")
         } catch SQLiteError.OpenDatabase(let message) {
-            Log.error("Unable to open database. \(message)")
+            Log.error("[Colocator] Unable to open database. \(message)")
         } catch {
-            Log.error("An unexpected error was thrown, when trying to open a connection to Eddystone database")
+            Log.error("[Colocator] An unexpected error was thrown, when trying to open a connection to Eddystone database")
         }
     }
     
@@ -148,7 +148,7 @@ extension CCLocationManager {
         do {
             try eddystoneBeaconMessagesDB.createTable(table: EddystoneBeacon.self)
         } catch {
-            Log.error("Eddystone beacon database error: \(eddystoneBeaconMessagesDB.errorMessage)")
+            Log.error("[Colocator] Eddystone beacon database error: \(eddystoneBeaconMessagesDB.errorMessage)")
         }
     }
     
@@ -164,7 +164,7 @@ extension CCLocationManager {
                     timeIntervalSinceBootTime: timeIntervalSinceBoot
                 ))
             } catch {
-                Log.error("Eddystone beacon database error: \(eddystoneBeaconMessagesDB.errorMessage)")
+                Log.error("[Colocator] Eddystone beacon database error: \(eddystoneBeaconMessagesDB.errorMessage)")
             }
         }
     }

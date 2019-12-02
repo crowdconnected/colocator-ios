@@ -131,15 +131,6 @@ extension CCRequestMessaging {
             }
         }
         
-        let (actualizedSubmessageCounter, toCompileMessage) =
-            self.checkMarkerMessage(tempClientMessage!, subMessageCounter: subMessageCounter)
-        
-        subMessageCounter = actualizedSubmessageCounter
-        if let newCompileMessage = toCompileMessage {
-            Log.debug ("Found marker messages in queue")
-            compiledClientMessage.marker = newCompileMessage
-        }
-        
         if let newBatteryMessage = self.checkNewBatteryLevelTypeMessage() {
             Log.debug ("Found new battery level messages in queue")
             compiledClientMessage.battery = newBatteryMessage
@@ -360,20 +351,6 @@ extension CCRequestMessaging {
             return (subMessageNo + 1, capabilityMessage, nil)
         } else {
             return (subMessageNo + 1, nil, capabilityMessage)
-        }
-    }
-    
-    public func checkMarkerMessage(_ message: Messaging_ClientMessage,
-                                   subMessageCounter: Int) -> (Int, Messaging_MarkerMessage?) {
-        if message.hasMarker {
-            var markerMessage = Messaging_MarkerMessage()
-            
-            markerMessage.data = message.marker.data
-            markerMessage.time = message.marker.time
-            
-            return (subMessageCounter + 1, markerMessage)
-        } else {
-            return (subMessageCounter, nil)
         }
     }
     

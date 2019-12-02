@@ -149,7 +149,7 @@ extension CCRequestMessaging {
                 Log.debug("Had to split a client message into two, pushing \(backToQueueData.count) unsent messages back to the Queue")
             }
         } else {
-            Log.error("Couldn't serialize back to queue data")
+            Log.error("[Colocator] Couldn't serialize back to queue data")
         }
     }
     
@@ -161,8 +161,7 @@ extension CCRequestMessaging {
             message.sentTime = UInt64(currentTimePeriod! * 1000)
             
             if message.sentTime == 0 {
-                Log.error("Client message timestamp 0")
-                Log.error(message)
+                Log.error("[Colocator] Client message timestamp 0! \(message)")
             }
         }
     }
@@ -173,7 +172,7 @@ extension CCRequestMessaging {
             
             ccSocket?.sendWebSocketMessage(data: messageData)
             
-            Log.info("Sent message to server")
+            Log.info("[Colocator]  Sent message to server")
         }
     }
 }

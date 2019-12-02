@@ -372,7 +372,7 @@ extension CCLocationManager {
     }
     
     public func locationManager(_ manager: CLLocationManager, rangingBeaconsDidFailFor region: CLBeaconRegion, withError error: Error) {
-        Log.error("Ranging failed for region with UUID: \(region.proximityUUID.uuidString)")
+        Log.error("[Colocator] Ranging failed for region with UUID: \(region.proximityUUID.uuidString)")
     }
 }
 
