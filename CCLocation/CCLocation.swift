@@ -9,6 +9,7 @@
 import Foundation
 import ReSwift
 import CoreBluetooth
+import CoreLocation
 import CoreMotion
 
 internal struct Constants {
@@ -215,6 +216,131 @@ internal struct Constants {
         } else {
             Log.error("[Colocator] Failed to unregister for Colocaor location updates")
         }
+    }
+    
+    // MARK: - Test Library Integration
+    
+    @objc public func testLibraryIntegration() -> String {
+        let semaphore = DispatchSemaphore(value: 0)
+        
+        var locationPermission = "unidentified"
+        var bluetoothPermission = "unidentified"
+        var motionPermission = "unidentified"
+        var notificationsPermission = "unidentified"
+        
+        if #available(iOS 13.1, *) {
+            switch CBManager.authorization {
+            case .notDetermined: bluetoothPermission = "Not Determined"
+            case .restricted: bluetoothPermission = "Restricted"
+            case .denied: bluetoothPermission = "Denied"
+            case .allowedAlways: bluetoothPermission = "Allowed Always"
+            }
+        } else {
+            // Fallback on earlier versions
+        }
+        
+        if #available(iOS 11.0, *) {
+            switch CMPedometer.authorizationStatus() {
+            case .notDetermined: motionPermission = "Not Determined"
+            case .restricted: motionPermission = "Restricted"
+            case .denied: motionPermission = "Denied"
+            case .authorized: motionPermission = "Authorized"
+            }
+        } else {
+            // Fallback on earlier versions
+        }
+        
+        if #available(iOS 10.0, *) {
+            let currentNotification = UNUserNotificationCenter.current()
+            currentNotification.getNotificationSettings(completionHandler: { (settings) in
+                 if settings.authorizationStatus == .notDetermined {
+                    notificationsPermission = "Not Determined"
+                 } else if settings.authorizationStatus == .denied {
+                    notificationsPermission = "Denied"
+                 } else if settings.authorizationStatus == .authorized {
+                    notificationsPermission = "Authorized"
+                 }
+                semaphore.signal()
+              })
+        } else {
+            // Fallback on earlier versions
+        }
+      
+        switch CLLocationManager.authorizationStatus() {
+        case .notDetermined: locationPermission = "Not Determined"
+        case .restricted: locationPermission = "Restricted"
+        case .denied: locationPermission = "Denied"
+        case .authorizedAlways: locationPermission = "Always"
+        case .authorizedWhenInUse: locationPermission = "When In Use"
+        }
+        
+        var deviceToken = "unidentified"
+        var pushNotificationProvider = "unidentified"
+        
+        if let aliases = UserDefaults.standard.value(forKey: CCSocketConstants.kAliasKey) as? Dictionary<String, String> {
+            for (key, value) in aliases {
+                if key == "apns_user_id" {
+                    deviceToken = value
+                    pushNotificationProvider = "APNS"
+                } else if key == "expo_token" {
+                    deviceToken = value
+                    pushNotificationProvider = "Expo"
+                } else if key == "fcm_user_id" {
+                    deviceToken = value
+                    pushNotificationProvider = "Firebase"
+                } else if key == "one_signal_token" {
+                    deviceToken = value
+                    pushNotificationProvider = "One Signal"
+                } else if key == "pinpointEndpoint" {
+                    deviceToken = value
+                    pushNotificationProvider = "Pinpoint"
+                } else if key == "pushwooshUserId" {
+                    deviceToken = value
+                    pushNotificationProvider = "Pushwhoosd"
+                } else if key == "snsEndpoint" {
+                    deviceToken = value
+                    pushNotificationProvider = "APNSNSS"
+                } else if key == "UAid" {
+                    deviceToken = value
+                    pushNotificationProvider = "Urban Airship"
+                }
+            }
+        }
+        
+        // todo Test SPN
+        
+        // stop library
+        // ask for spn
+        // wait 10 sec
+        // check if library started automatically
+        
+        let silentPushNotificationResult = "unidentified"
+        
+        _ = semaphore.wait(timeout: .now() + 3)
+        let integrationTestResponse = """
+        
+        
+           ====  Integration Test Response  ====
+        
+        Device ID: \(getDeviceId() ?? "unidentified")
+        Library Status: \(libraryStarted == true ? "On" : "Off")
+        
+        Location Permission Status: \(locationPermission)
+        Bluetooth Permission Status: \(bluetoothPermission)
+        Motion Permission Status: \(motionPermission)
+        Notification Permission Status: \(notificationsPermission)
+        
+        Registered for Remote Notification: \(UIApplication.shared.isRegisteredForRemoteNotifications)
+        Push Notification Provider: \(pushNotificationProvider)
+        Notification Device Token: \(deviceToken)
+        
+        Silent Push Notification: \(silentPushNotificationResult)
+        
+           ====  Integration Test Response  ====
+        
+        """
+        
+        return integrationTestResponse
     }
 }
 
