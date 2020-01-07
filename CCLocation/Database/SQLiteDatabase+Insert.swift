@@ -27,9 +27,11 @@ extension SQLiteDatabase {
             
             let total_count = try count(table: CCLocationTables.kIBeaconMessagesTable)
             
-            try saveResetAutoincrement(table: CCLocationTables.kIBeaconMessagesTable)
-            
-            Log.info("Flushing iBeacon buffer with \(ibeaconBeaconBuffer.count)")
+            if total_count == 0 {
+                try saveResetAutoincrementEmptyTable(table: CCLocationTables.kIBeaconMessagesTable)
+            } else {
+                Log.verbose("Flushing iBeacon buffer with \(ibeaconBeaconBuffer.count)")
+            }
             
             guard sqlite3_exec(dbPointer, constants.kBeginImmediateTransactionCommand, nil, nil, nil) == SQLITE_OK else  {
                 throw SQLiteError.Exec(message: errorMessage)
@@ -110,9 +112,11 @@ extension SQLiteDatabase {
             
             let total_count = try count(table: CCLocationTables.kEddystoneBeaconMessagesTable)
             
-            Log.info("Flushing eddystone beacon buffer with \(eddystoneBeaconBuffer.count)")
-            
-            try saveResetAutoincrement(table: CCLocationTables.kEddystoneBeaconMessagesTable)
+            if total_count == 0 {
+                try saveResetAutoincrementEmptyTable(table: CCLocationTables.kEddystoneBeaconMessagesTable)
+            } else {
+                Log.verbose("Flushing eddystone beacon buffer with \(eddystoneBeaconBuffer.count)")
+            }
             
             guard sqlite3_exec(dbPointer, constants.kBeginImmediateTransactionCommand, nil, nil, nil) == SQLITE_OK else  {
                 throw SQLiteError.Exec(message: errorMessage)
@@ -187,7 +191,11 @@ extension SQLiteDatabase {
             
             var total_count = try count(table: CCLocationTables.kMessagesTable)
             
-            try saveResetAutoincrement(table: CCLocationTables.kMessagesTable)
+            if total_count == 0 {
+                try saveResetAutoincrementEmptyTable(table: CCLocationTables.kMessagesTable)
+            } else {
+                Log.verbose("Flushing messages buffer with \(messagesBuffer.count)")
+            }
             
             guard sqlite3_exec(dbPointer, constants.kBeginImmediateTransactionCommand, nil, nil, nil) == SQLITE_OK else  {
                 throw SQLiteError.Exec(message: errorMessage)
