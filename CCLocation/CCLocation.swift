@@ -20,7 +20,6 @@ internal struct Constants {
     @objc func ccLocationDidConnect()
     @objc func ccLocationDidFailWithError(error: Error)
     @objc func didReceiveCCLocation(_ location: LocationResponse)
-    @objc func didFailToUpdateCCLocation()
 }
 
 @objc public class CCLocation: NSObject {
@@ -42,6 +41,8 @@ internal struct Constants {
     @objc public func start(apiKey: String, urlString: String? = nil) {
         if libraryStarted == false {
             libraryStarted = true
+            
+            setLoggerLevels(verbose: false, info: true, debug: false, warning: false, error: true, severe: false)
             
             NSLog("[Colocator] Initialising Colocator")
             
@@ -194,8 +195,7 @@ internal struct Constants {
             colocatorManager?.ccRequestMessaging?.sendLocationRequestMessage(type: 1)
             Log.info("[Colocator] Requested one Colocator location")
         } else {
-            delegate?.didFailToUpdateCCLocation()
-            Log.warning("[Colocator] Failed to request one Colocator location")
+            Log.error("[Colocator] Failed to request one Colocator location")
         }
     }
     
@@ -204,8 +204,7 @@ internal struct Constants {
             colocatorManager?.ccRequestMessaging?.sendLocationRequestMessage(type: 2)
             Log.info("[Colocator] Registered for Colocator location updates")
         } else {
-            delegate?.didFailToUpdateCCLocation()
-            Log.warning("[Colocator] Failed to register for Colocator location updates")
+            Log.error("[Colocator] Failed to register for Colocator location updates")
         }
     }
     
@@ -214,8 +213,7 @@ internal struct Constants {
             Log.info("[Colocator] Unregistered for Colocator location updates")
             colocatorManager?.ccRequestMessaging?.sendLocationRequestMessage(type: 3)
         } else {
-            delegate?.didFailToUpdateCCLocation()
-            Log.warning("[Colocator] Failed to unregister for Colocaor location updates")
+            Log.error("[Colocator] Failed to unregister for Colocaor location updates")
         }
     }
 }
