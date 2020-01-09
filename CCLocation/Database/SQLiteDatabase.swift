@@ -43,6 +43,16 @@ class SQLiteDatabase {
         }
     }
     
+    //Test new method of keepping counting
+    public var areMessagesCounted = false
+    public var areiBeaconsCounted = false
+    public var areEddystoneCounted = false
+    
+    public var lastCountForMessagesTable = -2
+    public var lastCountForiBeaconsTable = -2
+    public var lastCountForEddystoneBeaconsTable = -2
+    //
+    
     fileprivate init(dbPointer: OpaquePointer?) {
         self.dbPointer = dbPointer
         messagesBufferClearTimer = Timer.scheduledTimer(timeInterval: TimeInterval(1),
@@ -172,8 +182,13 @@ extension SQLiteDatabase {
 
 extension SQLiteDatabase {
     
-    func count(table:String) throws -> Int {
+    func count(table: String) throws -> Int {
         var count: Int = -1
+        
+        // Test new method of keepping counting
+        if table == CCLocationTables.kMessagesTable && areMessagesCounted {
+            return lastCountForMessagesTable
+        }
         
         let querySql = "SELECT COUNT(*) FROM " + table + ";"
         
@@ -190,10 +205,22 @@ extension SQLiteDatabase {
             sqlite3_finalize(queryStatement)
         }
         
+        if areMessagesCounted && count != lastCountForMessagesTable {
+            Log.error("\(table) table count ERROR!  Calculated: \(count)   LastCount: \(lastCountForMessagesTable) \n")
+        } else if areMessagesCounted && count == lastCountForMessagesTable {
+            Log.error("\(table) table count DETAIL  Calculated: \(count)   LastCount: \(lastCountForMessagesTable) \n")
+        }
+        
+        // Test new method of keepping counting
+        if table == CCLocationTables.kMessagesTable {
+            lastCountForMessagesTable = count
+            areMessagesCounted = true
+        }
+       
         return count
     }
     
-    func saveResetAutoincrement(table:String) throws {
+    func saveResetAutoincrement(table: String) throws {
         if try count(table: table) == 0 {
             do {
                 try saveResetAutoincrementEmptyTable(table: table)
@@ -203,7 +230,10 @@ extension SQLiteDatabase {
         }
     }
     
-    func saveResetAutoincrementEmptyTable(table:String) throws {
+    func saveResetAutoincrementEmptyTable(table: String) throws {
+        // test new count method
+        areMessagesCounted = false
+        
         let resetAutoincrementSql = "DELETE FROM sqlite_sequence WHERE name = '\(table)';"
             
         guard let resetAutoincrementStatement = try? prepareStatement(sql: resetAutoincrementSql) else {

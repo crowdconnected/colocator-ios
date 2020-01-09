@@ -221,6 +221,10 @@ extension SQLiteDatabase {
                 }
             }
             
+            // test new counting method
+//            Log.error("\(lastCountForMessagesTable) + \(messagesBuffer.count) = \(lastCountForMessagesTable + messagesBuffer.count)     insertBundle")
+            lastCountForMessagesTable += messagesBuffer.count
+            
             total_count = try count(table: CCLocationTables.kMessagesTable)
             
             if total_count >= CCLocationConstants.kMaxQueueSize {
@@ -243,6 +247,10 @@ extension SQLiteDatabase {
                     Log.warning(constants.kFailedDeleteMessage)
                     throw SQLiteError.Step(message: errorMessage)
                 }
+                
+                // test new counting method
+//                Log.error("\(lastCountForMessagesTable) - \(deleteDiff) = \(lastCountForMessagesTable - deleteDiff)       deleteDiff")
+                lastCountForMessagesTable -= deleteDiff
             }
             
             guard sqlite3_finalize(insertStatement) == SQLITE_OK else {
