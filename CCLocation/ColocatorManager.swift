@@ -15,6 +15,7 @@ class ColocatorManager {
     private(set)var deviceId: String?
     var running: Bool = false
     var startTime: Date?
+    var isRunningTests: Bool = false
     
     var ccServerURLString: String?
     var ccAPIKeyString: String?

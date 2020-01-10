@@ -66,6 +66,32 @@ internal struct Constants {
         }
     }
     
+    #if DEBUG
+    /// Start the Colocator library with credentials
+    ///
+    @objc public func startRunningTests() {
+        if libraryStarted == false {
+            libraryStarted = true
+            
+            NSLog("[Colocator] Initialising Colocator For Testing")
+            
+            stateStore = Store<LibraryState> (
+                reducer: libraryReducer,
+                state: nil
+            )
+            
+            colocatorManager = ColocatorManager.sharedInstance
+            colocatorManager?.isRunningTests = true
+            colocatorManager?.start(urlString: "mockUrl",
+                                    apiKey: "mockKey",
+                                    ccLocation: self,
+                                    stateStore: stateStore!)
+        } else {
+            NSLog("[Colocator] already running: Colocator start method called more than once in a row")
+        }
+    }
+    #endif
+    
     /// Stop the Colocator library
     ///
     @objc public func stop() {

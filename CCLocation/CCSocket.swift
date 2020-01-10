@@ -150,6 +150,16 @@ class CCSocket:NSObject {
         
         platformConnectionRequest.sr_SSLPinnedCertificates = [certRefUnwrapped]
         
+        #if DEBUG
+           if self.colocatorManager?.isRunningTests ?? false {
+               let mockUrlRequest = URLRequest(url: URL(string: "ws://localhost:8080")!)
+               self.webSocket = SRWebSocket.init(urlRequest: mockUrlRequest)
+               self.webSocket?.delegate = self
+               self.webSocket?.open()
+               return
+           }
+        #endif
+        
         if platformConnectionRequest.url != nil {
             self.webSocket = SRWebSocket.init(urlRequest: platformConnectionRequest as URLRequest?)
             self.webSocket?.delegate = self

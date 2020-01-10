@@ -210,7 +210,7 @@ class CCLocationTests: XCTestCase {
             XCTAssert(finalMessagesCount > 99990 && finalMessagesCount < messagesToInsert)
             expectation.fulfill()
         }
-        
+                    
         wait(for: [expectation], timeout: 102)
     }
     
@@ -342,4 +342,25 @@ class CCLocationTests: XCTestCase {
         }
     }
     
+    func testgatherGeoDataInCycles() {
+        let expectation = XCTestExpectation(description: "Location data should be collected for maxRunTime and then stop for minOffTime")
+        
+        let cclocation = CCLocation.sharedInstance
+        cclocation.start(apiKey: testAPIKey)
+
+        let colocatorManager = cclocation.colocatorManager
+        let ccRequestMessages = colocatorManager?.ccRequestMessaging
+        
+       DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            ccRequestMessages?.stateStore.dispatch( TimeBetweenSendsTimerReceivedAction(timeInMilliseconds: 0))
+            ccRequestMessages?.stateStore.dispatch( EnableForegroundGEOAction(activityType: .fitness, maxRuntime: nil, minOffTime: nil, desiredAccuracy: -1, distanceFilter: -1, pausesUpdates: false))
+            
+            // location messages are received
+        }
+    CCLocation.sharedInstance.colocatorManager?.ccLocationManager?.startMaxRunTimeGeoTimer(maxRunTime: 5)
+        
+        //check number of messafes after 5 seconds
+        
+        // check number of messages after 10 secs . should be smaller
+    }
 }

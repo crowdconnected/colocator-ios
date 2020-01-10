@@ -66,8 +66,9 @@ class CCRequestMessaging: NSObject {
     
     public func processServerMessage(data: Data) throws {
         let serverMessage = try Messaging_ServerMessage.init(serializedData: data)
-        
+    
         let serverMessageJSON = try serverMessage.jsonString()
+        
         if serverMessageJSON.count > 2 {
             Log.info("[Colocator] Received message from server \n\(serverMessage)")
         }
