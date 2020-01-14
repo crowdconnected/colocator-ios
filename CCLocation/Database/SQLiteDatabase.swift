@@ -43,15 +43,8 @@ class SQLiteDatabase {
         }
     }
     
-    //Test new method of keepping counting
     public var areMessagesCounted = false
-    public var areiBeaconsCounted = false
-    public var areEddystoneCounted = false
-    
     public var lastCountForMessagesTable = -2
-    public var lastCountForiBeaconsTable = -2
-    public var lastCountForEddystoneBeaconsTable = -2
-    //
     
     fileprivate init(dbPointer: OpaquePointer?) {
         self.dbPointer = dbPointer
@@ -183,12 +176,11 @@ extension SQLiteDatabase {
 extension SQLiteDatabase {
     
     func count(table: String) throws -> Int {
-        var count: Int = -1
-        
-        // Test new method of keepping counting
         if table == CCLocationTables.kMessagesTable && areMessagesCounted {
             return lastCountForMessagesTable
         }
+        
+        var count: Int = -1
         
         let querySql = "SELECT COUNT(*) FROM " + table + ";"
         
@@ -205,13 +197,6 @@ extension SQLiteDatabase {
             sqlite3_finalize(queryStatement)
         }
         
-        if areMessagesCounted && count != lastCountForMessagesTable {
-            Log.error("\(table) table count ERROR!  Calculated: \(count)   LastCount: \(lastCountForMessagesTable) \n")
-        } else if areMessagesCounted && count == lastCountForMessagesTable {
-            Log.error("\(table) table count DETAIL  Calculated: \(count)   LastCount: \(lastCountForMessagesTable) \n")
-        }
-        
-        // Test new method of keepping counting
         if table == CCLocationTables.kMessagesTable {
             lastCountForMessagesTable = count
             areMessagesCounted = true
@@ -231,7 +216,6 @@ extension SQLiteDatabase {
     }
     
     func saveResetAutoincrementEmptyTable(table: String) throws {
-        // test new count method
         areMessagesCounted = false
         
         let resetAutoincrementSql = "DELETE FROM sqlite_sequence WHERE name = '\(table)';"
