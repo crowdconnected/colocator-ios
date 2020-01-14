@@ -29,8 +29,6 @@ extension SQLiteDatabase {
             
             if total_count == 0 {
                 try saveResetAutoincrementEmptyTable(table: CCLocationTables.kIBeaconMessagesTable)
-            } else {
-                Log.verbose("Flushing iBeacon buffer with \(ibeaconBeaconBuffer.count)")
             }
             
             guard sqlite3_exec(dbPointer, constants.kBeginImmediateTransactionCommand, nil, nil, nil) == SQLITE_OK else  {
@@ -114,8 +112,6 @@ extension SQLiteDatabase {
             
             if total_count == 0 {
                 try saveResetAutoincrementEmptyTable(table: CCLocationTables.kEddystoneBeaconMessagesTable)
-            } else {
-                Log.verbose("Flushing eddystone beacon buffer with \(eddystoneBeaconBuffer.count)")
             }
             
             guard sqlite3_exec(dbPointer, constants.kBeginImmediateTransactionCommand, nil, nil, nil) == SQLITE_OK else  {
@@ -180,7 +176,7 @@ extension SQLiteDatabase {
     
     func insertMessage(ccMessage: CCMessage) throws {
         messagesBuffer.append(ccMessage)
-        Log.verbose("DB: insertMessage: \(ccMessage.observation.count) \(ccMessage.observation.hexEncodedString())")
+        Log.verbose("DB: Insert \(ccMessage.observation.count) messages in the buffer")
     }
     
     func insertBundledMessages() throws {
@@ -193,8 +189,6 @@ extension SQLiteDatabase {
             
             if total_count == 0 {
                 try saveResetAutoincrementEmptyTable(table: CCLocationTables.kMessagesTable)
-            } else {
-                Log.verbose("Flushing messages buffer with \(messagesBuffer.count)")
             }
             
             guard sqlite3_exec(dbPointer, constants.kBeginImmediateTransactionCommand, nil, nil, nil) == SQLITE_OK else  {
@@ -221,8 +215,6 @@ extension SQLiteDatabase {
                 }
             }
             
-            // test new counting method
-//            Log.error("\(lastCountForMessagesTable) + \(messagesBuffer.count) = \(lastCountForMessagesTable + messagesBuffer.count)     insertBundle")
             lastCountForMessagesTable += messagesBuffer.count
             
             total_count = try count(table: CCLocationTables.kMessagesTable)
@@ -248,9 +240,11 @@ extension SQLiteDatabase {
                     throw SQLiteError.Step(message: errorMessage)
                 }
                 
-                // test new counting method
-//                Log.error("\(lastCountForMessagesTable) - \(deleteDiff) = \(lastCountForMessagesTable - deleteDiff)       deleteDiff")
-                lastCountForMessagesTable -= deleteDiff
+                if lastCountForMessagesTable >= deleteDiff {
+                    lastCountForMessagesTable -= deleteDiff
+                } else {
+                    areMessagesCounted = false
+                }
             }
             
             guard sqlite3_finalize(insertStatement) == SQLITE_OK else {

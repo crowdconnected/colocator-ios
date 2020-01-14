@@ -63,11 +63,11 @@ extension SQLiteDatabase {
                 throw SQLiteError.Exec(message: errorMessage)
             }
             
-            // test new counting method
-            if lastCountForMessagesTable >= ids.count && ids.count != 0 {
-//                let x = lastCountForMessagesTable
-                lastCountForMessagesTable -= ids.count
-//                 Log.error("\(x) - \(ids.count) = \(lastCountForMessagesTable)     popMessages")
+            let idsRemovedCount = ids.count
+            if lastCountForMessagesTable >= idsRemovedCount && idsRemovedCount != 0 {
+                lastCountForMessagesTable -= idsRemovedCount
+            } else {
+                areMessagesCounted = false
             }
             
             return clientMessagesData
