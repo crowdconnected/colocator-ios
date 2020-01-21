@@ -237,6 +237,7 @@ internal struct Constants {
             }
         } else {
             // Fallback on earlier versions
+            notificationsPermission = "unidentified      Reason: iOS < 13.1"
         }
         
         if #available(iOS 11.0, *) {
@@ -248,6 +249,7 @@ internal struct Constants {
             }
         } else {
             // Fallback on earlier versions
+            notificationsPermission = "unidentified      Reason: iOS < 11.0"
         }
         
         if #available(iOS 10.0, *) {
@@ -264,6 +266,7 @@ internal struct Constants {
               })
         } else {
             // Fallback on earlier versions
+            notificationsPermission = "unidentified      Reason: iOS < 10.0"
         }
       
         switch CLLocationManager.authorizationStatus() {
@@ -307,12 +310,14 @@ internal struct Constants {
             }
         }
         
-        // todo Test SPN
+        // TODO - Add test for Silent Push Notification
         
-        // stop library
-        // ask for spn
-        // wait 10 sec
-        // check if library started automatically
+        // Optional step - Check if the server has all the data required for a SPN
+        // Call stop library
+        // Request SPN from CC server through API
+        // Get the average time for delivering the PN and add a margin of error
+        // Wait for a while (see above step) and check if library status switched to on automatically
+        // Add result in integrationTestResponse
         
         let silentPushNotificationResult = "unidentified"
         
@@ -333,8 +338,6 @@ internal struct Constants {
         Registered for Remote Notification: \(UIApplication.shared.isRegisteredForRemoteNotifications)
         Push Notification Provider: \(pushNotificationProvider)
         Notification Device Token: \(deviceToken)
-        
-        Silent Push Notification: \(silentPushNotificationResult)
         
            ====  Integration Test Response  ====
         
