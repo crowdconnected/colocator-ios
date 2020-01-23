@@ -48,7 +48,7 @@ class SQLiteDatabase {
     
     fileprivate init(dbPointer: OpaquePointer?) {
         self.dbPointer = dbPointer
-        messagesBufferClearTimer = Timer.scheduledTimer(timeInterval: TimeInterval(1),
+        messagesBufferClearTimer = Timer.scheduledTimer(timeInterval: TimeInterval(1000),
                                                         target: self,
                                                         selector: #selector(clearBuffers),
                                                         userInfo: nil,

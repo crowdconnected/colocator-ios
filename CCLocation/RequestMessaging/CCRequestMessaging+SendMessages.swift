@@ -104,6 +104,10 @@ extension CCRequestMessaging {
     }
     
     private func setupSentTime(forMessage message: inout Messaging_ClientMessage) {
+        if stateStore == nil {
+            return
+        }
+        
         let isRebootTimeSame = self.timeHandling.isRebootTimeSame(stateStore: stateStore, ccSocket: ccSocket)
         let currentTimePeriod = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore)
         
