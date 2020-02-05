@@ -121,13 +121,19 @@ class CCRequestMessaging: NSObject {
                                      bluetoothHardware: CBCentralManagerState?,
                                      batteryState: UIDevice.BatteryState?,
                                      isLowPowerModeEnabled: Bool?,
-                                     isLocationServicesEnabled: Bool?){
+                                     isLocationServicesEnabled: Bool?,
+                                     isMotionAndFitnessEnabled: Bool?){
         var clientMessage = Messaging_ClientMessage()
         var capabilityMessage = Messaging_IosCapability()
         
         if let locationServices = isLocationServicesEnabled {
             capabilityMessage.locationServices = locationServices
         }
+        
+        if let motionServices = isMotionAndFitnessEnabled {
+//TODO             capabilityMessage.motionAndFItness = motionServices
+        }
+        
         if let lowPowerMode = isLowPowerModeEnabled {
             capabilityMessage.lowPowerMode = lowPowerMode
         }

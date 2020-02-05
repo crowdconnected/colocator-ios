@@ -51,7 +51,8 @@ extension CCRequestMessaging: StoreSubscriber {
                                  bluetoothHardware: newCapabilityState.bluetoothHardware,
                                  batteryState: newCapabilityState.batteryState,
                                  isLowPowerModeEnabled: newCapabilityState.isLowPowerModeEnabled,
-                                 isLocationServicesEnabled: newCapabilityState.isLocationServicesAvailable)
+                                 isLocationServicesEnabled: newCapabilityState.isLocationServicesAvailable,
+                                 isMotionAndFitnessEnabled: newCapabilityState.isMotionAndFitnessAvailable)
         }
     }
     

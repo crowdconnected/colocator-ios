@@ -80,6 +80,7 @@ public func == (lhs: CapabilityState, rhs: CapabilityState) -> Bool {
     guard compareOptionals(lhs: lhs.batteryState, rhs: rhs.batteryState, compare: ==) else { return false }
     guard compareOptionals(lhs: lhs.isLowPowerModeEnabled, rhs: rhs.isLowPowerModeEnabled, compare: ==) else { return false }
     guard compareOptionals(lhs: lhs.isLocationServicesAvailable, rhs: rhs.isLocationServicesAvailable, compare: ==) else { return false }
+    guard compareOptionals(lhs: lhs.isMotionAndFitnessAvailable, rhs: rhs.isMotionAndFitnessAvailable, compare: ==) else { return false }
     return true
 }
 // MARK: - CurrentBeaconState AutoEquatable

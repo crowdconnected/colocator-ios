@@ -44,11 +44,13 @@ class CCInertial: NSObject {
            
            if pedometerAuthStatus == .authorized || pedometerAuthStatus == .notDetermined {
                Log.info("[Colocator] Starting inertial")
-               
+               Log.debug("Permission granted for Motion and Fitness")
                startCountingSteps()
                startMotionUpdates()
+               DispatchQueue.main.async {self.stateStore.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: true))}
            } else {
                Log.debug("Authorisation status is .denied or .restriced, no inertial updates requested")
+               DispatchQueue.main.async {self.stateStore.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: false))}
            }
        } else {
            Log.info("Starting inertial")
@@ -87,6 +89,7 @@ class CCInertial: NSObject {
     
     private func startMotionUpdates() {
         if !motion.isDeviceMotionAvailable {
+            Log.debug("Device Motion is not available")
             return
         }
         
