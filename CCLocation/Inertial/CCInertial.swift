@@ -39,17 +39,13 @@ class CCInertial: NSObject {
     }
     
     public func updateFitnessAndMotionStatus() {
-        
-        print("\n\nUpdateFitnessAndMotionStatus method called (5 seconds until sending a response)\n\n")
-        
         // The 5 seconds time frame is the estimated time (+ margin) for the user to make a choice in granting permission
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
             if #available(iOS 11.0, *) {
                 switch CMMotionActivityManager.authorizationStatus() {
                     case .authorized:  DispatchQueue.main.async {self.stateStore.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: true))}
                     case .restricted, .denied:  DispatchQueue.main.async {self.stateStore.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: false))}
-                    case .notDetermined: DispatchQueue.main.async
-                        {self.stateStore.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: nil))}
+                    case .notDetermined: DispatchQueue.main.async {self.stateStore.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: nil))}
                 }
             } else {
                 // Fallback on earlier versions

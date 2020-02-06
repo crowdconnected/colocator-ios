@@ -310,8 +310,8 @@ extension CCLocationManager {
             // If the next lines are uncommented, location updates won't start automatically in background if the user choose "Never" then "Always" from the settings menu
             
             // TODO: wrap into stop function to stop everything
-//                        self.locationManager.stopUpdatingLocation()
-//                        self.locationManager.stopMonitoringSignificantLocationChanges()
+            //            self.locationManager.stopUpdatingLocation()
+            //            self.locationManager.stopMonitoringSignificantLocationChanges()
         default:
             Log.error("[Colocator] LocationManager didFailWithError Unknown: \(error.localizedDescription)")
         }
