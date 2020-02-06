@@ -14,7 +14,7 @@ import ReSwift
 extension CCRequestMessaging: StoreSubscriber {
     
     public func newState(state: CCRequestMessagingState) {
-        Log.debug("New RequestMessaging state is \n\(state)")
+        Log.verbose("New RequestMessaging state is \n\(state)")
         
         if let webSocketState = state.webSocketState, webSocketState != currentWebSocketState {
             currentWebSocketState = webSocketState

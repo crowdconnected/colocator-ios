@@ -24,7 +24,7 @@ private typealias C = CapabilityReducerConstants
 
 func capabilityReducer (action: Action, state: CapabilityState?) -> CapabilityState {
     
-    var state = CapabilityState(locationAuthStatus: CLAuthorizationStatus.notDetermined, bluetoothHardware: CBCentralManagerState.unknown, batteryState: UIDevice.BatteryState.unknown, isLowPowerModeEnabled: false, isLocationServicesEnabled: false, isMotionAndFitnessEnabled: false)
+    var state = CapabilityState(locationAuthStatus: CLAuthorizationStatus.notDetermined, bluetoothHardware: CBCentralManagerState.unknown, batteryState: UIDevice.BatteryState.unknown, isLowPowerModeEnabled: false, isLocationServicesEnabled: false, isMotionAndFitnessEnabled: nil)
     
     if let loadedCapabilityState = getCapabilityStateFromUserDefaults() {
         state = loadedCapabilityState

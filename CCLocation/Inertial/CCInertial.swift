@@ -38,22 +38,42 @@ class CCInertial: NSObject {
         stateStore.subscribe(self)
     }
     
+    public func updateFitnessAndMotionStatus() {
+        
+        print("\n\nUpdateFitnessAndMotionStatus method called (5 seconds until sending a response)\n\n")
+        
+        // The 5 seconds time frame is the estimated time (+ margin) for the user to make a choice in granting permission
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+            if #available(iOS 11.0, *) {
+                switch CMMotionActivityManager.authorizationStatus() {
+                    case .authorized:  DispatchQueue.main.async {self.stateStore.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: true))}
+                    case .restricted, .denied:  DispatchQueue.main.async {self.stateStore.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: false))}
+                    case .notDetermined: DispatchQueue.main.async
+                        {self.stateStore.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: nil))}
+                }
+            } else {
+                // Fallback on earlier versions
+            }
+        }
+    }
+    
     internal func start() {
        if #available(iOS 11.0, *) {
            let pedometerAuthStatus = CMPedometer.authorizationStatus()
            
            if pedometerAuthStatus == .authorized || pedometerAuthStatus == .notDetermined {
                Log.info("[Colocator] Starting inertial")
-               Log.debug("Permission granted for Motion and Fitness")
+            
                startCountingSteps()
                startMotionUpdates()
-               DispatchQueue.main.async {self.stateStore.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: true))}
+            
+                updateFitnessAndMotionStatus()
            } else {
-               Log.debug("Authorisation status is .denied or .restriced, no inertial updates requested")
+               Log.info("[Colocator] Cannot start inertial due to restricted permission for Motion&Fitness")
                DispatchQueue.main.async {self.stateStore.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: false))}
            }
        } else {
-           Log.info("Starting inertial")
+           Log.info("[Colocator] Starting inertial")
            
            startCountingSteps()
            startMotionUpdates()
@@ -78,6 +98,7 @@ class CCInertial: NSObject {
         pedometer.startUpdates(from: pedometerStartDate) { [weak self] pedometerData, error in
             guard let pedometerData = pedometerData, error == nil else {
                 Log.error("[Colocator] Received: \(error.debugDescription)")
+                self?.updateFitnessAndMotionStatus()
                 return
             }
             
@@ -89,7 +110,7 @@ class CCInertial: NSObject {
     
     private func startMotionUpdates() {
         if !motion.isDeviceMotionAvailable {
-            Log.debug("Device Motion is not available")
+            Log.debug("Device Motion is not available. Cannot start monitoring updated")
             return
         }
         
@@ -100,6 +121,7 @@ class CCInertial: NSObject {
                 let cmError = error as? CMError
                 
                 Log.error("[Colocator] Received motion update error: \(cmError.debugDescription)")
+                self.updateFitnessAndMotionStatus()
                 return
             }
             

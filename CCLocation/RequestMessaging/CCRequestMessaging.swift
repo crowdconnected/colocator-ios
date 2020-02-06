@@ -129,11 +129,9 @@ class CCRequestMessaging: NSObject {
         if let locationServices = isLocationServicesEnabled {
             capabilityMessage.locationServices = locationServices
         }
-        
         if let motionServices = isMotionAndFitnessEnabled {
-//TODO             capabilityMessage.motionAndFItness = motionServices
+            capabilityMessage.motionAndFitness = motionServices
         }
-        
         if let lowPowerMode = isLowPowerModeEnabled {
             capabilityMessage.lowPowerMode = lowPowerMode
         }
