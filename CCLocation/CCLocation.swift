@@ -113,11 +113,12 @@ internal struct Constants {
     
     @available(*, deprecated, message: "Replaced by triggerMotionPermissionPopUp() method")
     @objc public static func askMotionPermissions() {
-        CMPedometer().stopUpdates()
+        CCLocation.sharedInstance.triggerMotionPermissionPopUp()
     }
    
     @objc public func triggerMotionPermissionPopUp() {
         CMPedometer().stopUpdates()
+        CCLocation.sharedInstance.colocatorManager?.ccInertial?.updateFitnessAndMotionStatus()
     }
     
     @objc public func triggerBluetoothPermissionPopUp() {
@@ -363,6 +364,7 @@ extension CCLocation: CCSocketDelegate {
     
     func ccSocketDidConnect() {
         self.delegate?.ccLocationDidConnect()
+        colocatorManager?.ccInertial?.updateFitnessAndMotionStatus()
     }
     
     func ccSocketDidFailWithError(error: Error) {

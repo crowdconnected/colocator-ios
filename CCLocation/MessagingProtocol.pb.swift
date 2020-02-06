@@ -535,7 +535,6 @@ struct Messaging_AndroidSettings {
   fileprivate var _storage = _StorageClass.defaultInstance
 }
 
-///Android Geo Settings
 struct Messaging_AndroidGeoSettings {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -637,7 +636,6 @@ extension Messaging_AndroidGeoSettings.Priority: CaseIterable {
 
 #endif  // swift(>=4.2)
 
-///Android Beacon Settings
 struct Messaging_AndroidBeaconSettings {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -666,7 +664,6 @@ struct Messaging_AndroidBeaconSettings {
   fileprivate var _storage = _StorageClass.defaultInstance
 }
 
-///Android Wifi Settings
 struct Messaging_AndroidWifiSettings {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -728,7 +725,6 @@ struct Messaging_AndroidWifiSettings {
   fileprivate var _rttInterval: UInt64? = nil
 }
 
-///Cross platform Beacon / Bluetooth messages
 struct Messaging_BeaconRegion {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -1112,7 +1108,6 @@ struct Messaging_BeaconFilter {
   fileprivate var _maxObservations: UInt32? = nil
 }
 
-/// Android Inertial Settings
 struct Messaging_AndroidInertialSettings {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -1184,7 +1179,6 @@ extension Messaging_AndroidInertialSettings.Frequency: CaseIterable {
 
 #endif  // swift(>=4.2)
 
-///Cross Platform System Messages
 struct Messaging_GlobalSettings {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -1777,7 +1771,6 @@ struct Messaging_Bluetooth {
   // methods supported on all messages.
 
   ///field types and numbers are backward compatible
-  ///
   ///only used for reporting non iBeacon BLE scans
   var identifier: Data {
     get {return _identifier ?? SwiftProtobuf.Internal.emptyData}
@@ -1863,7 +1856,6 @@ struct Messaging_IBeacon {
   // methods supported on all messages.
 
   ///field types and numbers are backward compatible
-  ///
   /// used by iOS and Android for reporting beacon observations
   var uuid: Data {
     get {return _uuid ?? SwiftProtobuf.Internal.emptyData}
@@ -1946,6 +1938,15 @@ struct Messaging_IBeacon {
   /// Clears the value of `amountAveraged`. Subsequent reads from it will return its default value.
   mutating func clearAmountAveraged() {self._amountAveraged = nil}
 
+  var batteryLevel: UInt32 {
+    get {return _batteryLevel ?? 0}
+    set {_batteryLevel = newValue}
+  }
+  /// Returns true if `batteryLevel` has been explicitly set.
+  var hasBatteryLevel: Bool {return self._batteryLevel != nil}
+  /// Clears the value of `batteryLevel`. Subsequent reads from it will return its default value.
+  mutating func clearBatteryLevel() {self._batteryLevel = nil}
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   init() {}
@@ -1959,6 +1960,7 @@ struct Messaging_IBeacon {
   fileprivate var _timestamp: UInt64? = nil
   fileprivate var _averagingWindow: UInt64? = nil
   fileprivate var _amountAveraged: UInt32? = nil
+  fileprivate var _batteryLevel: UInt32? = nil
 }
 
 struct Messaging_EddystoneBeacon {
@@ -2417,6 +2419,15 @@ struct Messaging_IosCapability {
   /// Clears the value of `lowPowerMode`. Subsequent reads from it will return its default value.
   mutating func clearLowPowerMode() {self._lowPowerMode = nil}
 
+  var motionAndFitness: Bool {
+    get {return _motionAndFitness ?? false}
+    set {_motionAndFitness = newValue}
+  }
+  /// Returns true if `motionAndFitness` has been explicitly set.
+  var hasMotionAndFitness: Bool {return self._motionAndFitness != nil}
+  /// Clears the value of `motionAndFitness`. Subsequent reads from it will return its default value.
+  mutating func clearMotionAndFitness() {self._motionAndFitness = nil}
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   enum LocationAuthStatus: SwiftProtobuf.Enum {
@@ -2531,6 +2542,7 @@ struct Messaging_IosCapability {
   fileprivate var _bluetoothHardware: Messaging_IosCapability.BluetoothHardware? = nil
   fileprivate var _batteryState: Messaging_IosCapability.BatteryState? = nil
   fileprivate var _lowPowerMode: Bool? = nil
+  fileprivate var _motionAndFitness: Bool? = nil
 }
 
 #if swift(>=4.2)
@@ -4516,6 +4528,7 @@ extension Messaging_IBeacon: SwiftProtobuf.Message, SwiftProtobuf._MessageImplem
     7: .same(proto: "timestamp"),
     8: .same(proto: "averagingWindow"),
     9: .same(proto: "amountAveraged"),
+    10: .same(proto: "batteryLevel"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -4530,6 +4543,7 @@ extension Messaging_IBeacon: SwiftProtobuf.Message, SwiftProtobuf._MessageImplem
       case 7: try decoder.decodeSingularUInt64Field(value: &self._timestamp)
       case 8: try decoder.decodeSingularUInt64Field(value: &self._averagingWindow)
       case 9: try decoder.decodeSingularUInt32Field(value: &self._amountAveraged)
+      case 10: try decoder.decodeSingularUInt32Field(value: &self._batteryLevel)
       default: break
       }
     }
@@ -4563,6 +4577,9 @@ extension Messaging_IBeacon: SwiftProtobuf.Message, SwiftProtobuf._MessageImplem
     if let v = self._amountAveraged {
       try visitor.visitSingularUInt32Field(value: v, fieldNumber: 9)
     }
+    if let v = self._batteryLevel {
+      try visitor.visitSingularUInt32Field(value: v, fieldNumber: 10)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -4576,6 +4593,7 @@ extension Messaging_IBeacon: SwiftProtobuf.Message, SwiftProtobuf._MessageImplem
     if lhs._timestamp != rhs._timestamp {return false}
     if lhs._averagingWindow != rhs._averagingWindow {return false}
     if lhs._amountAveraged != rhs._amountAveraged {return false}
+    if lhs._batteryLevel != rhs._batteryLevel {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -4940,6 +4958,7 @@ extension Messaging_IosCapability: SwiftProtobuf.Message, SwiftProtobuf._Message
     3: .same(proto: "bluetoothHardware"),
     4: .same(proto: "batteryState"),
     5: .same(proto: "lowPowerMode"),
+    6: .same(proto: "motionAndFitness"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -4950,6 +4969,7 @@ extension Messaging_IosCapability: SwiftProtobuf.Message, SwiftProtobuf._Message
       case 3: try decoder.decodeSingularEnumField(value: &self._bluetoothHardware)
       case 4: try decoder.decodeSingularEnumField(value: &self._batteryState)
       case 5: try decoder.decodeSingularBoolField(value: &self._lowPowerMode)
+      case 6: try decoder.decodeSingularBoolField(value: &self._motionAndFitness)
       default: break
       }
     }
@@ -4971,6 +4991,9 @@ extension Messaging_IosCapability: SwiftProtobuf.Message, SwiftProtobuf._Message
     if let v = self._lowPowerMode {
       try visitor.visitSingularBoolField(value: v, fieldNumber: 5)
     }
+    if let v = self._motionAndFitness {
+      try visitor.visitSingularBoolField(value: v, fieldNumber: 6)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -4980,6 +5003,7 @@ extension Messaging_IosCapability: SwiftProtobuf.Message, SwiftProtobuf._Message
     if lhs._bluetoothHardware != rhs._bluetoothHardware {return false}
     if lhs._batteryState != rhs._batteryState {return false}
     if lhs._lowPowerMode != rhs._lowPowerMode {return false}
+    if lhs._motionAndFitness != rhs._motionAndFitness {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

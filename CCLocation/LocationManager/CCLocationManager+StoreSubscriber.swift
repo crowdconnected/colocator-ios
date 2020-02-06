@@ -22,7 +22,7 @@ extension CCLocationManager: StoreSubscriber {
         
         let newGEOState = state.currentGEOState
         if (newGEOState != nil && newGEOState != self.currentGEOState) || isWakeUpNotification {
-            Log.debug("New GEOState \n \(String(describing: newGEOState))")
+            Log.verbose("New GEOState \n \(String(describing: newGEOState))")
                 
             self.currentGEOState = newGEOState
             updateSignificantUpdatesForGEOState(newGEOState!)
@@ -33,7 +33,7 @@ extension CCLocationManager: StoreSubscriber {
         
         let newGeofencesState = state.currentGeofencesMonitoringState
         if newGeofencesState != nil && newGeofencesState != self.currentGeofencesMonitoringState {
-            Log.debug("New GeofencesMonitoringState \n \(String(describing: newGeofencesState))")
+            Log.verbose("New GeofencesMonitoringState \n \(String(describing: newGeofencesState))")
             
             self.currentGeofencesMonitoringState = newGeofencesState
             self.updateMonitoringGeofences()
@@ -43,7 +43,7 @@ extension CCLocationManager: StoreSubscriber {
         
         let newiBeaconMonitoringState = state.currentiBeaconMonitoringState
         if  newiBeaconMonitoringState != nil && newiBeaconMonitoringState != self.currentiBeaconMonitoringState {
-            Log.debug("New iBeaconMonitoringState \n \(String(describing: newiBeaconMonitoringState))")
+            Log.verbose("New iBeaconMonitoringState \n \(String(describing: newiBeaconMonitoringState))")
 
             self.currentiBeaconMonitoringState = newiBeaconMonitoringState
             self.updateMonitoringForRegions()
@@ -53,7 +53,7 @@ extension CCLocationManager: StoreSubscriber {
 
         let newBeaconState = state.currentBeaconState
         if (newBeaconState != nil && newBeaconState != currentBeaconState) || isWakeUpNotification {
-            Log.debug("New BeaconState \n \(String(describing: newBeaconState))")
+            Log.verbose("New BeaconState \n \(String(describing: newBeaconState))")
             
             currentBeaconState = newBeaconState
             let isIBeaconRangingEnabled = currentBeaconState.isIBeaconRangingEnabled
@@ -74,7 +74,7 @@ extension CCLocationManager: StoreSubscriber {
         
         let newWakeupNotificationState = state.wakeupState
         if  newWakeupNotificationState != nil && newWakeupNotificationState != wakeupState {
-            Log.debug("New WakeUpState \n \(String(describing: newWakeupNotificationState))")
+            Log.verbose("New WakeUpState \n \(String(describing: newWakeupNotificationState))")
             
             wakeupState = newWakeupNotificationState
             if wakeupState.ccWakeup == CCWakeup.notifyWakeup {
