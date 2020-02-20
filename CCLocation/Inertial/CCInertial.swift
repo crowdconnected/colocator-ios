@@ -42,6 +42,7 @@ class CCInertial: NSObject {
         // The 5 seconds time frame is the estimated time (+ margin) for the user to make a choice in granting permission
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
             if #available(iOS 11.0, *) {
+                if self.stateStore == nil { return }
                 switch CMMotionActivityManager.authorizationStatus() {
                     case .authorized:  DispatchQueue.main.async {self.stateStore.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: true))}
                     case .restricted, .denied:  DispatchQueue.main.async {self.stateStore.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: false))}
