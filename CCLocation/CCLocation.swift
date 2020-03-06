@@ -43,7 +43,7 @@ internal struct Constants {
         if libraryStarted == false {
             libraryStarted = true
             
-            setLoggerLevels(verbose: false, info: false, debug: false, warning: false, error: true, severe: false)
+            setLoggerLevels(verbose: true, info: true, debug: true, warning: true, error: true, severe: true)
             
             NSLog("[Colocator] Initialising Colocator")
             
@@ -169,10 +169,18 @@ internal struct Constants {
                 let clientStatus = jsonResponse?["connect"] as? Bool
                 
                 if clientStatus == true {
-                    self.start(apiKey: key)
-                    Log.info("[Colocator] Library started from background")
-                    completion(true)
-                    return
+                    if self.libraryStarted == true {
+                        self.stop()
+                        self.start(apiKey: key)
+                        Log.info("[Colocator] Library started from background")
+                        completion(true)
+                        return
+                    } else {
+                        self.start(apiKey: key)
+                        Log.info("[Colocator] Library started from background")
+                        completion(true)
+                        return
+                    }
                 }
                 if clientStatus == false {
                     self.stop()

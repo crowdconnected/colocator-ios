@@ -229,6 +229,8 @@ extension CCLocationManager: BeaconScannerDelegate {
 extension CCLocationManager {
     
     fileprivate func checkIfWindowSizeAndMaxObservationsAreAvailable(_ isFilterAvailable: inout Bool) {
+        if stateStore == nil { return }
+        
         guard let currentBeaconState = stateStore.state.locationSettingsState.currentLocationState?.currentBeaconState else {
             return
         }

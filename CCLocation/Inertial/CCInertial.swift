@@ -206,6 +206,7 @@ class CCInertial: NSObject {
             
             guard let tempYaw = findFirstSmallerYaw(yawArray: yawDataBuffer, timeInterval: tempTimeStamp) else {
                 Log.debug("Temp yaw is nil. Steps won't be sent to server")
+                Log.warning("Step discarded")
                 continue
             }
             
@@ -219,6 +220,8 @@ class CCInertial: NSObject {
             
             let stepDate = Date(timeIntervalSince1970: tempTimeStamp)
             let angle = rad2deg(tempYaw.yaw)
+            
+            Log.warning("Step validated")
             self.delegate?.receivedStep(date: stepDate, angle: angle)
         }
     }
