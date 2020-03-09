@@ -156,14 +156,18 @@ class CCRequestMessaging: NSObject {
     // MARK: - STATE HANDLING FUNCTIONS
     
     public func webSocketDidOpen() {
-        if stateStore != nil {
-            DispatchQueue.main.async {self.stateStore.dispatch(WebSocketAction(connectionState: ConnectionState.online))}
+        DispatchQueue.main.async {
+            if self.stateStore != nil {
+                self.stateStore.dispatch(WebSocketAction(connectionState: ConnectionState.online))
+            }
         }
     }
     
     public func webSocketDidClose() {
-        if stateStore != nil {
-            DispatchQueue.main.async {self.stateStore.dispatch(WebSocketAction(connectionState: ConnectionState.offline))}
+        DispatchQueue.main.async {
+            if self.stateStore != nil {
+                self.stateStore.dispatch(WebSocketAction(connectionState: ConnectionState.offline))
+            }
         }
     }
     

@@ -11,6 +11,8 @@ import ReSwift
 import CoreBluetooth
 import CoreLocation
 import CoreMotion
+import UserNotifications
+import UIKit
 
 internal struct Constants {
     static let kDefaultEndPointPartialUrl = ".colocator.net:443/socket"
