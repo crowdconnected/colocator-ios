@@ -26,7 +26,7 @@ extension CCRequestMessaging {
     }
     
     private func sendAllMessagesFromDatabase() {
-        DispatchQueue.global(qos: .background).async { [weak self] in
+        DispatchQueue.global(qos: .default).async { [weak self] in
             let maxMessagesToReturn = 100
             var connectionState = self?.stateStore.state.ccRequestMessagingState.webSocketState?.connectionState
             
@@ -76,7 +76,7 @@ extension CCRequestMessaging {
     }
     
     func sendSingleMessage(_ message: Data) {
-        DispatchQueue.global(qos: .background).async { [weak self] in
+        DispatchQueue.global(qos: .default).async { [weak self] in
             var (_,
                  compiledClientMessage,
                  backToQueueMessage) = self?.handleMessageType(message: message) ?? (0,
