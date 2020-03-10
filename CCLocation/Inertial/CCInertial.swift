@@ -68,11 +68,14 @@ class CCInertial: NSObject {
             
                startCountingSteps()
                startMotionUpdates()
-            
-                updateFitnessAndMotionStatus()
+               updateFitnessAndMotionStatus()
            } else {
                Log.info("[Colocator] Cannot start inertial due to restricted permission for Motion&Fitness")
-               DispatchQueue.main.async {self.stateStore.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: false))}
+            
+               DispatchQueue.main.async {
+                    if self.stateStore == nil { return }
+                    self.stateStore.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: false))
+               }
            }
        } else {
            Log.info("[Colocator] Starting inertial")
@@ -122,7 +125,9 @@ class CCInertial: NSObject {
                 return
             }
 
-            self?.handleDeviceMotionData(data)
+            DispatchQueue.main.async {
+                self?.handleDeviceMotionData(data)
+            }
         }
     }
     
