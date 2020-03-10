@@ -141,7 +141,6 @@ class CCInertial: NSObject {
             Interval: \(self.motion.deviceMotionUpdateInterval )
             """)
 
-        Log.warning("Yaw data received")
         self.yawDataBuffer.append(yawData)
 
         let bufferSize = CCInertialConstants.kBufferSize
@@ -167,6 +166,7 @@ class CCInertial: NSObject {
             if yaw.date.timeIntervalSince1970 < timeInterval {
                 let upperLimit = yawArray.count - index - 1
                 yawDataBuffer.removeSubrange(0 ... upperLimit)
+                // Extend matching yaw data for 0.04 seconds for reducing the discarded steps number
                 yawDataBuffer.insert(YawData(yaw: yaw.yaw, date: Date(timeIntervalSince1970: yaw.date.timeIntervalSince1970 + 0.04)), at: 0)
                 return yaw
             }
@@ -212,7 +212,7 @@ class CCInertial: NSObject {
     private func handleAndReceiveEachStep(totalSteps: Int,
                                           oneStepTimeInterval: TimeInterval,
                                           previousPedometerData: PedometerData) {
-        Log.warning("Handle \(totalSteps) steps")
+        Log.verbose("Handle \(totalSteps) steps")
         
         for i in  1 ... totalSteps {
             let tempTimePeriod = TimeInterval(Double(i) * oneStepTimeInterval)
@@ -220,7 +220,6 @@ class CCInertial: NSObject {
             
             guard let tempYaw = findFirstSmallerYaw(yawArray: yawDataBuffer, timeInterval: tempTimeStamp) else {
                 Log.debug("Temp yaw is nil. Steps won't be sent to server")
-                Log.warning("Step discarded")
                 continue
             }
             
@@ -234,8 +233,6 @@ class CCInertial: NSObject {
             
             let stepDate = Date(timeIntervalSince1970: tempTimeStamp)
             let angle = rad2deg(tempYaw.yaw)
-            
-            Log.warning("Step validated")
             self.delegate?.receivedStep(date: stepDate, angle: angle)
         }
     }
