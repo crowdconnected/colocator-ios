@@ -135,10 +135,9 @@ class CCInertial: NSObject {
         let yawData = YawData(yaw: yawValue, date: Date())
 
         Log.verbose("""
-            Pedometer Data
+            Device Motion Data
             Yaw: \(yawData.yaw)
             Timestamp: \(yawData.date.timeIntervalSince1970)
-            Interval: \(self.motion.deviceMotionUpdateInterval )
             """)
 
         self.yawDataBuffer.append(yawData)
@@ -148,6 +147,7 @@ class CCInertial: NSObject {
 
         if self.yawDataBuffer.count >= bufferSize {
             let upperLimit = bufferSize - cutOff - 1
+            
             // Check since the yawDataBuffer may change its value meanwhile on another thread
             if self.yawDataBuffer.count >= upperLimit {
                 self.yawDataBuffer.removeSubrange(0 ... upperLimit)
@@ -157,15 +157,10 @@ class CCInertial: NSObject {
     
     private func findFirstSmallerYaw(yawArray: [YawData], timeInterval: TimeInterval) -> YawData? {
         for (index, yaw) in yawArray.reversed().enumerated() {
-            Log.verbose("""
-                Pedometer Data
-                Yaw time interval: \(yaw.date.timeIntervalSince1970)
-                Time interval: \(timeInterval)
-                """)
-            
             if yaw.date.timeIntervalSince1970 < timeInterval {
                 let upperLimit = yawArray.count - index - 1
                 yawDataBuffer.removeSubrange(0 ... upperLimit)
+                
                 // Extend matching yaw data for 0.04 seconds for reducing the discarded steps number
                 yawDataBuffer.insert(YawData(yaw: yaw.yaw, date: Date(timeIntervalSince1970: yaw.date.timeIntervalSince1970 + 0.04)), at: 0)
                 return yaw
@@ -193,12 +188,9 @@ class CCInertial: NSObject {
             Log.verbose("""
                 Pedometer Data
                 Step count: \(numberOfSteps)
-                Previous step count: \(tempPreviousPedometerData.numberOfSteps)
                 Period between step counts: \(periodBetweenStepCounts)
                 Steps in-between: \(stepsBetweenStepCounts)
                 Time interval per step: \(oneStepTimeInterval)
-                Current timestamp: \(endDate.timeIntervalSince1970)
-                Previous timestamp: \(tempPreviousPedometerData.endDate.timeIntervalSince1970)
                 """)
             
             handleAndReceiveEachStep(totalSteps: stepsBetweenStepCounts,
@@ -212,23 +204,21 @@ class CCInertial: NSObject {
     private func handleAndReceiveEachStep(totalSteps: Int,
                                           oneStepTimeInterval: TimeInterval,
                                           previousPedometerData: PedometerData) {
-        Log.verbose("Handle \(totalSteps) steps")
+        Log.debug("Handle \(totalSteps) steps")
         
         for i in  1 ... totalSteps {
             let tempTimePeriod = TimeInterval(Double(i) * oneStepTimeInterval)
             let tempTimeStamp = previousPedometerData.endDate.timeIntervalSince1970 + tempTimePeriod
             
             guard let tempYaw = findFirstSmallerYaw(yawArray: yawDataBuffer, timeInterval: tempTimeStamp) else {
-                Log.debug("Temp yaw is nil. Steps won't be sent to server")
+                Log.debug("Steps discarded. Matching yaw not found")
                 continue
             }
             
             Log.debug ("""
-                Pedometer Data
-                Step count: \(i)
-                Time period: \(tempTimePeriod)
+                Valid Step Data
                 Timestamp: \(tempTimeStamp)
-                Yaw value: \(String(describing: tempYaw.yaw))
+                Yaw: \(String(describing: tempYaw.yaw))
                 """)
             
             let stepDate = Date(timeIntervalSince1970: tempTimeStamp)
