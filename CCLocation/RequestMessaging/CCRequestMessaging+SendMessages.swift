@@ -26,6 +26,7 @@ extension CCRequestMessaging {
     }
     
     private func sendAllMessagesFromDatabase() {
+        Log.warning("Try to send multiple messages")
         DispatchQueue.global(qos: .default).async { [weak self] in
             let maxMessagesToReturn = 100
             var connectionState = self?.stateStore.state.ccRequestMessagingState.webSocketState?.connectionState
@@ -69,6 +70,7 @@ extension CCRequestMessaging {
                 
                 if let data = try? compiledClientMessage.serializedData(), data.count > 0 {
                     self?.setupSentTime(forMessage: &compiledClientMessage)
+                    Log.warning("Successfully sent multiple messages")
                     self?.sendMessageThroughSocket(compiledClientMessage)
                 }
             }
@@ -76,6 +78,7 @@ extension CCRequestMessaging {
     }
     
     func sendSingleMessage(_ message: Data) {
+        Log.warning("Try to send single message")
         DispatchQueue.global(qos: .default).async { [weak self] in
             var (_,
                  compiledClientMessage,
@@ -87,6 +90,7 @@ extension CCRequestMessaging {
         
             if let data = try? compiledClientMessage.serializedData(), data.count > 0 {
                 self?.setupSentTime(forMessage: &compiledClientMessage)
+                Log.warning("Successfully sent single message")
                 self?.sendMessageThroughSocket(compiledClientMessage)
             }
         }
