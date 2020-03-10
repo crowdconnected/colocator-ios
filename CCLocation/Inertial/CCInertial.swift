@@ -27,6 +27,7 @@ class CCInertial: NSObject {
     private lazy var yawDataOperationQueue: OperationQueue = {
         let queue = OperationQueue()
         queue.name = "Yaw Data queue"
+        queue.maxConcurrentOperationCount = 5
         return queue
     }()
     
@@ -169,7 +170,7 @@ class CCInertial: NSObject {
             if yaw.date.timeIntervalSince1970 < timeInterval {
                 let upperLimit = yawArray.count - index - 1
                 yawDataBuffer.removeSubrange(0 ... upperLimit)
-//                yawDataBuffer.insert(YawData(yaw: yaw.yaw, date: Date(timeIntervalSince1970: yaw.date.timeIntervalSince1970 + 0.019)), at: 0)
+                yawDataBuffer.insert(YawData(yaw: yaw.yaw, date: Date(timeIntervalSince1970: yaw.date.timeIntervalSince1970 + 0.04)), at: 0)
                 return yaw
             }
         }
