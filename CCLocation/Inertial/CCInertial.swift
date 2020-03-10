@@ -130,12 +130,6 @@ class CCInertial: NSObject {
         }
     }
     
-    @objc private func updateDeviceMotionData() {
-        if let data = self.motion.deviceMotion {
-            handleDeviceMotionData(data)
-        }
-    }
-    
     private func handleDeviceMotionData(_ data: CMDeviceMotion) {
         let yawValue = data.attitude.yaw
         let yawData = YawData(yaw: yawValue, date: Date())
@@ -155,7 +149,10 @@ class CCInertial: NSObject {
 
         if self.yawDataBuffer.count >= bufferSize {
             let upperLimit = bufferSize - cutOff - 1
-            self.yawDataBuffer.removeSubrange(0 ... upperLimit)
+            // Check since the yawDataBuffer may change its value meanwhile on another thread
+            if self.yawDataBuffer.count >= upperLimit {
+                self.yawDataBuffer.removeSubrange(0 ... upperLimit)
+            }
         }
     }
     
