@@ -65,13 +65,13 @@ class ColocatorManager {
             ccSocket = CCSocket.sharedInstance
             ccSocket!.delegate = ccLocation
             
-            ccLocationManager = CCLocationManager(stateStore: state!)
-            ccInertial = CCInertial(stateStore: state!)
-            ccRequestMessaging = CCRequestMessaging(ccSocket: ccSocket!,
-                                                    stateStore: state!)
-            
+            ccLocationManager = CCLocationManager(stateStore: self.state!)
             ccLocationManager!.delegate = self
+            
+            ccInertial = CCInertial(stateStore: self.state!)
             ccInertial!.delegate = self
+
+            ccRequestMessaging = CCRequestMessaging(ccSocket: ccSocket!, stateStore: state!)
             
             Log.info("[Colocator] Attempt to connect to back-end with URL: \(urlString) and APIKey: \(apiKey)")
                        

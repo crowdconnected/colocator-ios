@@ -16,8 +16,6 @@ import CoreBluetooth
 extension CCRequestMessaging {
     
     func processIosSettings (serverMessage: Messaging_ServerMessage, store: Store<LibraryState>) {
-        Log.debug("Got iOS settings message")
-        
         // When Missing Settings
         
         if serverMessage.hasIosSettings && !serverMessage.iosSettings.hasGeoSettings {
