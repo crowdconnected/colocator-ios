@@ -30,13 +30,9 @@ class CCInertial: NSObject {
         queue.maxConcurrentOperationCount = 5
         return queue
     }()
-    
-    var handleDeviceMotionTimer: Timer?
-    
+
     var currentInertialState: InertialState!
-    
     weak var stateStore: Store<LibraryState>!
-    
     public weak var delegate: CCInertialDelegate?
     
     init(stateStore: Store<LibraryState>) {
