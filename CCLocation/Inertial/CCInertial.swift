@@ -24,6 +24,8 @@ class CCInertial: NSObject {
     private var previousPedometerData: PedometerData?
     private var yawDataBuffer: [YawData] = []
     
+    private let yawDataSerialQueue = DispatchQueue(label: "YawDataDispatchQueue")
+    
     private lazy var yawDataOperationQueue: OperationQueue = {
         let queue = OperationQueue()
         queue.name = "Yaw Data queue"
@@ -142,7 +144,9 @@ class CCInertial: NSObject {
             Timestamp: \(yawData.date.timeIntervalSince1970)
             """)
 
-        self.yawDataBuffer.append(yawData)
+        yawDataSerialQueue.sync {
+            self.yawDataBuffer.append(yawData)
+        }
 
         let bufferSize = CCInertialConstants.kBufferSize
         let cutOff = CCInertialConstants.kCutOff
@@ -150,8 +154,7 @@ class CCInertial: NSObject {
         if self.yawDataBuffer.count >= bufferSize {
             let upperLimit = bufferSize - cutOff - 1
             
-            // Check since the yawDataBuffer may change its value meanwhile on another thread
-            if self.yawDataBuffer.count >= upperLimit {
+            yawDataSerialQueue.sync {
                 self.yawDataBuffer.removeSubrange(0 ... upperLimit)
             }
         }
@@ -161,10 +164,13 @@ class CCInertial: NSObject {
         for (index, yaw) in yawArray.reversed().enumerated() {
             if yaw.date.timeIntervalSince1970 < timeInterval {
                 let upperLimit = yawArray.count - index - 1
-                yawDataBuffer.removeSubrange(0 ... upperLimit)
+                yawDataSerialQueue.sync {
+                    yawDataBuffer.removeSubrange(0 ... upperLimit)
                 
-                // Extend matching yaw data for 0.04 seconds for reducing the discarded steps number
-                yawDataBuffer.insert(YawData(yaw: yaw.yaw, date: Date(timeIntervalSince1970: yaw.date.timeIntervalSince1970 + 0.04)), at: 0)
+                    // Extend matching yaw data for 0.04 seconds for reducing the discarded steps number
+                    yawDataBuffer.insert(YawData(yaw: yaw.yaw, date: Date(timeIntervalSince1970: yaw.date.timeIntervalSince1970 + 0.04)), at: 0)
+                }
+                
                 return yaw
             }
         }
