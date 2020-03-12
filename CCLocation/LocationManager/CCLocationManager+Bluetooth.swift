@@ -229,6 +229,8 @@ extension CCLocationManager: BeaconScannerDelegate {
 extension CCLocationManager {
     
     fileprivate func checkIfWindowSizeAndMaxObservationsAreAvailable(_ isFilterAvailable: inout Bool) {
+        if stateStore == nil { return }
+        
         guard let currentBeaconState = stateStore.state.locationSettingsState.currentLocationState?.currentBeaconState else {
             return
         }
@@ -336,7 +338,10 @@ extension CCLocationManager {
 // CBCentralManagerDelegate
 extension CCLocationManager {
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        DispatchQueue.main.async {self.stateStore.dispatch(BluetoothHardwareChangedAction(bluetoothHardware: central.centralManagerState))}
+        DispatchQueue.main.async {
+            if self.stateStore == nil { return }
+            self.stateStore.dispatch(BluetoothHardwareChangedAction(bluetoothHardware: central.centralManagerState))
+        }
     }
 }
 

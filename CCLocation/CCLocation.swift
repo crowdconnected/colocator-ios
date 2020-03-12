@@ -11,6 +11,8 @@ import ReSwift
 import CoreBluetooth
 import CoreLocation
 import CoreMotion
+import UserNotifications
+import UIKit
 
 internal struct Constants {
     static let kDefaultEndPointPartialUrl = ".colocator.net:443/socket"
@@ -43,7 +45,7 @@ internal struct Constants {
         if libraryStarted == false {
             libraryStarted = true
             
-            setLoggerLevels(verbose: false, info: false, debug: false, warning: false, error: true, severe: false)
+            setLoggerLevels(verbose: false, info: false, debug: false, warning: true, error: true, severe: true)
             
             NSLog("[Colocator] Initialising Colocator")
             
@@ -74,6 +76,8 @@ internal struct Constants {
         if libraryStarted == true {
             libraryStarted = false
             stateStore = nil
+            
+            NSLog("[Colocator] Stopping Colocator")
             
             colocatorManager?.stop()
             colocatorManager = nil
@@ -169,10 +173,18 @@ internal struct Constants {
                 let clientStatus = jsonResponse?["connect"] as? Bool
                 
                 if clientStatus == true {
-                    self.start(apiKey: key)
-                    Log.info("[Colocator] Library started from background")
-                    completion(true)
-                    return
+                    if self.libraryStarted == true {
+                        self.stop()
+                        self.start(apiKey: key)
+                        Log.info("[Colocator] Library started from background")
+                        completion(true)
+                        return
+                    } else {
+                        self.start(apiKey: key)
+                        Log.info("[Colocator] Library started from background")
+                        completion(true)
+                        return
+                    }
                 }
                 if clientStatus == false {
                     self.stop()

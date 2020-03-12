@@ -156,14 +156,16 @@ class CCRequestMessaging: NSObject {
     // MARK: - STATE HANDLING FUNCTIONS
     
     public func webSocketDidOpen() {
-        if stateStore != nil {
-            DispatchQueue.main.async {self.stateStore.dispatch(WebSocketAction(connectionState: ConnectionState.online))}
+        DispatchQueue.main.async {
+            if self.stateStore == nil { return }
+            self.stateStore.dispatch(WebSocketAction(connectionState: ConnectionState.online))
         }
     }
     
     public func webSocketDidClose() {
-        if stateStore != nil {
-            DispatchQueue.main.async {self.stateStore.dispatch(WebSocketAction(connectionState: ConnectionState.offline))}
+        DispatchQueue.main.async {
+            if self.stateStore == nil { return }
+            self.stateStore.dispatch(WebSocketAction(connectionState: ConnectionState.offline))
         }
     }
     
@@ -237,7 +239,10 @@ class CCRequestMessaging: NSObject {
         sendQueuedClientMessagesTimerFired()
         
         // now we simply resume the normal timer
-        DispatchQueue.main.async {self.stateStore.dispatch(ScheduleSilencePeriodTimerAction())}
+        DispatchQueue.main.async {
+            if self.stateStore == nil { return }
+            self.stateStore.dispatch(ScheduleSilencePeriodTimerAction())
+        }
     }
     
     func stop() {
@@ -275,6 +280,7 @@ extension CCRequestMessaging: TimeHandlingDelegate {
             """)
         
         DispatchQueue.main.async {
+            if self.stateStore == nil { return }
             self.stateStore.dispatch(NewTruetimeReceivedAction(lastTrueTime: trueTime,
                                                                bootTimeIntervalAtLastTrueTime: timeIntervalSinceBootTime,
                                                                systemTimeAtLastTrueTime: systemTime,
@@ -286,7 +292,10 @@ extension CCRequestMessaging: TimeHandlingDelegate {
         }
         
         if radioSilenceTimerState.timer == .stopped && radioSilenceTimerState.startTimeInterval != nil {
-            DispatchQueue.main.async {self.stateStore.dispatch(ScheduleSilencePeriodTimerAction())}
+            DispatchQueue.main.async {
+                if self.stateStore == nil { return }
+                self.stateStore.dispatch(ScheduleSilencePeriodTimerAction())
+            }
         }
     }
 }

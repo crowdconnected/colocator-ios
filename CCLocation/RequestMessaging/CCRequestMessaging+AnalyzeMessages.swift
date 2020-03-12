@@ -366,7 +366,10 @@ extension CCRequestMessaging {
                 if let batteryLevel = stateStore.state.batteryLevelState.batteryLevel {
                     batteryMessage.battery = batteryLevel
                     newBatteryMessage = batteryMessage
-                    DispatchQueue.main.async {self.stateStore.dispatch(BatteryLevelReportedAction())}
+                    DispatchQueue.main.async {
+                        if self.stateStore == nil { return }
+                        self.stateStore.dispatch(BatteryLevelReportedAction())
+                    }
                 }
             }
         }
