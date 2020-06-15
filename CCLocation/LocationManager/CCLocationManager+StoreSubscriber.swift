@@ -68,6 +68,11 @@ extension CCLocationManager: StoreSubscriber {
                 cleanUpBeaconTimers()
                 stopRangingBeaconsFor()
             }
+            
+            //TODO
+            // Get contact tracing settings and start scanning and advertising.
+            // New classes, not the current beacon class.
+            // Leave that there
         }
         
         // WakeUp State

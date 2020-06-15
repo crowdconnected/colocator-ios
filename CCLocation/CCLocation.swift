@@ -19,13 +19,13 @@ internal struct Constants {
     static let kEndPointUpdateLibraryBackgroundUrl = "https://canconnect.colocator.net/connect/connectping"
 }
 
-@objc public protocol CCLocationDelegate: class {
+@objc(CCLocation) public protocol CCLocationDelegate: class {
     @objc func ccLocationDidConnect()
     @objc func ccLocationDidFailWithError(error: Error)
     @objc func didReceiveCCLocation(_ location: LocationResponse)
 }
 
-@objc public class CCLocation: NSObject {
+@objc(CCLocation) public class CCLocation: NSObject {
     
     @objc public weak var delegate: CCLocationDelegate?
     
@@ -86,6 +86,14 @@ internal struct Constants {
         }
     }
     
+    //TODO Remove these 2 methods. Testing purpose onyl
+    @objc public func startContactTracing() {
+        colocatorManager?.startContactTracing()
+    }
+    @objc public func stopContactTracing() {
+        colocatorManager?.stopContactTracing()
+    }
+    
     /// Filter the log levels that appears in the console
     ///
     @objc public func setLoggerLevels(verbose: Bool,
@@ -100,6 +108,10 @@ internal struct Constants {
                                            warning: warning,
                                            error: error,
                                            severe: severe)
+    }
+    
+    @objc public func setSurveyMode(state: Bool) {
+        colocatorManager?.ccRequestMessaging?.surveyMode = state
     }
     
     @objc public func getDeviceId() -> String? {

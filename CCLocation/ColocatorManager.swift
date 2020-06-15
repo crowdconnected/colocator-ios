@@ -23,6 +23,7 @@ class ColocatorManager {
     var ccLocationManager: CCLocationManager?
     var ccRequestMessaging: CCRequestMessaging?
     var ccInertial: CCInertial?
+    var ccContactTracing: ContactTracing?
     var ccSocket: CCSocket?
     
     var messagesDatabase: SQLiteDatabase!
@@ -71,6 +72,9 @@ class ColocatorManager {
             ccInertial = CCInertial(stateStore: self.state!)
             ccInertial!.delegate = self
 
+            ccContactTracing = ContactTracing(stateStore: self.state!)
+            ccContactTracing?.delegate = self
+            
             ccRequestMessaging = CCRequestMessaging(ccSocket: ccSocket!, stateStore: state!)
             
             Log.info("[Colocator] Attempt to connect to back-end with URL: \(urlString) and APIKey: \(apiKey)")
@@ -112,6 +116,14 @@ class ColocatorManager {
                                                     userInfo: nil,
                                                     repeats: true)
         }
+    }
+    
+    //TODO Remove these 2 methods. Testing purpose onyl
+    @objc public func startContactTracing() {
+        ccContactTracing?.start()
+    }
+    @objc public func stopContactTracing() {
+        ccContactTracing?.stop()
     }
     
     @objc private func checkDatabaseAndStopLibrary() {
@@ -362,5 +374,12 @@ extension ColocatorManager: CCLocationManagerDelegate {
 extension ColocatorManager: CCInertialDelegate {
     func receivedStep(date: Date, angle: Double) {
         ccRequestMessaging?.processStep(date: date, angle: angle)
+    }
+}
+
+// MARK: - CCContactTracingDelegate
+extension ColocatorManager: CCContactTracingDelegate {
+    func detectedContact(data: Data) {
+        //TODO Process and send data to server
     }
 }
