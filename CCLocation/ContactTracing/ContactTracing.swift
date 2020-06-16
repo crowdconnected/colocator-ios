@@ -13,10 +13,10 @@ import ReSwift
 class ContactTracing: NSObject {
     internal var isRunning = false
     
-    internal var advertisingInterval = 10000
-    internal var advertisingPeriod = 5000
-    internal var scanningInterval = 10000
-    internal var scanningPeriod = 5000
+    internal var advertisingInterval: Int?
+    internal var advertisingPeriod: Int?
+    internal var scanningInterval: Int?
+    internal var scanningPeriod: Int?
     
     private var advertiser: ContactAdvertiser?
     private var scanner: ContactScanner?
@@ -48,12 +48,13 @@ class ContactTracing: NSObject {
     }
     
     internal func start() {
+        //TODO Talk to Sam about the fact that there isn' a list of contacts, but a single contact in a clinet message. Which is wrong
+        
+        
         Log.info("Contact Tracing starting...")
 
-        startAdvertisingCycle()
-        startScanningCycle()
-        
-        //TODO Implement duration and interval for scanning and advertising
+        startAdvertising()
+        startScanning()
     }
     
     internal func stop() {
@@ -62,11 +63,12 @@ class ContactTracing: NSObject {
         isRunning = false
         peripheral?.stopAdvertising()
         central?.stopScan()
+        scanner?.scannerOn = false
         advertiser = nil
         scanner = nil
     }
     
-    private func startAdvertisingCycle() {
+    private func startAdvertising() {
         guard let eidGenerator = eidGenerator else {
             Log.warning("Cannot start advertising with a nil EIDGenerator")
             isRunning = false
@@ -74,6 +76,7 @@ class ContactTracing: NSObject {
         }
         
         advertiser = ContactAdvertiser(eidGenerator: eidGenerator)
+        //TODO implement cycles for advertising as well
         
         peripheral = CBPeripheralManager(delegate: advertiser,
                                          queue: queue,
@@ -83,7 +86,7 @@ class ContactTracing: NSObject {
         Log.error("Started advertising for Contact Tracing")
     }
     
-    private func startScanningCycle() {
+    private func startScanning() {
         if advertiser == nil {
             Log.error("Scanner cannot start while advertiser is nil")
             return
@@ -95,6 +98,8 @@ class ContactTracing: NSObject {
         }
         
         scanner = ContactScanner(advertiser: advertiser!, queue: queue, delegate: delegate!)
+        scanner?.scanDuration = scanningPeriod != nil ? Int(scanningPeriod! / 1000) : nil
+        scanner?.scanInterval = scanningInterval != nil ? Int(scanningInterval! / 1000) : nil
         
         central = CBCentralManager(delegate: scanner,
                                           queue: queue,

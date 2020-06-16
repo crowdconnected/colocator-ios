@@ -16,6 +16,10 @@ protocol ContactScannerDelegate: class {
 class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     
     var delegate: ContactScannerDelegate?
+    var scannerOn = true
+    var scanDuration: Int? // seconds
+    var scanInterval: Int? // seconds
+    
     private var advertiser: ContactAdvertiser
     private let queue: DispatchQueue
     
@@ -33,6 +37,34 @@ class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         self.advertiser = advertiser
         self.queue = queue
         self.delegate = delegate
+        scannerOn = true
+    }
+    
+    private var centralManager: CBCentralManager?
+    
+    private func startScanningCycle() {
+        let services = [ContactTracingUUIDs.colocatorServiceUUID]
+        let options = [CBCentralManagerScanOptionAllowDuplicatesKey : true]
+        centralManager?.scanForPeripherals(withServices: services, options: options)
+        
+        if scanDuration != nil && scanDuration != nil {
+            Log.warning("Started scanning cycle for \(String(describing: scanDuration)) seconds")
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(scanDuration!)) {
+                self.centralManager?.stopScan()
+                
+                Log.warning("Stopped scanning. Start again in \(String(describing: self.scanInterval)) seconds")
+                
+                if self.scannerOn {
+                    // Used 1 as backup to avoid a crash if scanInterval is set to nil meanwhile
+                    DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(self.scanInterval ?? 1)) {
+                        self.startScanningCycle()
+                    }
+                }
+            }
+        } else {
+            Log.warning("Started scanning cycle for indefinite period")
+        }
     }
     
     func centralManager(_ central: CBCentralManager, willRestoreState dict: [String : Any]) {
@@ -52,10 +84,8 @@ class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
                 central.connect(peripheral)
             }
             
-            let services = [ContactTracingUUIDs.colocatorServiceUUID]
-            let options = [CBCentralManagerScanOptionAllowDuplicatesKey : true]
-            central.scanForPeripherals(withServices: services, options: options)
-            
+            centralManager = central
+            startScanningCycle()
         default:
             break
         }
@@ -192,7 +222,7 @@ class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         let time = Date().timeIntervalSince1970
         
         if let deviceEID = getEIDForPeripheral(peripheral) {
-            Log.verbose("iOS contact: \(deviceEID)  \(RSSI)  \(time)")
+            Log.info("iOS contact: \(deviceEID)  \(RSSI)  \(time)")
             delegate?.newContact(EID: deviceEID, RSSI: Int(truncating: RSSI), timestamp: time)
         } else {
             Log.info("No EID found for peripheral identifier \(peripheral.identifier)")
@@ -202,7 +232,7 @@ class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     func handleAndroidContactWith(deviceEID: String, RSSI: NSNumber) {
         let time = Date().timeIntervalSince1970
         
-        Log.error("Android contact: \(deviceEID)  \(RSSI)  \(time)")
+        Log.info("Android contact: \(deviceEID)  \(RSSI)  \(time)")
         delegate?.newContact(EID: deviceEID, RSSI: Int(truncating: RSSI), timestamp: time)
     }
     
