@@ -14,7 +14,6 @@ extension ContactTracing: StoreSubscriber {
     
     public func newState(state: LibraryState) {
         guard let newContactState = state.contactState?.contactBluetoothState else {
-            //TODO Check wheter you should call stop() here when there are not contactbluetooth settings
             return
         }
         
@@ -47,7 +46,12 @@ extension ContactTracing: StoreSubscriber {
     }
     
     private func updateCurrentContactStateActivity(newState: ContactBluetoothState) {
-        stop()
-        start()
+        if isRunning {
+            stop()
+        }
+        
+        if newState.isEnabled ?? false {
+            start()
+        }
     }
 }

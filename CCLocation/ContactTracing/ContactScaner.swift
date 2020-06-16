@@ -192,7 +192,7 @@ class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         let time = Date().timeIntervalSince1970
         
         if let deviceEID = getEIDForPeripheral(peripheral) {
-            Log.error("iOS contact: \(deviceEID)  \(RSSI)  \(time)")
+            Log.verbose("iOS contact: \(deviceEID)  \(RSSI)  \(time)")
             delegate?.newContact(EID: deviceEID, RSSI: Int(truncating: RSSI), timestamp: time)
         } else {
             Log.info("No EID found for peripheral identifier \(peripheral.identifier)")

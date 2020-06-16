@@ -27,6 +27,9 @@ extension CCRequestMessaging {
         if serverMessage.hasIosSettings && !serverMessage.iosSettings.hasInertialSettings {
             disableInertialActions(store: store)
         }
+        if serverMessage.hasIosSettings && !serverMessage.iosSettings.hasIOscontactSettings {
+            disableContactActions(store: store)
+        }
         
         // When Having Settings
         

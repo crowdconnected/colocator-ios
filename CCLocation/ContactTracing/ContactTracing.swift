@@ -57,7 +57,7 @@ class ContactTracing: NSObject {
     }
     
     internal func stop() {
-        Log.info("Contact Tracing stopping...")
+        Log.error("Contact Tracing stopping...")
         
         isRunning = false
         peripheral?.stopAdvertising()
@@ -80,7 +80,7 @@ class ContactTracing: NSObject {
                                          options: [CBPeripheralManagerOptionRestoreIdentifierKey: peripheralRestoreIdentifier])
         isRunning = true
         
-        Log.info("Started advertising for Contact Tracing")
+        Log.error("Started advertising for Contact Tracing")
     }
     
     private func startScanningCycle() {
@@ -102,6 +102,6 @@ class ContactTracing: NSObject {
                                                     CBCentralManagerOptionRestoreIdentifierKey: centralRestoreIdentifier,
                                                     CBCentralManagerOptionShowPowerAlertKey: NSNumber(false)])
         
-        Log.info("Started scanning for Contact Tracing")
+        Log.error("Started scanning for Contact Tracing")
     }
 }
