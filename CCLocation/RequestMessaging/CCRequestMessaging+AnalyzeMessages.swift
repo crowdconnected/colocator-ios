@@ -147,6 +147,22 @@ extension CCRequestMessaging {
             }
         }
         
+        if tempClientMessage!.hasContactMessage {
+            Log.debug("Found contact message in queue")
+            
+            let (actualizedSubmessageCounter, toCompileMessage, toQueueMessage) =
+                self.checkContactTypeMessage(tempClientMessage!.contactMessage, subMessageCounter: subMessageCounter)
+            
+            subMessageCounter = actualizedSubmessageCounter
+            if let newCompileMessage = toCompileMessage {
+                if self.surveyMode == true { compiledClientMessage.surveryMode = true }
+                compiledClientMessage.contactMessage = newCompileMessage
+            }
+            if let newQueueMessage = toQueueMessage {
+                backToQueueMessages.contactMessage = newQueueMessage
+            }
+        }
+        
         if let newBatteryMessage = self.checkNewBatteryLevelTypeMessage() {
             Log.debug ("Found new battery level messages in queue")
             
@@ -398,16 +414,39 @@ extension CCRequestMessaging {
                                             -> (Int, Messaging_ClientLocationRequest?, Messaging_ClientLocationRequest?) {
         let subMessageNo = subMessageCounter
         var locationRequestMessage = Messaging_ClientLocationRequest()
-        let tempCapabilityMessage = message
+        let tempLocationRequestMessage = message
                           
-        if tempCapabilityMessage.hasType {
-            locationRequestMessage.type = tempCapabilityMessage.type
+        if tempLocationRequestMessage.hasType {
+            locationRequestMessage.type = tempLocationRequestMessage.type
         }
         
         if subMessageNo >= 0 {
             return (subMessageNo + 1, locationRequestMessage, nil)
         } else {
             return (subMessageNo + 1, nil, locationRequestMessage)
+        }
+    }
+    
+    public func checkContactTypeMessage(_ message: Messaging_ContactMessage, subMessageCounter: Int)
+                                        -> (Int, Messaging_ContactMessage?, Messaging_ContactMessage?) {
+        let subMessageNo = subMessageCounter
+        var contactMessage = Messaging_ContactMessage()
+        let tempContactMessage = message
+        
+        if tempContactMessage.hasEid {
+            contactMessage.eid = tempContactMessage.eid
+        }
+        if tempContactMessage.hasRssi {
+            contactMessage.rssi = tempContactMessage.rssi
+        }
+        if tempContactMessage.hasTimestamp {
+            contactMessage.timestamp = tempContactMessage.timestamp
+        }
+        
+        if subMessageNo >= 0 {
+            return (subMessageNo + 1, contactMessage, nil)
+        } else {
+            return (subMessageNo + 1, nil, contactMessage)
         }
     }
 }

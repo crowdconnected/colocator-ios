@@ -373,8 +373,8 @@ extension ColocatorManager: CCInertialDelegate {
 }
 
 // MARK: - CCContactTracingDelegate
-extension ColocatorManager: CCContactTracingDelegate {
-    func detectedContact(data: Data) {
-        //TODO Process and send data to server
+extension ColocatorManager: ContactScannerDelegate {
+    func newContact(EID: String, RSSI: Int, timestamp: Double) {
+        ccRequestMessaging?.processContact(EID: EID, RSSI: RSSI, timestamp: timestamp)
     }
 }

@@ -16,7 +16,8 @@ protocol ContactScannerDelegate: class {
 class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     
     var delegate: ContactScannerDelegate?
-    var advertiser: ContactAdvertiser
+    private var advertiser: ContactAdvertiser
+    private let queue: DispatchQueue
     
     // comfortably less than the ~10s background processing time Core Bluetooth gives us when it wakes us up
     private let keepaliveInterval: TimeInterval = 8.0
@@ -24,8 +25,6 @@ class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     private var lastKeepaliveDate: Date = Date.distantPast
     private var keepaliveValue: UInt8 = 0
     private var keepaliveTimer: DispatchSourceTimer?
-    
-    private let queue: DispatchQueue
     
     private var peripherals: [UUID: CBPeripheral] = [:]
     private var peripheralsEIDs: [UUID: String] = [:]
@@ -99,7 +98,7 @@ class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         guard error == nil else {
-            print(error ?? "unknown error")
+            Log.warning("Scanner didDiscoverServices got unknown error")
             return
         }
         
@@ -112,7 +111,7 @@ class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         guard error == nil else {
-            print(error ?? "unknown error")
+            Log.warning("Scanner didDiscoverCharacteristicsFor service \(service) got unknown error")
             return
         }
         
@@ -130,7 +129,7 @@ class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         guard error == nil else {
-            print(error ?? "unknown error")
+            Log.warning("Scanner didUpdateValueFor characteristic \(characteristic) got unknown error")
             return
         }
         
@@ -142,29 +141,29 @@ class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
             
         case (let data?) where characteristic.uuid == ContactTracingUUIDs.keepaliveCharacteristicUUID:
             guard data.count == 1 else {
-                print("Received invalid keepalive value \(data)")
+                Log.warning("Received invalid keepalive value: \(data)")
                 return
             }
             
             let keepaliveValue = data.withUnsafeBytes { $0.load(as: UInt8.self) }
-            print("Received keepalive value \(keepaliveValue)")
+            Log.info("Received keepalive value \(keepaliveValue)")
             readRSSIAndSendKeepalive()
             
         case .none:
-            print("characteristic \(characteristic) has no data")
+            Log.verbose("characteristic \(characteristic) has no data")
             
         default:
-            print("characteristic \(characteristic) has unknown uuid \(characteristic.uuid)")
+            Log.verbose("Characteristic \(characteristic) has unknown uuid \(characteristic.uuid)")
         }
     }
     
     func peripheral(_ peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: Error?) {
         guard error == nil else {
-            print("error: \(error!)")
+            Log.warning("Scanner didReadRSSI got unknown error")
             return
         }
-        readRSSIAndSendKeepalive()
         
+        readRSSIAndSendKeepalive()
         handleiOSContactWith(peripheral, RSSI: RSSI)
     }
     
@@ -193,18 +192,17 @@ class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         let time = Date().timeIntervalSince1970
         
         if let deviceEID = getEIDForPeripheral(peripheral) {
-            print("iOS contact: \(deviceEID)  \(RSSI)  \(time)")
-            
+            Log.error("iOS contact: \(deviceEID)  \(RSSI)  \(time)")
             delegate?.newContact(EID: deviceEID, RSSI: Int(truncating: RSSI), timestamp: time)
         } else {
-            print("No EID found for peripheral identifier \(peripheral.identifier)")
+            Log.info("No EID found for peripheral identifier \(peripheral.identifier)")
         }
     }
     
     func handleAndroidContactWith(deviceEID: String, RSSI: NSNumber) {
         let time = Date().timeIntervalSince1970
-        print("Android contact: \(deviceEID)  \(RSSI)  \(time)")
         
+        Log.error("Android contact: \(deviceEID)  \(RSSI)  \(time)")
         delegate?.newContact(EID: deviceEID, RSSI: Int(truncating: RSSI), timestamp: time)
     }
     
@@ -213,7 +211,7 @@ class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
             let EIDString = String(data: data, encoding: .utf8) ?? "undecoded"
             peripheralsEIDs.updateValue(EIDString, forKey: peripheral.identifier)
         } else {
-            print("Received identity payload with unexpected eid length\(data)")
+            Log.warning("Received EID with unexpected length: \(data.count). It should be \(EIDGeneratorManager.eidLength)")
         }
     }
     

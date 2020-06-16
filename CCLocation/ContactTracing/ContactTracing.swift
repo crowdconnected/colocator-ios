@@ -10,10 +10,6 @@ import Foundation
 import CoreBluetooth
 import ReSwift
 
-protocol CCContactTracingDelegate: class {
-    func detectedContact(data: Data)
-}
-
 class ContactTracing: NSObject {
     internal var isRunning = false
     
@@ -35,7 +31,7 @@ class ContactTracing: NSObject {
     
     var currentContactState: ContactBluetoothState!
     weak var stateStore: Store<LibraryState>!
-    public weak var delegate: CCContactTracingDelegate?
+    public weak var delegate: ContactScannerDelegate?
     public var eidGenerator: EIDGeneratorManager?
     
     init(stateStore: Store<LibraryState>) {
@@ -52,9 +48,8 @@ class ContactTracing: NSObject {
     }
     
     internal func start() {
-        print("Start contact tracing")
-        //TODO Verify if it is better to initialize the EID here or at init. Check if it's actualizing his data before being used
-        
+        Log.info("Contact Tracing starting...")
+
         startAdvertisingCycle()
         startScanningCycle()
         
@@ -62,10 +57,9 @@ class ContactTracing: NSObject {
     }
     
     internal func stop() {
-         print("Stop contact tracing")
+        Log.info("Contact Tracing stopping...")
         
         isRunning = false
-        
         peripheral?.stopAdvertising()
         central?.stopScan()
         advertiser = nil
@@ -85,29 +79,29 @@ class ContactTracing: NSObject {
                                          queue: queue,
                                          options: [CBPeripheralManagerOptionRestoreIdentifierKey: peripheralRestoreIdentifier])
         isRunning = true
+        
+        Log.info("Started advertising for Contact Tracing")
     }
     
     private func startScanningCycle() {
         if advertiser == nil {
-            print("Scanner cannot start while advertiser is nil")
+            Log.error("Scanner cannot start while advertiser is nil")
             return
         }
         
-        scanner = ContactScanner(advertiser: advertiser!, queue: queue, delegate: self)
+        if delegate == nil {
+            Log.error("Scanner cannot start with a nil delegate")
+            return
+        }
+        
+        scanner = ContactScanner(advertiser: advertiser!, queue: queue, delegate: delegate!)
         
         central = CBCentralManager(delegate: scanner,
                                           queue: queue,
                                           options: [CBCentralManagerScanOptionAllowDuplicatesKey: NSNumber(true),
                                                     CBCentralManagerOptionRestoreIdentifierKey: centralRestoreIdentifier,
                                                     CBCentralManagerOptionShowPowerAlertKey: NSNumber(false)])
-    }
-}
-
-extension ContactTracing: ContactScannerDelegate {
-    func newContact(EID: String, RSSI: Int, timestamp: Double) {
-        //TODO Convert this in Data or a specific ContactMessage
         
-        let d = "".data(using: .utf8)!
-        delegate?.detectedContact(data: d)
+        Log.info("Started scanning for Contact Tracing")
     }
 }

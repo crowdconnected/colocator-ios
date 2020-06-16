@@ -11,11 +11,11 @@ import CoreBluetooth
 
 class ContactAdvertiser: NSObject, CBPeripheralManagerDelegate {
     
-    private let advertismentDataLocalName = "Colocator"
     private let restoreIdentifierKey = "com.colocator.contacttracing.peripheral"
      
     var peripheralManager: CBPeripheralManager?
-       
+    private var eidGenerator: EIDGeneratorManager?
+    
     enum UnsentCharacteristicValue {
         case keepalive(value: Data)
         case identity(value: Data)
@@ -25,17 +25,15 @@ class ContactAdvertiser: NSObject, CBPeripheralManagerDelegate {
     var keepaliveCharacteristic: CBMutableCharacteristic?
     var identityCharacteristic: CBMutableCharacteristic?
     
-    private var eidGenerator: EIDGeneratorManager?
-    
     init(eidGenerator: EIDGeneratorManager) {
         self.eidGenerator = eidGenerator
     }
     
     private func start() {
-        print("Start broadcasting ...")
+        Log.info("Start broadcasting")
         
         if peripheralManager == nil {
-            print("No PeripheralManager found yet")
+            Log.warning("No PeripheralManager found when starting broadcasting. Abandom broadcasting")
             return
         }
         
@@ -64,19 +62,20 @@ class ContactAdvertiser: NSObject, CBPeripheralManagerDelegate {
     
     func sendKeepalive(value: Data) {
         guard let peripheral = self.peripheralManager else {
-            print("peripheral is nil")
+            Log.verbose("Cannot send keep alive. Peripheral is nil")
             return
         }
         guard let keepaliveCharacteristic = self.keepaliveCharacteristic else {
-            print("keepaliveCharacteristic is nil")
+            Log.verbose("Cannot send keep alive. Keepalive characteristic is nil")
             return
         }
         
         self.unsentCharacteristicValue = .keepalive(value: value)
         
         let success = peripheral.updateValue(value, for: keepaliveCharacteristic, onSubscribedCentrals: nil)
+        
         if success {
-            print("Sent keepalive value: \(value.withUnsafeBytes { $0.load(as: UInt8.self) })")
+            Log.verbose("Sent keepalive value: \(value.withUnsafeBytes { $0.load(as: UInt8.self) })")
             self.unsentCharacteristicValue = nil
         }
     }
@@ -84,8 +83,7 @@ class ContactAdvertiser: NSObject, CBPeripheralManagerDelegate {
     func updateIdentity() {
         guard let identityCharacteristic = self.identityCharacteristic else {
             // This "shouldn't happen" in normal course of the code, but if you start the
-            // app with Bluetooth off and don't turn it on until registration is completed
-            // you can get here.
+            // app with Bluetooth off you can get here.
             Log.warning("Identity characteristic not created yet")
             return
         }
@@ -108,7 +106,7 @@ class ContactAdvertiser: NSObject, CBPeripheralManagerDelegate {
         self.unsentCharacteristicValue = .identity(value: broadcastPayload)
         let success = peripheral.updateValue(broadcastPayload, for: identityCharacteristic, onSubscribedCentrals: nil)
         if success {
-            print("sent identity value \(broadcastPayload)")
+            Log.info("Sent EID \(broadcastPayload) through characteristic")
             self.unsentCharacteristicValue = nil
         }
     }
@@ -147,23 +145,20 @@ class ContactAdvertiser: NSObject, CBPeripheralManagerDelegate {
     
     func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {
         guard error == nil else {
-            print("error: \(error!))")
+            Log.warning("Advertiser peripheral didAddService error \(error!)")
             return
         }
         
-        peripheralManager?.startAdvertising([CBAdvertisementDataLocalNameKey: advertismentDataLocalName,
-                                             CBAdvertisementDataServiceUUIDsKey: [ContactTracingUUIDs.colocatorServiceUUID]])
+        peripheralManager?.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [ContactTracingUUIDs.colocatorServiceUUID]])
     }
     
     func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
-        print("Peripheral Manager ready to update subscription")
-
         let characteristic: CBMutableCharacteristic
         let value: Data
 
         switch unsentCharacteristicValue {
         case nil:
-            assertionFailure("\(#function) no data to update")
+            Log.verbose("No data to update through characteristics")
             return
 
         case .identity(let identityValue) where self.identityCharacteristic != nil:
@@ -175,30 +170,28 @@ class ContactAdvertiser: NSObject, CBPeripheralManagerDelegate {
             characteristic = self.keepaliveCharacteristic!
 
         default:
-            assertionFailure("shouldn't happen")
+            Log.verbose("Other data to update through characteristics. Shouldn't happen")
             return
         }
 
         let success = peripheral.updateValue(value, for: characteristic, onSubscribedCentrals: nil)
+        
         if success {
-            print("\(#function) re-sent value \(value)")
+            Log.verbose("Resent value \(value) through characteristic")
             self.unsentCharacteristicValue = nil
         }
     }
     
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
         guard request.characteristic.uuid == ContactTracingUUIDs.colocatorIdCharacteristicUUID else {
-            print("Peripheral Manager received a read for unexpected characteristic \(request.characteristic.uuid.uuidString)")
+            Log.verbose("Peripheral Manager received a read for unexpected characteristic \(request.characteristic.uuid.uuidString)")
             return
         }
-        
         guard let eidGenerator = eidGenerator else {
             Log.warning("Cannot generate ID payload since EIDGenerator is nil")
             return
         }
-        
         guard let broadcastPayload = eidGenerator.generateEIDData() else {
-            print("Peripheral Manager did receive read request. Responding to read request with empty payload")
             request.value = Data()
             peripheral.respond(to: request, withResult: .success)
             return

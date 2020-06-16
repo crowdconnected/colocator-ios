@@ -29,13 +29,9 @@ extension EIDGeneratorManager: StoreSubscriber {
             
             Log.debug("ContactTracing: New EID state is: \(newEidState)")
             
-            updateCurrentEIDStateActivity(newState: newEidState)
+            // The new data will be used for the next EID generation process
+            
             currentEIDState = newEidState
         }
-    }
-    
-    private func updateCurrentEIDStateActivity(newState: EIDState) {
-        //TODO Update behaviour depending on the settings
-        //The only things that is different is probably the result of the encryption which is updated when requested a new eid
     }
 }
