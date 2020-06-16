@@ -17,7 +17,15 @@ extension EIDGeneratorManager: StoreSubscriber {
         }
         
         if newEidState != currentEIDState {
-            //TODO Upload secret, k and clockoffset
+            if let secret = newEidState.secret {
+                self.secret = secret
+            }
+            if let k = newEidState.k {
+                self.k = Int(k)
+            }
+            if let clockOffset = newEidState.clockOffset {
+                self.clockOffset = Int(clockOffset)
+            }
             
             Log.debug("ContactTracing: New EID state is: \(newEidState)")
             
@@ -26,7 +34,8 @@ extension EIDGeneratorManager: StoreSubscriber {
         }
     }
     
-    private func updateCurrentEIDStateActivity(newState: ContactBluetoothState) {
+    private func updateCurrentEIDStateActivity(newState: EIDState) {
         //TODO Update behaviour depending on the settings
+        //The only things that is different is probably the result of the encryption which is updated when requested a new eid
     }
 }

@@ -161,7 +161,7 @@ public func == (lhs: InertialState, rhs: InertialState) -> Bool {
     guard compareOptionals(lhs: lhs.interval, rhs: rhs.interval, compare: ==) else { return false }
     return true
 }
-// MARK: - ContactState AutoEquatable
+// MARK: - ContactBluetoothState AutoEquatable
 extension ContactBluetoothState: Equatable {}
 public func == (lhs: ContactBluetoothState, rhs: ContactBluetoothState) -> Bool {
     guard compareOptionals(lhs: lhs.isEnabled, rhs: rhs.isEnabled, compare: ==) else { return false }
@@ -170,6 +170,12 @@ public func == (lhs: ContactBluetoothState, rhs: ContactBluetoothState) -> Bool 
     guard compareOptionals(lhs: lhs.scanDuration, rhs: rhs.scanDuration, compare: ==) else { return false }
     guard compareOptionals(lhs: lhs.advertiseInterval, rhs: rhs.advertiseInterval, compare: ==) else { return false }
     guard compareOptionals(lhs: lhs.advertiseDuration, rhs: rhs.advertiseDuration, compare: ==) else { return false }
+
+    return true
+}
+// MARK: - EIDState AutoEquatable
+extension EIDState: Equatable {}
+public func == (lhs: EIDState, rhs: EIDState) -> Bool {
     guard compareOptionals(lhs: lhs.secret, rhs: rhs.secret, compare: ==) else { return false }
     guard compareOptionals(lhs: lhs.k, rhs: rhs.k, compare: ==) else { return false }
     guard compareOptionals(lhs: lhs.clockOffset, rhs: rhs.clockOffset, compare: ==) else { return false }

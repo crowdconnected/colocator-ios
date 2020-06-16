@@ -25,6 +25,12 @@ class ContactAdvertiser: NSObject, CBPeripheralManagerDelegate {
     var keepaliveCharacteristic: CBMutableCharacteristic?
     var identityCharacteristic: CBMutableCharacteristic?
     
+    private var eidGenerator: EIDGeneratorManager?
+    
+    init(eidGenerator: EIDGeneratorManager) {
+        self.eidGenerator = eidGenerator
+    }
+    
     private func start() {
         print("Start broadcasting ...")
         
@@ -80,17 +86,22 @@ class ContactAdvertiser: NSObject, CBPeripheralManagerDelegate {
             // This "shouldn't happen" in normal course of the code, but if you start the
             // app with Bluetooth off and don't turn it on until registration is completed
             // you can get here.
-            print("identity characteristic not created yet")
+            Log.warning("Identity characteristic not created yet")
             return
         }
         
-        guard let broadcastPayload = EIDKeyManager.generateEIDData() else {
-            print("Failed to generate EID")
+        guard let eidGenerator = eidGenerator else {
+            Log.warning("Cannot generate ID payload since EIDGenerator is nil")
+            return
+        }
+        
+        guard let broadcastPayload = eidGenerator.generateEIDData() else {
+            Log.warning("Failed to gen erate EID")
             return
         }
         
         guard let peripheral = self.peripheralManager else {
-            assertionFailure("peripheral shouldn't be nil")
+            Log.warning("Nil peripheral detected when updating identity. This shouldn't happen")
             return
         }
         
@@ -181,7 +192,12 @@ class ContactAdvertiser: NSObject, CBPeripheralManagerDelegate {
             return
         }
         
-        guard let broadcastPayload = EIDKeyManager.generateEIDData() else {
+        guard let eidGenerator = eidGenerator else {
+            Log.warning("Cannot generate ID payload since EIDGenerator is nil")
+            return
+        }
+        
+        guard let broadcastPayload = eidGenerator.generateEIDData() else {
             print("Peripheral Manager did receive read request. Responding to read request with empty payload")
             request.value = Data()
             peripheral.respond(to: request, withResult: .success)

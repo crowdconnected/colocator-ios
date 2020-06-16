@@ -14,6 +14,7 @@ extension ContactTracing: StoreSubscriber {
     
     public func newState(state: LibraryState) {
         guard let newContactState = state.contactState?.contactBluetoothState else {
+            //TODO Check wheter you should call stop() here when there are not contactbluetooth settings
             return
         }
         
@@ -22,16 +23,16 @@ extension ContactTracing: StoreSubscriber {
                 ContactTracingUUIDs.colocatorServiceUUID = CBUUID(string: serviceUUID)
             }
             if let scanInterval = newContactState.scanInterval {
-                 //TODO Updatea all settings
+                self.scanningInterval = Int(scanInterval)
             }
             if let scanDuration = newContactState.scanDuration {
-                 //TODO Updatea all settings
+                self.scanningPeriod = Int(scanDuration)
             }
             if let advertiseInterval = newContactState.advertiseInterval {
-                 //TODO Updatea all settings
+                self.advertisingInterval = Int(advertiseInterval)
             }
             if let advertiseDuration = newContactState.advertiseDuration {
-                 //TODO Updatea all settings
+                self.advertisingPeriod = Int(advertiseDuration)
             }
             
             Log.debug("ContactTracing: New state is: \(newContactState)")
@@ -42,8 +43,7 @@ extension ContactTracing: StoreSubscriber {
     }
     
     private func updateCurrentContactStateActivity(newState: ContactBluetoothState) {
-        //TODO Update behaviour depending on the settings
-        // reinitialize EIDManger
-        //Delete and reinitialize advertsier and scanner
+        stop()
+        start()
     }
 }

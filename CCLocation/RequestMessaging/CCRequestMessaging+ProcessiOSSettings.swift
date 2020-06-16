@@ -44,6 +44,12 @@ extension CCRequestMessaging {
         if serverMessage.hasIosSettings && serverMessage.iosSettings.hasInertialSettings {
             updateInertialState(inertialSettings: serverMessage.iosSettings.inertialSettings, store: store)
         }
+        
+        //TODO
+        // Contact Tracing Settings
+        if serverMessage.hasIosSettings && serverMessage.iosSettings.hasContactSettings {
+            updateContactState(contactSettings: serverMessage.iosSettings.contactSettings, store: store)
+        }
     }
     
     // MARK: - Disabling Settings
@@ -67,6 +73,11 @@ extension CCRequestMessaging {
     
     private func disableInertialActions(store: Store<LibraryState>) {
         DispatchQueue.main.async {store.dispatch(DisableInertialAction())}
+    }
+    
+    private func disableContactActions(store: Store<LibraryState>) {
+        DispatchQueue.main.async {store.dispatch(DisableContactBluetoothAction)}
+        DispatchQueue.main.async {store.dispatch(DisableEIDAction)}
     }
     
     // MARK: - Updating Settings
@@ -164,6 +175,14 @@ extension CCRequestMessaging {
        
         DispatchQueue.main.async {self.stateStore.dispatch(InertialStateChangedAction(isEnabled: isInertialEnable,
                                                                                                  interval: interval))}
+    }
+    
+    // Updating Contact Settings
+    
+    private func updateContactState(contactSettings: Messaging_IosContactSettings, store: Store<LibraryState>) {
+        //TODO
+        
+        //Extract data and call actions
     }
     
     // MARK: - Configurating GEO Settings

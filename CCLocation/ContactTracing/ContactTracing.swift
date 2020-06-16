@@ -15,11 +15,12 @@ protocol CCContactTracingDelegate: class {
 }
 
 class ContactTracing: NSObject {
-    private var advertisingInterval = 10000
-    private var advertisingPeriod = 5000
-    private var scanningInterval = 10000
-    private var scanningPeriod = 5000
+    internal var advertisingInterval = 10000
+    internal var advertisingPeriod = 5000
+    internal var scanningInterval = 10000
+    internal var scanningPeriod = 5000
     
+    private var eidGenerator: EIDGeneratorManager?
     private var advertiser: ContactAdvertiser?
     private var scanner: ContactScanner?
     
@@ -50,8 +51,13 @@ class ContactTracing: NSObject {
     
     //internal
     public func start() {
+        eidGenerator = EIDGeneratorManager(stateStore: stateStore)
+        //TODO Verify if it is better to initialize the EID here or at init. Check if it's actualizing his data before being used
+        
         startAdvertisingCycle()
         startScanningCycle()
+        
+        //TODO Implement duration and interval for scanning and advertising
     }
     
     public func stop() {
@@ -62,7 +68,12 @@ class ContactTracing: NSObject {
     }
     
     private func startAdvertisingCycle() {
-        advertiser = ContactAdvertiser()
+        guard let eidGenerator = eidGenerator else {
+            Log.warning("Cannot start advertising with a nil EIDGenerator")
+            return
+        }
+        
+        advertiser = ContactAdvertiser(eidGenerator: eidGenerator)
         
         peripheral = CBPeripheralManager(delegate: advertiser,
                                          queue: queue,
@@ -75,12 +86,21 @@ class ContactTracing: NSObject {
             return
         }
         
-        scanner = ContactScanner(advertiser: advertiser!, queue: queue)
+        scanner = ContactScanner(advertiser: advertiser!, queue: queue, delegate: self)
         
         central = CBCentralManager(delegate: scanner,
                                           queue: queue,
                                           options: [CBCentralManagerScanOptionAllowDuplicatesKey: NSNumber(true),
                                                     CBCentralManagerOptionRestoreIdentifierKey: centralRestoreIdentifier,
                                                     CBCentralManagerOptionShowPowerAlertKey: NSNumber(false)])
+    }
+}
+
+extension ContactTracing: ContactScannerDelegate {
+    func newContact(EID: String, RSSI: Int, timestamp: Double) {
+        //TODO Convert this in Data or a specific ContactMessage
+        
+        let d = "".data(using: .utf8)!
+        delegate?.detectedContact(data: d)
     }
 }

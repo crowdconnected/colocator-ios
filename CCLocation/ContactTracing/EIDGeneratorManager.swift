@@ -12,12 +12,11 @@ import ReSwift
 
 class EIDGeneratorManager: NSObject {
 
-    //TODO Update these settings
     public static let eidLength = 16 // in .utf8
     
-    private static var secret = ""
-    private static var k = 0
-    private static var clockOffset = 0
+    internal var secret = ""
+    internal var k = 0
+    internal var clockOffset = 0
     
     var currentEIDState: EIDState!
     weak var stateStore: Store<LibraryState>!
@@ -32,19 +31,13 @@ class EIDGeneratorManager: NSObject {
         stateStore.subscribe(self)
     }
     
-    static func setup(secret: String, k: Int, clockOffSet: Int) {
-        self.secret = secret
-        self.k = k
-        self.clockOffset = clockOffSet
-    }
-    
-    static func generateEIDData() -> Data? {
+    func generateEIDData() -> Data? {
         return generateEIDString()?.data(using: .utf8)
     }
     
-    static func generateEIDString() -> String? {
+    func generateEIDString() -> String? {
         if secret.isEmpty {
-            print("EID settings are not configured yet. Cannot generate EID")
+            Log.warning("EID settings are not configured yet. Cannot generate EID")
             return nil
         }
         
@@ -59,16 +52,16 @@ class EIDGeneratorManager: NSObject {
                 return convertDataToHexString(trimmedEID)
                 
             } else {
-                print("Failed to generate temp eid")
+                Log.error("Failed to generate temp eid")
                 return nil
             }
         } else {
-            print("Failed to generate temp key")
+            Log.error("Failed to generate temp key")
             return nil
         }
     }
     
-    private static func generateTempKey(timeCounter: Int) -> Data? {
+    private func generateTempKey(timeCounter: Int) -> Data? {
         var tempKeyArray: [UInt8] = [UInt8]()
         tempKeyArray.append(0)
         tempKeyArray.append(0)
@@ -97,11 +90,11 @@ class EIDGeneratorManager: NSObject {
         return AESEncryption(value: tempKeyData, key: secretKey, trimKeyLength: true)
     }
     
-    private static func getRotationIndex(time: Int) -> Int {
+    private func getRotationIndex(time: Int) -> Int {
         return (time >> k) << k
     }
     
-    private static func generateTempEID(timeCounter: Int, tempKey: Data) -> Data? {
+    private func generateTempEID(timeCounter: Int, tempKey: Data) -> Data? {
         var tempEIDArray: [UInt8] = [UInt8]()
         tempEIDArray.append(0)
         tempEIDArray.append(0)
@@ -130,7 +123,12 @@ class EIDGeneratorManager: NSObject {
         return AESEncryption(value: tempEIDData, key: tempKey)
     }
     
-    private static func AESEncryption(value: Data, key: Data, trimKeyLength: Bool = false) -> Data? {
+    private func AESEncryption(value: Data, key: Data, trimKeyLength: Bool = false) -> Data? {
+        if value.count != 16 || key.count != 16 {
+            Log.error("AES Encryption failed because of wrong input length. Value \(value.count) bytes, key \(key.count) bytes")
+            return nil
+        }
+        
         let keyData: NSData! = key as NSData
         let data: NSData! = value as NSData
         
@@ -139,7 +137,7 @@ class EIDGeneratorManager: NSObject {
         let keyLength              = trimKeyLength ? size_t(kCCKeySizeAES128) : key.count
         let operation: CCOperation = UInt32(kCCEncrypt)
         let algoritm:  CCAlgorithm = UInt32(kCCAlgorithmAES128)
-        let options:   CCOptions   = UInt32(kCCOptionECBMode +  kCCOptionPKCS7Padding)
+        let options:   CCOptions   = UInt32(kCCOptionECBMode)
         
         var numBytesEncrypted :size_t = 0
         
@@ -159,11 +157,11 @@ class EIDGeneratorManager: NSObject {
         return nil
     }
     
-    public static func convertDataToHexString(_ data: Data?) -> String? {
+    public func convertDataToHexString(_ data: Data?) -> String? {
         return data == nil ? nil : data!.map{ String(format:"%02x", $0) }.joined()
     }
     
-    public static func extract(from data: Data, limit: Int) -> Data? {
+    public func extract(from data: Data, limit: Int) -> Data? {
         guard data.count > 0 else {
             return nil
         }
