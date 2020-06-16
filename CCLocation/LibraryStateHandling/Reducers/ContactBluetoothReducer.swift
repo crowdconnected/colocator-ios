@@ -60,10 +60,10 @@ func getContactBluetoothStateFromUserDefaults() -> ContactBluetoothState? {
     if dictionary != nil {
         return ContactBluetoothState(isEnabled: dictionary?[C.isContactEnabledKey] as? Bool,
                             serviceUUID: userDefaults.value(forKey: C.serviceUUIDKey) as? String,
-                            scanInterval: dictionary?[C.scanIntervalKey] as? UInt32,
-                            scanDuration: dictionary?[C.scanDurationKey] as? UInt32,
-                            advertiseInterval: dictionary?[C.advertiseIntervalKey] as? UInt32,
-                            advertiseDuration: dictionary?[C.advertiseDurationKey] as? UInt32)
+                            scanInterval: dictionary?[C.scanIntervalKey] as? UInt64,
+                            scanDuration: dictionary?[C.scanDurationKey] as? UInt64,
+                            advertiseInterval: dictionary?[C.advertiseIntervalKey] as? UInt64,
+                            advertiseDuration: dictionary?[C.advertiseDurationKey] as? UInt64)
     } else {
        return nil
     }
@@ -76,7 +76,7 @@ func saveContactBluetoothStateToUserDefaults(contactState: ContactBluetoothState
     
     let userDefaults = UserDefaults.standard
     
-    var dictionary = [String:UInt32]()
+    var dictionary = [String:UInt64]()
     
     if let isContactEnabled = contactState.isEnabled {
         dictionary[C.isContactEnabledKey] = isContactEnabled ? 1 : 0

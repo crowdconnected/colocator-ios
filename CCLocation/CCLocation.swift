@@ -86,14 +86,6 @@ internal struct Constants {
         }
     }
     
-    //TODO Remove these 2 methods. Testing purpose onyl
-    @objc public func startContactTracing() {
-        colocatorManager?.startContactTracing()
-    }
-    @objc public func stopContactTracing() {
-        colocatorManager?.stopContactTracing()
-    }
-    
     /// Filter the log levels that appears in the console
     ///
     @objc public func setLoggerLevels(verbose: Bool,

@@ -14,6 +14,4 @@ struct EIDStateChangedAction: Action {
     var clockOffset: UInt32?
 }
 
-struct DisableEIDAction: Action {
-    
-}
+struct DisableEIDAction: Action {}

@@ -36,9 +36,13 @@ extension ContactTracing: StoreSubscriber {
             }
             
             Log.debug("ContactTracing: New state is: \(newContactState)")
-            
             updateCurrentContactStateActivity(newState: newContactState)
             currentContactState = newContactState
+            return
+        } else {
+            if !isRunning {
+                updateCurrentContactStateActivity(newState: newContactState)
+            }
         }
     }
     

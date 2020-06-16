@@ -15,12 +15,13 @@ protocol CCContactTracingDelegate: class {
 }
 
 class ContactTracing: NSObject {
+    internal var isRunning = false
+    
     internal var advertisingInterval = 10000
     internal var advertisingPeriod = 5000
     internal var scanningInterval = 10000
     internal var scanningPeriod = 5000
     
-    private var eidGenerator: EIDGeneratorManager?
     private var advertiser: ContactAdvertiser?
     private var scanner: ContactScanner?
     
@@ -35,6 +36,7 @@ class ContactTracing: NSObject {
     var currentContactState: ContactBluetoothState!
     weak var stateStore: Store<LibraryState>!
     public weak var delegate: CCContactTracingDelegate?
+    public var eidGenerator: EIDGeneratorManager?
     
     init(stateStore: Store<LibraryState>) {
         super.init()
@@ -49,9 +51,8 @@ class ContactTracing: NSObject {
         stateStore.subscribe(self)
     }
     
-    //internal
-    public func start() {
-        eidGenerator = EIDGeneratorManager(stateStore: stateStore)
+    internal func start() {
+        print("Start contact tracing")
         //TODO Verify if it is better to initialize the EID here or at init. Check if it's actualizing his data before being used
         
         startAdvertisingCycle()
@@ -60,7 +61,11 @@ class ContactTracing: NSObject {
         //TODO Implement duration and interval for scanning and advertising
     }
     
-    public func stop() {
+    internal func stop() {
+         print("Stop contact tracing")
+        
+        isRunning = false
+        
         peripheral?.stopAdvertising()
         central?.stopScan()
         advertiser = nil
@@ -70,6 +75,7 @@ class ContactTracing: NSObject {
     private func startAdvertisingCycle() {
         guard let eidGenerator = eidGenerator else {
             Log.warning("Cannot start advertising with a nil EIDGenerator")
+            isRunning = false
             return
         }
         
@@ -78,6 +84,7 @@ class ContactTracing: NSObject {
         peripheral = CBPeripheralManager(delegate: advertiser,
                                          queue: queue,
                                          options: [CBPeripheralManagerOptionRestoreIdentifierKey: peripheralRestoreIdentifier])
+        isRunning = true
     }
     
     private func startScanningCycle() {

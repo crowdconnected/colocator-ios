@@ -11,10 +11,10 @@ import ReSwift
 struct ContactBluetoothStateChangedAction: Action {
     var isEnabled: Bool?
     var serviceUUID: String?
-    var scanInterval: UInt32?
-    var scanDuration: UInt32?
-    var advertiseInterval: UInt32?
-    var advertiseDuration: UInt32?
+    var scanInterval: UInt64?
+    var scanDuration: UInt64?
+    var advertiseInterval: UInt64?
+    var advertiseDuration: UInt64?
 }
 
 struct DisableContactBluetoothAction: Action {}

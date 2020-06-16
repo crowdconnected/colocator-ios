@@ -45,10 +45,9 @@ extension CCRequestMessaging {
             updateInertialState(inertialSettings: serverMessage.iosSettings.inertialSettings, store: store)
         }
         
-        //TODO
         // Contact Tracing Settings
-        if serverMessage.hasIosSettings && serverMessage.iosSettings.hasContactSettings {
-            updateContactState(contactSettings: serverMessage.iosSettings.contactSettings, store: store)
+        if serverMessage.hasIosSettings && serverMessage.iosSettings.hasIOscontactSettings {
+            updateContactState(contactSettings: serverMessage.iosSettings.iOscontactSettings, store: store)
         }
     }
     
@@ -76,8 +75,8 @@ extension CCRequestMessaging {
     }
     
     private func disableContactActions(store: Store<LibraryState>) {
-        DispatchQueue.main.async {store.dispatch(DisableContactBluetoothAction)}
-        DispatchQueue.main.async {store.dispatch(DisableEIDAction)}
+        DispatchQueue.main.async {store.dispatch(DisableContactBluetoothAction())}
+        DispatchQueue.main.async {store.dispatch(DisableEIDAction())}
     }
     
     // MARK: - Updating Settings
@@ -179,10 +178,71 @@ extension CCRequestMessaging {
     
     // Updating Contact Settings
     
-    private func updateContactState(contactSettings: Messaging_IosContactSettings, store: Store<LibraryState>) {
-        //TODO
+    private func updateContactState(contactSettings: Messaging_iOSContactSettings, store: Store<LibraryState>) {
+        if contactSettings.hasIOscontactBtsettings {
+            let contactBTSettings = contactSettings.iOscontactBtsettings
+       
+            var serviceUUID: String?
+            var scanInterval: UInt64?
+            var scanDuration: UInt64?
+            var advertiseInterval: UInt64?
+            var advertiseDuration: UInt64?
+            
+            if contactBTSettings.hasServiceUuid {
+                serviceUUID = contactBTSettings.serviceUuid
+            }
+            if contactBTSettings.hasScanInterval {
+                scanInterval = contactBTSettings.scanInterval
+            }
+            if contactBTSettings.hasScanDuration {
+                scanDuration = contactBTSettings.scanDuration
+            }
+            if contactBTSettings.hasAdvertiseInterval {
+                advertiseInterval = contactBTSettings.advertiseInterval
+            }
+            if contactBTSettings.hasAdvertiseDuration {
+                advertiseDuration = contactBTSettings.advertiseDuration
+            }
+            
+            DispatchQueue.main.async {store.dispatch(ContactBluetoothStateChangedAction(isEnabled: true,
+                                                                                        serviceUUID: serviceUUID,
+                                                                                        scanInterval: scanInterval,
+                                                                                        scanDuration: scanDuration,
+                                                                                        advertiseInterval: advertiseInterval,
+                                                                                        advertiseDuration: advertiseDuration))}
+            
+            
+        } else {
+             DispatchQueue.main.async {store.dispatch(DisableContactBluetoothAction())}
+        }
         
-        //Extract data and call actions
+        if contactSettings.hasEid {
+            let eidSettings = contactSettings.eid
+            updateEIDState(eidSettings: eidSettings, store: store)
+        } else {
+            //Probably not necessary
+//            DispatchQueue.main.async {store.dispatch(DisableEIDAction())}
+        }
+    }
+    
+    // Updating Contact Settings
+    
+    private func updateEIDState(eidSettings: Messaging_EID, store: Store<LibraryState>) {
+        var secret: String?
+        var k: UInt32?
+        var clockOffSet: UInt32?
+        
+        if eidSettings.hasSecret {
+            secret = String(decoding: eidSettings.secret, as: UTF8.self)
+        }
+        if eidSettings.hasK {
+            k = eidSettings.k
+        }
+        if eidSettings.hasClockOffset {
+            clockOffSet = eidSettings.clockOffset
+        }
+        
+        DispatchQueue.main.async { store.dispatch(EIDStateChangedAction(secret: secret, k: k, clockOffset: clockOffSet))}
     }
     
     // MARK: - Configurating GEO Settings

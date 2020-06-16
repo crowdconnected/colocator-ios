@@ -24,6 +24,7 @@ class ColocatorManager {
     var ccRequestMessaging: CCRequestMessaging?
     var ccInertial: CCInertial?
     var ccContactTracing: ContactTracing?
+    var ccEidGenerator: EIDGeneratorManager?
     var ccSocket: CCSocket?
     
     var messagesDatabase: SQLiteDatabase!
@@ -72,7 +73,9 @@ class ColocatorManager {
             ccInertial = CCInertial(stateStore: self.state!)
             ccInertial!.delegate = self
 
+            ccEidGenerator = EIDGeneratorManager(stateStore: self.state!)
             ccContactTracing = ContactTracing(stateStore: self.state!)
+            ccContactTracing?.eidGenerator = ccEidGenerator
             ccContactTracing?.delegate = self
             
             ccRequestMessaging = CCRequestMessaging(ccSocket: ccSocket!, stateStore: state!)
@@ -116,14 +119,6 @@ class ColocatorManager {
                                                     userInfo: nil,
                                                     repeats: true)
         }
-    }
-    
-    //TODO Remove these 2 methods. Testing purpose onyl
-    @objc public func startContactTracing() {
-        ccContactTracing?.start()
-    }
-    @objc public func stopContactTracing() {
-        ccContactTracing?.stop()
     }
     
     @objc private func checkDatabaseAndStopLibrary() {

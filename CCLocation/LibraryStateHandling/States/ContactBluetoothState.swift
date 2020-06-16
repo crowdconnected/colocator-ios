@@ -11,17 +11,17 @@ import ReSwift
 public struct ContactBluetoothState: StateType, AutoEquatable {
     var isEnabled: Bool?
     var serviceUUID: String?
-    var scanInterval: UInt32?
-    var scanDuration: UInt32?
-    var advertiseInterval: UInt32?
-    var advertiseDuration: UInt32?
+    var scanInterval: UInt64?
+    var scanDuration: UInt64?
+    var advertiseInterval: UInt64?
+    var advertiseDuration: UInt64?
     
     init(isEnabled: Bool?,
          serviceUUID: String?,
-         scanInterval: UInt32?,
-         scanDuration: UInt32?,
-         advertiseInterval: UInt32?,
-         advertiseDuration: UInt32?) {
+         scanInterval: UInt64?,
+         scanDuration: UInt64?,
+         advertiseInterval: UInt64?,
+         advertiseDuration: UInt64?) {
         
         self.isEnabled = isEnabled
         self.serviceUUID = serviceUUID
