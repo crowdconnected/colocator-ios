@@ -29,7 +29,10 @@ extension EIDGeneratorManager: StoreSubscriber {
             
             Log.debug("ContactTracing: New EID state is: \(newEidState)")
             
-            // The new data will be used for the next EID generation process
+            if renewEIDTimer != nil {
+                renewEIDTimer?.invalidate()
+                renewEIDTimer = nil
+            }
             
             currentEIDState = newEidState
         }

@@ -18,6 +18,9 @@ class EIDGeneratorManager: NSObject {
     internal var k = 0
     internal var clockOffset = 0
     
+    internal var renewEIDTimer: Timer? = nil
+    private var lastGeneratedEID: Data? = nil
+    
     var currentEIDState: EIDState!
     weak var stateStore: Store<LibraryState>!
     
@@ -32,10 +35,41 @@ class EIDGeneratorManager: NSObject {
     }
     
     func generateEIDData() -> Data? {
-        return generateEIDString()?.data(using: .utf8)
+        if lastGeneratedEID == nil {
+            lastGeneratedEID = generateEIDString()?.data(using: .utf8)
+            startEIDRenewTimer()
+            
+            return lastGeneratedEID
+            
+        } else {
+            return lastGeneratedEID
+        }
     }
     
-    func generateEIDString() -> String? {
+    private func startEIDRenewTimer() {
+        if clockOffset == 0 { return }
+        
+        if renewEIDTimer != nil {
+            renewEIDTimer?.invalidate()
+            renewEIDTimer = nil
+        }
+        
+        renewEIDTimer = Timer.scheduledTimer(timeInterval: TimeInterval(clockOffset / 1000),
+                                             target: self,
+                                             selector: #selector(self.renewEID),
+                                             userInfo: nil,
+                                             repeats: false)
+    }
+    
+    @objc func renewEID() {
+        //TODO Make sure this is working properly by testing with different clockOffset values like 0, 1000, 30000 and 180000
+        print("Renew EID triggered")
+        lastGeneratedEID = generateEIDString()?.data(using: .utf8)
+        
+        startEIDRenewTimer()
+    }
+    
+    private func generateEIDString() -> String? {
         if secret.isEmpty {
             Log.warning("EID settings are not configured yet. Cannot generate EID")
             return nil
