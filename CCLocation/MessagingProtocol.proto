@@ -229,7 +229,7 @@ message ClientMessage {
     repeated Step step = 19;
     optional ClientLocationRequest locationRequest = 20;
     repeated CircularGeoFenceEvent circularGeoFenceEvents = 21;
-    optional ContactMessage contactMessage = 22;
+    repeated ContactMessage contactMessage = 22;
 }
 
 message CircularGeoFenceEvent {

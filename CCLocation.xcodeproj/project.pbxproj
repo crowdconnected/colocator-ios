@@ -119,7 +119,7 @@
 		AA4AE8812497C1E200F9E954 /* EIDActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA4AE8802497C1E200F9E954 /* EIDActions.swift */; };
 		AA4AE8832497D60D00F9E954 /* EIDGeneratorManager+StoreSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA4AE8822497D60D00F9E954 /* EIDGeneratorManager+StoreSubscriber.swift */; };
 		AA9954EC2498E2C300C0F91F /* MessagingProtocol.proto in Sources */ = {isa = PBXBuildFile; fileRef = AA9954EA2498E2C200C0F91F /* MessagingProtocol.proto */; };
-		AA9954ED2498E2C300C0F91F /* MessagingProtocol.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA9954EB2498E2C200C0F91F /* MessagingProtocol.pb.swift */; };
+		AADEF4C3249A124D0043C0AF /* MessagingProtocol.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = AADEF4C2249A124D0043C0AF /* MessagingProtocol.pb.swift */; };
 		BC0647AF218757A500555512 /* CCBeaconScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0647AE218757A500555512 /* CCBeaconScanner.swift */; };
 		BC0647B1218757B900555512 /* CCEddystone.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0647B0218757B900555512 /* CCEddystone.swift */; };
 		BC0647B5218757E200555512 /* DispatchTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0647B4218757E200555512 /* DispatchTimer.swift */; };
@@ -271,7 +271,7 @@
 		AA4AE8802497C1E200F9E954 /* EIDActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EIDActions.swift; sourceTree = "<group>"; };
 		AA4AE8822497D60D00F9E954 /* EIDGeneratorManager+StoreSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EIDGeneratorManager+StoreSubscriber.swift"; sourceTree = "<group>"; };
 		AA9954EA2498E2C200C0F91F /* MessagingProtocol.proto */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.protobuf; path = MessagingProtocol.proto; sourceTree = "<group>"; };
-		AA9954EB2498E2C200C0F91F /* MessagingProtocol.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingProtocol.pb.swift; sourceTree = "<group>"; };
+		AADEF4C2249A124D0043C0AF /* MessagingProtocol.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingProtocol.pb.swift; sourceTree = "<group>"; };
 		BC0647AE218757A500555512 /* CCBeaconScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CCBeaconScanner.swift; path = CCLocation/CCBeaconScanner.swift; sourceTree = SOURCE_ROOT; };
 		BC0647B0218757B900555512 /* CCEddystone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CCEddystone.swift; sourceTree = "<group>"; };
 		BC0647B4218757E200555512 /* DispatchTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchTimer.swift; sourceTree = "<group>"; };
@@ -554,7 +554,7 @@
 		F0AF0C3A1DB3912700E72E76 /* CCLocation */ = {
 			isa = PBXGroup;
 			children = (
-				AA9954EB2498E2C200C0F91F /* MessagingProtocol.pb.swift */,
+				AADEF4C2249A124D0043C0AF /* MessagingProtocol.pb.swift */,
 				AA9954EA2498E2C200C0F91F /* MessagingProtocol.proto */,
 				F0AF0C3C1DB3912700E72E76 /* Info.plist */,
 				4FA524DD1F4109940067D2C8 /* certificate.der */,
@@ -824,7 +824,7 @@
 				97036DCC22CE4D50005A8322 /* CCLocationManager+DatabaseOperations.swift in Sources */,
 				4F8FFD871F2C809E0001910A /* WebSocketAction.swift in Sources */,
 				4FBB8AAE1F31149300DEF04F /* ForegroundBeaconReducer.swift in Sources */,
-				AA9954ED2498E2C300C0F91F /* MessagingProtocol.pb.swift in Sources */,
+				AADEF4C3249A124D0043C0AF /* MessagingProtocol.pb.swift in Sources */,
 				4FBB8AB21F311D2000DEF04F /* ForegroundBeaconActions.swift in Sources */,
 				4F8FFD931F2CE38E0001910A /* CurrentGEOState.swift in Sources */,
 				4FBB8AB01F3114B300DEF04F /* BackgroundiBeaconReducer.swift in Sources */,

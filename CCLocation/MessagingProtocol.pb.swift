@@ -1528,14 +1528,10 @@ struct Messaging_ClientMessage {
     set {_uniqueStorage()._circularGeoFenceEvents = newValue}
   }
 
-  var contactMessage: Messaging_ContactMessage {
-    get {return _storage._contactMessage ?? Messaging_ContactMessage()}
+  var contactMessage: [Messaging_ContactMessage] {
+    get {return _storage._contactMessage}
     set {_uniqueStorage()._contactMessage = newValue}
   }
-  /// Returns true if `contactMessage` has been explicitly set.
-  var hasContactMessage: Bool {return _storage._contactMessage != nil}
-  /// Clears the value of `contactMessage`. Subsequent reads from it will return its default value.
-  mutating func clearContactMessage() {_uniqueStorage()._contactMessage = nil}
 
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -4217,7 +4213,7 @@ extension Messaging_ClientMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
     var _step: [Messaging_Step] = []
     var _locationRequest: Messaging_ClientLocationRequest? = nil
     var _circularGeoFenceEvents: [Messaging_CircularGeoFenceEvent] = []
-    var _contactMessage: Messaging_ContactMessage? = nil
+    var _contactMessage: [Messaging_ContactMessage] = []
 
     static let defaultInstance = _StorageClass()
 
@@ -4282,7 +4278,7 @@ extension Messaging_ClientMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
         case 19: try decoder.decodeRepeatedMessageField(value: &_storage._step)
         case 20: try decoder.decodeSingularMessageField(value: &_storage._locationRequest)
         case 21: try decoder.decodeRepeatedMessageField(value: &_storage._circularGeoFenceEvents)
-        case 22: try decoder.decodeSingularMessageField(value: &_storage._contactMessage)
+        case 22: try decoder.decodeRepeatedMessageField(value: &_storage._contactMessage)
         default: break
         }
       }
@@ -4354,8 +4350,8 @@ extension Messaging_ClientMessage: SwiftProtobuf.Message, SwiftProtobuf._Message
       if !_storage._circularGeoFenceEvents.isEmpty {
         try visitor.visitRepeatedMessageField(value: _storage._circularGeoFenceEvents, fieldNumber: 21)
       }
-      if let v = _storage._contactMessage {
-        try visitor.visitSingularMessageField(value: v, fieldNumber: 22)
+      if !_storage._contactMessage.isEmpty {
+        try visitor.visitRepeatedMessageField(value: _storage._contactMessage, fieldNumber: 22)
       }
     }
     try unknownFields.traverse(visitor: &visitor)

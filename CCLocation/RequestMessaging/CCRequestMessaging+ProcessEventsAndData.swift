@@ -219,7 +219,7 @@ extension CCRequestMessaging {
             contactMessage.timestamp = UInt64(timestamp)
         }
         
-        clientMessage.contactMessage = contactMessage
+        clientMessage.contactMessage.append(contactMessage)
         
         Log.verbose("Contact message build: \(clientMessage)")
         

@@ -14,6 +14,10 @@ class ContactAdvertiser: NSObject, CBPeripheralManagerDelegate {
     private let restoreIdentifierKey = "com.colocator.contacttracing.peripheral"
      
     var peripheralManager: CBPeripheralManager?
+    var advertiserOn = true
+    var advertiseDuration: Int? // seconds
+    var advertiseInterval: Int? // seconds
+    
     private var eidGenerator: EIDGeneratorManager?
     
     enum UnsentCharacteristicValue {
@@ -27,11 +31,10 @@ class ContactAdvertiser: NSObject, CBPeripheralManagerDelegate {
     
     init(eidGenerator: EIDGeneratorManager) {
         self.eidGenerator = eidGenerator
+        advertiserOn = true
     }
     
     private func start() {
-        Log.info("Start broadcasting")
-        
         if peripheralManager == nil {
             Log.warning("No PeripheralManager found when starting broadcasting. Abandom broadcasting")
             return
@@ -58,6 +61,29 @@ class ContactAdvertiser: NSObject, CBPeripheralManagerDelegate {
         
         peripheralManager?.removeAllServices()
         peripheralManager?.add(service)
+    }
+    
+    private func startAdvertisingCycle() {
+        peripheralManager?.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [ContactTracingUUIDs.colocatorServiceUUID]])
+        
+        if advertiseDuration != nil && advertiseInterval != nil {
+            Log.verbose("Started advertising cycle for \(String(describing: advertiseDuration)) seconds")
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(advertiseDuration!)) {
+                self.peripheralManager?.stopAdvertising()
+                
+                Log.verbose("Stopped advertising. Start again in \(String(describing: self.advertiseInterval)) seconds")
+                
+                if self.advertiserOn {
+                    // Used 1 as backup to avoid a crash if advertiseInterval is set to nil meanwhile
+                    DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(self.advertiseInterval ?? 1)) {
+                        self.startAdvertisingCycle()
+                    }
+                }
+            }
+        } else {
+             Log.verbose("Started advertising for indefinite period")
+        }
     }
     
     func sendKeepalive(value: Data) {
@@ -149,7 +175,7 @@ class ContactAdvertiser: NSObject, CBPeripheralManagerDelegate {
             return
         }
         
-        peripheralManager?.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [ContactTracingUUIDs.colocatorServiceUUID]])
+        startAdvertisingCycle()
     }
     
     func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {

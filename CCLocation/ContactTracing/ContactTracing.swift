@@ -58,12 +58,13 @@ class ContactTracing: NSObject {
     }
     
     internal func stop() {
-        Log.error("Contact Tracing stopping...")
+        Log.info("Contact Tracing stopping...")
         
         isRunning = false
         peripheral?.stopAdvertising()
         central?.stopScan()
         scanner?.scannerOn = false
+        advertiser?.advertiserOn = false
         advertiser = nil
         scanner = nil
     }
@@ -76,24 +77,25 @@ class ContactTracing: NSObject {
         }
         
         advertiser = ContactAdvertiser(eidGenerator: eidGenerator)
-        //TODO implement cycles for advertising as well
+        advertiser?.advertiseDuration = advertisingPeriod != nil ? Int(advertisingPeriod! / 1000) : nil
+        advertiser?.advertiseInterval = advertisingInterval != nil ? Int(advertisingInterval! / 1000) : nil
         
         peripheral = CBPeripheralManager(delegate: advertiser,
                                          queue: queue,
                                          options: [CBPeripheralManagerOptionRestoreIdentifierKey: peripheralRestoreIdentifier])
         isRunning = true
         
-        Log.error("Started advertising for Contact Tracing")
+        Log.info("Started advertising for Contact Tracing")
     }
     
     private func startScanning() {
         if advertiser == nil {
-            Log.error("Scanner cannot start while advertiser is nil")
+            Log.warning("Scanner cannot start while advertiser is nil")
             return
         }
         
         if delegate == nil {
-            Log.error("Scanner cannot start with a nil delegate")
+            Log.warning("Scanner cannot start with a nil delegate")
             return
         }
         
@@ -107,6 +109,6 @@ class ContactTracing: NSObject {
                                                     CBCentralManagerOptionRestoreIdentifierKey: centralRestoreIdentifier,
                                                     CBCentralManagerOptionShowPowerAlertKey: NSNumber(false)])
         
-        Log.error("Started scanning for Contact Tracing")
+        Log.info("Started scanning for Contact Tracing")
     }
 }

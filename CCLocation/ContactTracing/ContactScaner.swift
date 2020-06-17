@@ -48,12 +48,12 @@ class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         centralManager?.scanForPeripherals(withServices: services, options: options)
         
         if scanDuration != nil && scanDuration != nil {
-            Log.warning("Started scanning cycle for \(String(describing: scanDuration)) seconds")
+            Log.verbose("Started scanning cycle for \(String(describing: scanDuration)) seconds")
             
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(scanDuration!)) {
                 self.centralManager?.stopScan()
                 
-                Log.warning("Stopped scanning. Start again in \(String(describing: self.scanInterval)) seconds")
+                Log.verbose("Stopped scanning. Start again in \(String(describing: self.scanInterval)) seconds")
                 
                 if self.scannerOn {
                     // Used 1 as backup to avoid a crash if scanInterval is set to nil meanwhile
@@ -63,7 +63,7 @@ class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
                 }
             }
         } else {
-            Log.warning("Started scanning cycle for indefinite period")
+            Log.verbose("Started scanning cycle for indefinite period")
         }
     }
     
@@ -222,18 +222,19 @@ class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         let time = Date().timeIntervalSince1970
         
         if let deviceEID = getEIDForPeripheral(peripheral) {
-            Log.info("iOS contact: \(deviceEID)  \(RSSI)  \(time)")
-            delegate?.newContact(EID: deviceEID, RSSI: Int(truncating: RSSI), timestamp: time)
+            DispatchQueue.main.async {
+                self.delegate?.newContact(EID: deviceEID, RSSI: Int(truncating: RSSI), timestamp: time)
+            }
         } else {
-            Log.info("No EID found for peripheral identifier \(peripheral.identifier)")
+            Log.debug("No EID found for peripheral identifier \(peripheral.identifier)")
         }
     }
     
     func handleAndroidContactWith(deviceEID: String, RSSI: NSNumber) {
         let time = Date().timeIntervalSince1970
-        
-        Log.info("Android contact: \(deviceEID)  \(RSSI)  \(time)")
-        delegate?.newContact(EID: deviceEID, RSSI: Int(truncating: RSSI), timestamp: time)
+        DispatchQueue.main.async {
+            self.delegate?.newContact(EID: deviceEID, RSSI: Int(truncating: RSSI), timestamp: time)
+        }
     }
     
     func extractEIDFromCharacteristicData(_ data: Data, peripheral: CBPeripheral) {

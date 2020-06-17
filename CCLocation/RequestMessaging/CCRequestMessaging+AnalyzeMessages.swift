@@ -147,20 +147,16 @@ extension CCRequestMessaging {
             }
         }
         
-        if tempClientMessage!.hasContactMessage {
+        if tempClientMessage!.contactMessage.count > 0 {
             Log.debug("Found contact message in queue")
             
-            let (actualizedSubmessageCounter, toCompileMessage, toQueueMessage) =
-                self.checkContactTypeMessage(tempClientMessage!.contactMessage, subMessageCounter: subMessageCounter)
-            
+            let (actualizedSubmessageCounter, toCompileMessages, toQueueMessages) = self.checkContactTypeMessages(tempClientMessage!.contactMessage,
+                                                                                                                subMessageCounter: subMessageCounter)
             subMessageCounter = actualizedSubmessageCounter
-            if let newCompileMessage = toCompileMessage {
-                if self.surveyMode == true { compiledClientMessage.surveryMode = true }
-                compiledClientMessage.contactMessage = newCompileMessage
-            }
-            if let newQueueMessage = toQueueMessage {
-                backToQueueMessages.contactMessage = newQueueMessage
-            }
+            
+            if self.surveyMode == true { compiledClientMessage.surveryMode = true }
+            compiledClientMessage.contactMessage.append(contentsOf: toCompileMessages)
+            backToQueueMessages.contactMessage.append(contentsOf: toQueueMessages)
         }
         
         if let newBatteryMessage = self.checkNewBatteryLevelTypeMessage() {
@@ -427,27 +423,29 @@ extension CCRequestMessaging {
         }
     }
     
-    public func checkContactTypeMessage(_ message: Messaging_ContactMessage, subMessageCounter: Int)
-                                        -> (Int, Messaging_ContactMessage?, Messaging_ContactMessage?) {
-        let subMessageNo = subMessageCounter
-        var contactMessage = Messaging_ContactMessage()
-        let tempContactMessage = message
+    public func checkContactTypeMessages(_ messages: [Messaging_ContactMessage], subMessageCounter: Int)
+                                         -> (Int, [Messaging_ContactMessage], [Messaging_ContactMessage]) {
+        var clientMessagesToCompile = [Messaging_ContactMessage]()
+        var messagesToQueue = [Messaging_ContactMessage]()
+        var subMessageNo = subMessageCounter
         
-        if tempContactMessage.hasEid {
+        for tempContactMessage in messages {
+            var contactMessage = Messaging_ContactMessage()
+            
             contactMessage.eid = tempContactMessage.eid
-        }
-        if tempContactMessage.hasRssi {
             contactMessage.rssi = tempContactMessage.rssi
-        }
-        if tempContactMessage.hasTimestamp {
             contactMessage.timestamp = tempContactMessage.timestamp
+            
+            if subMessageCounter >= 0 {
+                clientMessagesToCompile.append(contactMessage)
+            } else {
+                messagesToQueue.append(contactMessage)
+            }
+            
+            subMessageNo += 1
         }
         
-        if subMessageNo >= 0 {
-            return (subMessageNo + 1, contactMessage, nil)
-        } else {
-            return (subMessageNo + 1, nil, contactMessage)
-        }
+        return (subMessageNo, clientMessagesToCompile, messagesToQueue)
     }
 }
 
