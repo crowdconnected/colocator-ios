@@ -47,7 +47,7 @@ class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         let options = [CBCentralManagerScanOptionAllowDuplicatesKey : true]
         centralManager?.scanForPeripherals(withServices: services, options: options)
         
-        if scanDuration != nil && scanDuration != nil {
+        if scanDuration != nil && scanInterval != nil {
             Log.verbose("Started scanning cycle for \(String(describing: scanDuration)) seconds")
                     
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(scanDuration!)) {
@@ -78,7 +78,9 @@ class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         scannerOn = false
     }
     
-    func centralManager(_ central: CBCentralManager, willRestoreState dict: [String : Any]) { }
+    func centralManager(_ central: CBCentralManager, willRestoreState dict: [String : Any]) {
+        // Make changes when state s restored if needed
+    }
     
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         switch central.state {
