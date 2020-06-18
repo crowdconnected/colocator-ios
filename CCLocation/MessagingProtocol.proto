@@ -27,6 +27,7 @@ message IosSettings {
     optional IosBeaconSettings beaconSettings = 2;
     optional uint64 backgroundExtension = 3; //Time in milliseconds to extend background operation
     optional IosInertialSettings inertialSettings = 4;
+    optional iOSContactSettings iOSContactSettings = 5;
 }
 
 message IosBeaconSettings {
@@ -76,6 +77,7 @@ message AndroidSettings {
     optional AndroidWifiSettings wifiSettings = 3;
     optional bool foregroundService = 4;
     optional AndroidInertialSettings inertialSettings = 5;
+    optional AndroidContactSettings contactSettings = 6;
 }
 
 //Android Geo Settings
@@ -227,6 +229,7 @@ message ClientMessage {
     repeated Step step = 19;
     optional ClientLocationRequest locationRequest = 20;
     repeated CircularGeoFenceEvent circularGeoFenceEvents = 21;
+    repeated ContactMessage contactMessage = 22;
 }
 
 message CircularGeoFenceEvent {
@@ -392,4 +395,59 @@ message Acknowledgement {
 message Step {
     optional uint64 timestamp = 1;
     optional double angle = 2;
+}
+
+message AndroidContactSettings {
+    optional string serviceUUID = 1;
+    optional ContactScanner contactScanner = 2;
+    optional ContactAdvertiser contactAdvertiser = 3;
+    optional EID eid = 4;
+}
+
+message iOSContactSettings {
+    optional iOSContactBTSettings iOSContactBTSettings = 1;
+    optional EID eid = 2;
+}
+
+message iOSContactBTSettings {
+    optional string serviceUUID = 1;
+    optional uint64 scanInterval = 2;
+    optional uint64 scanDuration = 3;
+    optional uint64 advertiseInterval = 4;
+    optional uint64 advertiseDuration = 5;
+}
+
+message ContactScanner {
+    enum ScanMode {
+        SCAN_MODE_BALANCED = 1;
+        SCAN_MODE_LOW_LATENCY = 2;
+        SCAN_MODE_LOW_POWER = 3;
+    }
+    optional ScanMode scanMode = 1;
+    optional uint64 interval = 2;
+    optional uint64 duration = 3;
+}
+
+message ContactAdvertiser {
+    enum Frequency {
+        LOW_FREQUENCY = 0; //Equivalent to Android ADVERTISE_MODE_LOW_POWER = 1000ms
+        BALANCED_FREQUENCY = 1; //Equivalent to Android ADVERTISE_MODE_BALANCED =
+        HIGH_FREQUENCY = 2; //Equivalent to Android ADVERTISE_MODE_LOW_LATENCY = 100ms
+    }
+    enum Power {
+        ULTRALOW_POWER = 0; //Equivalent to Android ADVERTISE_TX_POWER_ULTRA_LOW
+        LOW_POWER = 1; //Equivalent to Android ADVERTISE_TX_POWER_LOW
+        MEDIUM_POWER = 2; //Equivalent to Android ADVERTISE_TX_POWER_MEDIUM
+        HIGH_POWER = 3; //Equivalent to Android ADVERTISE_TX_POWER_HIGH
+    }
+    optional uint64 interval = 2;
+    optional uint64 duration = 3;
+    optional Frequency frequency = 4;
+    optional Power power = 5;
+}
+
+message ContactMessage {
+    optional string eid = 1;
+	optional uint64 timestamp = 2;
+	optional sint32 rssi = 3;
 }
