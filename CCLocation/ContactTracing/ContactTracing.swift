@@ -48,11 +48,8 @@ class ContactTracing: NSObject {
     }
     
     internal func start() {
-        //TODO Talk to Sam about the fact that there isn' a list of contacts, but a single contact in a clinet message. Which is wrong
-        
-        
         Log.info("Contact Tracing starting...")
-
+        
         startAdvertising()
         startScanning()
     }
@@ -63,8 +60,9 @@ class ContactTracing: NSObject {
         isRunning = false
         peripheral?.stopAdvertising()
         central?.stopScan()
-        scanner?.scannerOn = false
-        advertiser?.advertiserOn = false
+        scanner?.forceStopScanner()
+        advertiser?.forceStopAdvertiser()
+        
         advertiser = nil
         scanner = nil
     }

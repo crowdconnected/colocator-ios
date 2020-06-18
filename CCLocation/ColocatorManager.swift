@@ -107,6 +107,14 @@ class ColocatorManager {
             ccLocationManager?.delegate = nil
             ccLocationManager = nil
             
+            ccInertial?.stop()
+            ccInertial?.delegate = nil
+            ccInertial = nil
+            
+            ccContactTracing?.stop()
+            ccContactTracing?.delegate = nil
+            ccContactTracing = nil
+            
             Log.info("[Colocator] Sending all messages from local database to server before stopping")
         
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {

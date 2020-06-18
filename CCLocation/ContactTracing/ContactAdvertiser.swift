@@ -90,6 +90,12 @@ class ContactAdvertiser: NSObject, CBPeripheralManagerDelegate {
         }
     }
     
+    public func forceStopAdvertiser() {
+        self.peripheralManager?.stopAdvertising()
+        self.peripheralManager = nil
+        advertiserOn = false
+    }
+    
     func sendKeepalive(value: Data) {
         guard let peripheral = self.peripheralManager else {
             Log.verbose("Cannot send keep alive. Peripheral is nil")
@@ -153,25 +159,7 @@ class ContactAdvertiser: NSObject, CBPeripheralManagerDelegate {
         }
     }
     
-    func peripheralManager(_ peripheral: CBPeripheralManager, willRestoreState dict: [String : Any]) {
-//        print("Peripheral Manager will restore state ...\n")
-//
-//        guard let services = dict[CBPeripheralManagerRestoredStateServicesKey] as? [CBMutableService] else { return }
-//
-//        for service in services {
-//            if let characteristics = service.characteristics {
-//                for characteristic in characteristics {
-//                    if characteristic.uuid == ContactTracingUUIDs.keepaliveCharacteristicUUID {
-//                        print("    retaining restored keepalive characteristic \(characteristic)")
-//                        self.keepaliveCharacteristic = (characteristic as! CBMutableCharacteristic)
-//                    } else if characteristic.uuid == ContactTracingUUIDs.colocatorIdCharacteristicUUID {
-//                        print("    retaining restored identity characteristic \(characteristic)")
-//                        self.identityCharacteristic = (characteristic as! CBMutableCharacteristic)
-//                    }
-//                }
-//            }
-//        }
-    }
+    func peripheralManager(_ peripheral: CBPeripheralManager, willRestoreState dict: [String : Any]) { }
     
     func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {
         guard error == nil else {

@@ -72,15 +72,13 @@ class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         }
     }
     
-    func centralManager(_ central: CBCentralManager, willRestoreState dict: [String : Any]) {
-        //        print("Scanner restore state")
-        //        if let restoredPeripherals = dict[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral] {
-        //            for peripheral in restoredPeripherals {
-        //                peripherals[peripheral.identifier] = peripheral
-        //                peripheral.delegate = self
-        //            }
-        //        }
+    public func forceStopScanner() {
+        self.centralManager?.stopScan()
+        self.centralManager = nil
+        scannerOn = false
     }
+    
+    func centralManager(_ central: CBCentralManager, willRestoreState dict: [String : Any]) { }
     
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         switch central.state {

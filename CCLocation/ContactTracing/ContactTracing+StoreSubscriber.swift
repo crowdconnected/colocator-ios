@@ -35,6 +35,7 @@ extension ContactTracing: StoreSubscriber {
             }
             
             Log.debug("ContactTracing: New state is: \(newContactState)")
+            
             updateCurrentContactStateActivity(newState: newContactState)
             currentContactState = newContactState
             return
@@ -46,9 +47,7 @@ extension ContactTracing: StoreSubscriber {
     }
     
     private func updateCurrentContactStateActivity(newState: ContactBluetoothState) {
-        if isRunning {
-            stop()
-        }
+        stop()
         
         if newState.isEnabled ?? false {
             start()
