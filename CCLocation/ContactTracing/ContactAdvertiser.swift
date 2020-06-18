@@ -70,19 +70,23 @@ class ContactAdvertiser: NSObject, CBPeripheralManagerDelegate {
             Log.verbose("Started advertising cycle for \(String(describing: advertiseDuration)) seconds")
             
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(advertiseDuration!)) {
-                self.peripheralManager?.stopAdvertising()
-                
-                Log.verbose("Stopped advertising. Start again in \(String(describing: self.advertiseInterval)) seconds")
-                
-                if self.advertiserOn {
-                    // Used 1 as backup to avoid a crash if advertiseInterval is set to nil meanwhile
-                    DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(self.advertiseInterval ?? 1)) {
-                        self.startAdvertisingCycle()
-                    }
-                }
+                self.stopAdvertisingCycle()
             }
         } else {
              Log.verbose("Started advertising for indefinite period")
+        }
+    }
+    
+    private func stopAdvertisingCycle() {
+        self.peripheralManager?.stopAdvertising()
+        
+        Log.verbose("Stopped advertising. Start again in \(String(describing: self.advertiseInterval)) seconds")
+        
+        if self.advertiserOn {
+            // Used 1 as backup to avoid a crash if advertiseInterval is set to nil meanwhile
+            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(self.advertiseInterval ?? 1)) {
+                self.startAdvertisingCycle()
+            }
         }
     }
     

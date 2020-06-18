@@ -46,7 +46,7 @@ class EIDGeneratorManager: NSObject {
         }
     }
     
-    private func startEIDRenewTimer() {
+    internal func startEIDRenewTimer() {
         if clockOffset == 0 { return }
         
         if renewEIDTimer != nil {
@@ -62,10 +62,7 @@ class EIDGeneratorManager: NSObject {
     }
     
     @objc func renewEID() {
-        //TODO Make sure this is working properly by testing with different clockOffset values like 0, 1000, 30000 and 180000
-        print("Renew EID triggered")
         lastGeneratedEID = generateEIDString()?.data(using: .utf8)
-        
         startEIDRenewTimer()
     }
     

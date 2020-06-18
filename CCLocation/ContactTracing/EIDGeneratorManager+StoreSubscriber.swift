@@ -27,13 +27,9 @@ extension EIDGeneratorManager: StoreSubscriber {
                 self.clockOffset = Int(clockOffset)
             }
             
+            startEIDRenewTimer()
+            
             Log.debug("ContactTracing: New EID state is: \(newEidState)")
-            
-            if renewEIDTimer != nil {
-                renewEIDTimer?.invalidate()
-                renewEIDTimer = nil
-            }
-            
             currentEIDState = newEidState
         }
     }

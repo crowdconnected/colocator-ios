@@ -49,21 +49,26 @@ class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         
         if scanDuration != nil && scanDuration != nil {
             Log.verbose("Started scanning cycle for \(String(describing: scanDuration)) seconds")
-            
+                    
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(scanDuration!)) {
-                self.centralManager?.stopScan()
-                
-                Log.verbose("Stopped scanning. Start again in \(String(describing: self.scanInterval)) seconds")
-                
-                if self.scannerOn {
-                    // Used 1 as backup to avoid a crash if scanInterval is set to nil meanwhile
-                    DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(self.scanInterval ?? 1)) {
-                        self.startScanningCycle()
-                    }
-                }
+                self.stopScanningCycle()
             }
+            
         } else {
             Log.verbose("Started scanning cycle for indefinite period")
+        }
+    }
+    
+    private func stopScanningCycle() {
+        self.centralManager?.stopScan()
+        
+        Log.verbose("Stopped scanning. Start again in \(String(describing: self.scanInterval)) seconds")
+        
+        if self.scannerOn {
+            // Used 1 as backup to avoid a crash if scanInterval is set to nil meanwhile
+            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(self.scanInterval ?? 1)) {
+                self.startScanningCycle()
+            }
         }
     }
     
