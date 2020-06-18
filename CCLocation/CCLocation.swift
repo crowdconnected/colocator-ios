@@ -327,20 +327,9 @@ internal struct Constants {
             }
         }
         
-        // TODO - Add test for Silent Push Notification
-        
-        // Optional step - Check if the server has all the data required for a SPN
-        // Call stop library
-        // Request SPN from CC server through API
-        // Get the average time for delivering the PN and add a margin of error
-        // Wait for a while (see above step) and check if library status switched to on automatically
-        // Add result in integrationTestResponse
-        
-        let silentPushNotificationResult = "unidentified"
-        
         _ = semaphore.wait(timeout: .now() + 3)
-        let integrationTestResponse = """
         
+        let integrationTestResponse = """
         
            ====  Integration Test Response  ====
         

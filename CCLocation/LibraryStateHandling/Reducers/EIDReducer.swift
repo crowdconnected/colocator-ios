@@ -33,10 +33,7 @@ func eidReducer(action: Action, state: EIDState?) -> EIDState {
         saveEIDStateInUserDefaults(eidState: state)
         
     case _ as DisableEIDAction:
-        
-        //TODO Probably the next line is not necessary
-        //Even if the eid settings are not being sent, they should remain saved locally
-//        saveEIDStateInUserDefaults(eidState: state)
+        //Even if the eid settings are not being sent, they should remain saved locally. Do NOT clean them from UserDefaults
         break
     default: break
     }
