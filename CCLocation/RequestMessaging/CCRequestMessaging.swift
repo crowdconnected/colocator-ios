@@ -33,6 +33,8 @@ class CCRequestMessaging: NSObject {
     internal var messagesDB: SQLiteDatabase!
     internal let messagesDBName = "observations.db"
     
+    var surveyMode: Bool = false
+    
     init(ccSocket: CCSocket, stateStore: Store<LibraryState>) {
         super.init()
         
