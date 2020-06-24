@@ -88,7 +88,8 @@ class CCRequestMessaging: NSObject {
                                                           longitude: locationResponse.longitude,
                                                           headingOffSet: locationResponse.headingOffset,
                                                           error: locationResponse.error,
-                                                          timestamp: locationResponse.timestamp)
+                                                          timestamp: locationResponse.timestamp,
+                                                          floor: locationResponse.floor)
                 
                 messages.append(newLocationMessage)
             }
