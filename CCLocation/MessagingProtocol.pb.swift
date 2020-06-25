@@ -1359,6 +1359,15 @@ struct Messaging_ClientLocationResponse {
   /// Clears the value of `timestamp`. Subsequent reads from it will return its default value.
   mutating func clearTimestamp() {self._timestamp = nil}
 
+  var floor: UInt64 {
+    get {return _floor ?? 0}
+    set {_floor = newValue}
+  }
+  /// Returns true if `floor` has been explicitly set.
+  var hasFloor: Bool {return self._floor != nil}
+  /// Clears the value of `floor`. Subsequent reads from it will return its default value.
+  mutating func clearFloor() {self._floor = nil}
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   init() {}
@@ -1368,6 +1377,7 @@ struct Messaging_ClientLocationResponse {
   fileprivate var _error: Double? = nil
   fileprivate var _headingOffset: Double? = nil
   fileprivate var _timestamp: UInt64? = nil
+  fileprivate var _floor: UInt64? = nil
 }
 
 ///Client Messages
@@ -4119,6 +4129,7 @@ extension Messaging_ClientLocationResponse: SwiftProtobuf.Message, SwiftProtobuf
     3: .same(proto: "error"),
     4: .same(proto: "headingOffset"),
     5: .same(proto: "timestamp"),
+    6: .same(proto: "floor"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -4129,6 +4140,7 @@ extension Messaging_ClientLocationResponse: SwiftProtobuf.Message, SwiftProtobuf
       case 3: try decoder.decodeSingularDoubleField(value: &self._error)
       case 4: try decoder.decodeSingularDoubleField(value: &self._headingOffset)
       case 5: try decoder.decodeSingularUInt64Field(value: &self._timestamp)
+      case 6: try decoder.decodeSingularUInt64Field(value: &self._floor)
       default: break
       }
     }
@@ -4150,6 +4162,9 @@ extension Messaging_ClientLocationResponse: SwiftProtobuf.Message, SwiftProtobuf
     if let v = self._timestamp {
       try visitor.visitSingularUInt64Field(value: v, fieldNumber: 5)
     }
+    if let v = self._floor {
+      try visitor.visitSingularUInt64Field(value: v, fieldNumber: 6)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -4159,6 +4174,7 @@ extension Messaging_ClientLocationResponse: SwiftProtobuf.Message, SwiftProtobuf
     if lhs._error != rhs._error {return false}
     if lhs._headingOffset != rhs._headingOffset {return false}
     if lhs._timestamp != rhs._timestamp {return false}
+    if lhs._floor != rhs._floor {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
