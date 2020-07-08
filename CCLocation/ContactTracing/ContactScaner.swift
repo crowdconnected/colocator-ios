@@ -97,14 +97,22 @@ class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     }
     
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
-        if let manufacturerData = advertisementData[CBAdvertisementDataManufacturerDataKey] as? Data { // Most probably Android Device
+        if let manufacturerData = advertisementData[CBAdvertisementDataManufacturerDataKey] as? Data {
+            // Most probably Android Device
+            // In this case, the EID will be found in the manufacturer data
+            // So the contact details can be directly reported to the server (or saved locally)
+            // without being necessar to connect to the device and exchange characteristics
+            
             if let deviceEID = extractEIDFromManufacturerData(manufacturerData) {
                 handleAndroidContactWith(deviceEID: deviceEID, RSSI: RSSI)
             } else {
                 // Ignore. Probably a device not advertising through Colocator
             }
             
-        } else { // Most probably iOS device. Connect to it
+        } else {
+            // Most probably iOS device -> connect to it
+            // If the device has already sent an EID through identity characteristic -> create and report a contact
+            
             if peripherals[peripheral.identifier] == nil || peripherals[peripheral.identifier]!.state != .connected {
                 peripherals[peripheral.identifier] = peripheral
                 central.connect(peripheral)
@@ -202,6 +210,7 @@ class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         handleiOSContactWith(peripheral, RSSI: RSSI)
     }
     
+    // When keepalive is sent, the connected devices are aked to report their rssi as well
     private func readRSSIAndSendKeepalive() {
         guard Date().timeIntervalSince(lastKeepaliveDate) > keepaliveInterval else {
             return

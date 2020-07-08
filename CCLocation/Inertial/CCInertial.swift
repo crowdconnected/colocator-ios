@@ -16,6 +16,15 @@ protocol CCInertialDelegate: class {
 
 class CCInertial: NSObject {
     
+    // Two things are monitored continuously when the inertial module is active
+    // The device orientation updates (xArbitraryZVertical)
+    // that will be used to determine the direction of the user in an indoot environment
+    // The steps updates - coming in batches
+    // Each step is associated with the yaw value that has the tclosest timestamp to its own
+    // A step's timestamp is determined based on the assumption that every step in a batch takes the same time to be done
+    // Hence, using the timestamp of the last steps batch, the timestamp of the current batch and the number of steps contained
+    // the timestamp of each step is determined.
+    
     private let activityManager = CMMotionActivityManager()
     private let pedometer = CMPedometer()
     private let motion = CMMotionManager()
@@ -47,6 +56,7 @@ class CCInertial: NSObject {
     
     public func updateFitnessAndMotionStatus() {
         // The 5 seconds time frame is the estimated time (+ margin) for the user to make a choice in granting permission
+        // After that the authorization status will be checked, saved and reported as capability to the server
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
             if self.stateStore == nil { return }
             if #available(iOS 11.0, *) {
@@ -123,7 +133,7 @@ class CCInertial: NSObject {
         motion.startDeviceMotionUpdates(using: .xArbitraryZVertical,
                                         to: yawDataOperationQueue) { [weak self] deviceMotion, error in
             guard let data = deviceMotion, error == nil else {
-                Log.error("[Colocator] Received motion update error: \((error as? CMError).debugDescription)")
+                Log.error("[Colocator] Received motion update error: \(error.debugDescription)")
                 self?.updateFitnessAndMotionStatus()
                 return
             }
@@ -134,6 +144,8 @@ class CCInertial: NSObject {
         }
     }
     
+    // The last 500 yaw values are memorized and updated, which is enough considering that
+    // the steps batches are reported after maximum 8 seconds
     private func handleDeviceMotionData(_ data: CMDeviceMotion) {
         let yawValue = data.attitude.yaw
         let yawData = YawData(yaw: yawValue, date: Date())
@@ -160,6 +172,9 @@ class CCInertial: NSObject {
         }
     }
     
+    // The array of yaw data and timestamps is updated everytime a new step is associated with a yaw value
+    // All the data from the yaw array previous to the matching value is removed
+    // This way the possibility of having a wrong order (in time) for steps' yaw value is excluded
     private func findFirstSmallerYaw(yawArray: [YawData], timeInterval: TimeInterval) -> YawData? {
         for (index, yaw) in yawArray.reversed().enumerated() {
             if yaw.date.timeIntervalSince1970 < timeInterval {
@@ -209,6 +224,9 @@ class CCInertial: NSObject {
         }
     }
     
+    // Determine the timestamp of each step in the batch
+    // Associate it with a yaw value
+    // And report the step event
     private func handleAndReceiveEachStep(totalSteps: Int,
                                           oneStepTimeInterval: TimeInterval,
                                           previousPedometerData: PedometerData) {

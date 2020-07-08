@@ -12,6 +12,8 @@ import SocketRocket
 import CoreLocation
 import TrueTime
 
+// Object to be returned as location update from the server
+// Objective-C compatible and represented as Dictionary in the cross-platform wrappers
 @objc public class LocationResponse: NSObject {
     @objc public var latitude: Double
     @objc public var longitude: Double
@@ -39,7 +41,6 @@ import TrueTime
 }
 
 protocol CCSocketDelegate: AnyObject{
-    func receivedTextMessage(message: NSDictionary)
     func receivedLocationMessages(_ messages: [LocationResponse])
     func ccSocketDidConnect()
     func ccSocketDidFailWithError(error: Error)
@@ -48,7 +49,6 @@ protocol CCSocketDelegate: AnyObject{
 class CCSocket:NSObject {
     
     var webSocket: SRWebSocket?
-    
     var delegate: CCSocketDelegate?
     
     var deviceId: String?
@@ -170,6 +170,8 @@ class CCSocket:NSObject {
         Log.debug("Location observations stopped")
     }
     
+    // The library attempts to reconnect after a dynamic interval
+    // Starting with 1 seconds and increasing up to 1 hour
     private func delayReconnect() {
         if delay == 0 {
             delay = CCSocketConstants.kMinDelay
@@ -205,6 +207,7 @@ class CCSocket:NSObject {
         firstReconnect = false
     }
     
+    // Once the connection is established, the server return a unique device ID that will be stored locally
     func setDeviceId(deviceId: String) {
         self.deviceId = deviceId
         UserDefaults.standard.set(self.deviceId!, forKey: CCSocketConstants.kLastDeviceIDKey)

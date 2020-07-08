@@ -11,8 +11,12 @@ import CoreBluetooth
 import ReSwift
 
 class ContactTracing: NSObject {
+    
     internal var isRunning = false
     
+    // The module can work indefinitely, with the scanner and the advertiser working continuously
+    // But it can work in cycles as well for a better battery efficiency
+    // If both the values (for advertising or scanning) are not nil, then the module will work in cycles
     internal var advertisingInterval: Int?
     internal var advertisingPeriod: Int?
     internal var scanningInterval: Int?
@@ -21,6 +25,7 @@ class ContactTracing: NSObject {
     private var advertiser: ContactAdvertiser?
     private var scanner: ContactScanner?
     
+    // A separate queue is necessary for the contact tracing module
     private var queue = DispatchQueue(label: "ColocatorBroadcaster")
      
     let centralRestoreIdentifier: String = "ColocatorCentralRestoreIdentifier"

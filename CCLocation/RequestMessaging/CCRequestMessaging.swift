@@ -14,9 +14,9 @@ import CoreBluetooth
 class CCRequestMessaging: NSObject {
     
     enum MessageType {
-        case queueable
-        case discardable
-        case urgent
+        case queueable     // if radioSilence is not 0 or null, will be added in the database and send next time
+        case discardable   // will be sent directly regardless radioSilence value (alongside with all the other messages) if there is connection, otherwise, will be deleted
+        case urgent        // will be sent alone immediately regardless radioSilence value it there is connection, otherwise will be saved in the database
     }
     
     weak var ccSocket: CCSocket?
@@ -74,6 +74,11 @@ class CCRequestMessaging: NSObject {
             Log.info("[Colocator] Received message from server \n\(serverMessage)")
         }
         
+        // The message coming from the server can be either a location update, a set of settings or an empty message
+        // The empty message is ignored
+        // The location update is converted in a LocationReponse object and sent to the delegate fo the library
+        // The settings are analysed separately (global and ios settings), stored locally and the library state si updated to match them
+        
         processGlobalSettings(serverMessage: serverMessage, store: stateStore)
         processIosSettings(serverMessage: serverMessage, store: stateStore)
         processLocationResponseMessages(serverMessage: serverMessage)
@@ -104,7 +109,7 @@ class CCRequestMessaging: NSObject {
             let globalSettings = serverMessage.globalSettings
             var radioSilence: UInt64? = nil
             
-            // if radio silence is 0 treat it the same way as if the timer doesn't exist
+            // if radio silence is 0, treat it as missing - continuous data flow
             if globalSettings.hasRadioSilence && globalSettings.radioSilence != 0 {
                 radioSilence = globalSettings.radioSilence
             }
@@ -120,6 +125,8 @@ class CCRequestMessaging: NSObject {
         }
     }
     
+    // Capabilities are reported to the server when the connection is established and when at least one of them is changed
+    // Be it a permission, a module state or device's battery state
     public func processIOSCapability(locationAuthStatus: CLAuthorizationStatus?,
                                      bluetoothHardware: CBCentralManagerState?,
                                      batteryState: UIDevice.BatteryState?,
@@ -184,6 +191,8 @@ class CCRequestMessaging: NSObject {
                                  timeBetweenSends: timeBetweenSends)
     }
     
+    // Check the connection state, radioSilence, message type and handle the new data properly
+    // It can be even sent to the server, stored in the database or discarded
     func sendOrQueueClientMessage(data: Data, messageType: MessageType, connectionState: ConnectionState?, timeBetweenSends: UInt64?) {
         if let connectionStateUnwrapped = connectionState, connectionStateUnwrapped == .online {
             
@@ -274,6 +283,8 @@ class CCRequestMessaging: NSObject {
 
 extension CCRequestMessaging: TimeHandlingDelegate {
     
+    // For avoiding using a wrong timestamp (local device time) and having a uniform timezone over all the devices
+    // TrueTime library is used and every message reported contains the true timestamp, not the local one
     public func newTrueTimeAvailable(trueTime: Date, timeIntervalSinceBootTime: TimeInterval, systemTime: Date, lastRebootTime: Date) {
         Log.debug("""
             Received new truetime \(trueTime)
