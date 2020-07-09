@@ -27,6 +27,8 @@ extension CCRequestMessaging {
         
         Log.verbose("Request location message build: \(clientMessage)")
         
+        // Updating the location updates stream listener must be of type urgent
+        // If can be called multiple times (display and dismiss map screen) and every update must be executed immediately and in the right order
         if let data = try? clientMessage.serializedData() {
             sendOrQueueClientMessage(data: data, messageType: .urgent)
         }

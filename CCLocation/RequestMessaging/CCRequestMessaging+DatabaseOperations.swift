@@ -26,6 +26,7 @@ extension CCRequestMessaging {
             return
         }
         
+        // Open connection to the database
         do {
             messagesDB = try SQLiteDatabase.open(path: messageDBPathStringUnwrapped)
             Log.debug("Successfully opened connection to observation messages database.")
@@ -73,6 +74,8 @@ extension CCRequestMessaging {
         return popMessages
     }
     
+    // Calculating the database size initially and updating it at every insertion and extraction
+    // is a more efficient way than calculating the size every time (reduces CPU usage significantly)
     func getMessageCount() -> Int {
         var count: Int = -1
         

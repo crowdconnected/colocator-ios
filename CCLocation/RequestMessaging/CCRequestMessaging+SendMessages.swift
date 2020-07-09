@@ -12,6 +12,8 @@ import Foundation
 
 extension CCRequestMessaging {
     
+    // If the databse in empty, just send the last reported message to the server
+    // Otherwise send all the messages in the database in order
     public func sendQueuedClientMessages(firstMessage: Data?) {
         if let newMessage = firstMessage {
             if self.getMessageCount() > 0 {
@@ -25,6 +27,8 @@ extension CCRequestMessaging {
         }
     }
     
+    // A client message can contain maximum 100 reports (ex: step, beacon signal, location, capability)
+    // If there are more reports in the database, multiple messages will be sent
     private func sendAllMessagesFromDatabase() {
         DispatchQueue.global(qos: .utility).async { [weak self] in
             let maxMessagesToReturn = 100
@@ -75,6 +79,7 @@ extension CCRequestMessaging {
         }
     }
     
+    // Sending a single message, ignores the databse and creates a client message with the exact data received as parameter
     func sendSingleMessage(_ message: Data) {
         DispatchQueue.global(qos: .utility).async { [weak self] in
             var (_,
@@ -103,6 +108,8 @@ extension CCRequestMessaging {
         }
     }
     
+    // Every client message requires the true time added as timestamp
+    // The local time on the device cannot be used since the data must be correct and uniform across all the devices
     private func setupSentTime(forMessage message: inout Messaging_ClientMessage) {
         if stateStore == nil {
             return
