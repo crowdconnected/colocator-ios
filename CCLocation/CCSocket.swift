@@ -119,46 +119,14 @@ class CCSocket:NSObject {
     }
     
     private func configureWebSocket() {
-        var certRef: SecCertificate?
-        var certDataRef: CFData?
-
         guard let ccWebsocketBaseURL = self.ccWebsocketBaseURL,
             let socketURL = createWebsocketURL(url: ccWebsocketBaseURL, id: deviceId) else {
             Log.error("[Colocator] Construction of the Websocket connection request URL failed, will not attempt to connect to CoLocator backend")
             return
         }
         
-        let platformConnectionRequest = NSMutableURLRequest(url: socketURL)
-        
-        if let cerPath = Bundle(for: type(of: self)).path(forResource: "certificate", ofType: "der") {
-            do {
-                let certData = try Data(contentsOf: URL(fileURLWithPath: cerPath))
-                certDataRef = certData as CFData
-            }
-            catch {
-                Log.error("[Colocator] Could not create certificate data")
-            }
-        } else {
-            Log.error("[Colocator] Could not find certificate file in Application Bundle, will not attempt to connect to CoLocator backend")
-        }
-        
-        guard let certDataRefUnwrapped = certDataRef else {
-            return
-        }
-        
-        certRef = SecCertificateCreateWithData(nil, certDataRefUnwrapped)
-        
-        guard let certRefUnwrapped = certRef else {
-            Log.error("[Colocator] Certificate is not a valid DER-encoded X.509 certificate")
-            return
-        }
-        
-        platformConnectionRequest.sr_SSLPinnedCertificates = [certRefUnwrapped]
-        
-        if platformConnectionRequest.url != nil {
-            self.webSocket = SRWebSocket.init(urlRequest: platformConnectionRequest as URLRequest?)
-            self.webSocket?.delegate = self
-        }
+        self.webSocket = SRWebSocket.init(url: socketURL)
+        self.webSocket?.delegate = self
         self.webSocket?.open()
     }
     
