@@ -138,11 +138,13 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
         isWaitingForSignificantUpdates = true
         isContinuousGEOCollectionActive = false
         
+        // stop timer
         if maxRunGEOTimer != nil {
             maxRunGEOTimer?.invalidate()
             maxRunGEOTimer = nil
         }
         
+        // depeding on the presence of a minOfftime and maxTime, the location data gathering might start again after a time (defined in the settings)
         if let minOffTime = currentGEOState.minOffTime {
             if minOffTime > 0 {
                 let offTimeEnd = Date().addingTimeInterval(TimeInterval(minOffTime / 1000))
@@ -161,6 +163,7 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
     }
     
     func updateMonitoringGeofences() {
+        // stop monitoring for geofences
         stopMonitoringRemovedGeofences()
         
         Log.debug("Update monitored geofences")
@@ -171,6 +174,7 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
         }
         Log.verbose("------- List end -------")
         
+        // update the monitored geofences array and start monitoring again
         for geofence in currentGeofencesMonitoringState.monitoringGeofences {
             var geofenceInMonitoredRegions = false
             
@@ -310,18 +314,19 @@ extension CCLocationManager {
         switch (error) {
         case CLError.headingFailure:
             Log.error("[Colocator] LocationManager didFailWithError kCLErrorHeadingFailure: \(error.localizedDescription)")
-            //LocationUnknown error occures when the location service is unable to retrieve a location right away, but keeps trying, simply to ignore and wait for new event
+            
+        // LocationUnknown error occures when the location service is unable to retrieve a location right away, but keeps trying, simply to ignore and wait for new event
         case CLError.locationUnknown:
             Log.error("[Colocator] LocationManager didFailWithError kCLErrorLocationUnknown: \(error.localizedDescription)")
-            //Denied error occures when the user denies location services, if that happens we should stop location services
+            
+        // Denied error occures when the user denies location services, if that happens we should stop location services
         case CLError.denied:
             Log.error("[Colocator] LocationManager didFailWithError kCLErrorDenied: \(error.localizedDescription)")
             // According to API reference on denied error occures, when users stops location services, so we should stop them as well here
             // If the next lines are uncommented, location updates won't start automatically in background if the user choose "Never" then "Always" from the settings menu
             
-            // TODO: wrap into stop function to stop everything
-            //            self.locationManager.stopUpdatingLocation()
-            //            self.locationManager.stopMonitoringSignificantLocationChanges()
+//            self.locationManager.stopUpdatingLocation()
+//            self.locationManager.stopMonitoringSignificantLocationChanges()
         default:
             Log.error("[Colocator] LocationManager didFailWithError Unknown: \(error.localizedDescription)")
         }

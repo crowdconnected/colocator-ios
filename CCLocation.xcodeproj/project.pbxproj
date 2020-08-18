@@ -37,7 +37,6 @@
 		4F920BF81F3B161100BD7FEF /* LibraryTimeState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F920BF71F3B161100BD7FEF /* LibraryTimeState.swift */; };
 		4F920BFA1F3B1C7F00BD7FEF /* LibraryTimeStateAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F920BF91F3B1C7F00BD7FEF /* LibraryTimeStateAction.swift */; };
 		4F920BFC1F3B1D6400BD7FEF /* LibraryTimeReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F920BFB1F3B1D6400BD7FEF /* LibraryTimeReducer.swift */; };
-		4FA524DE1F4109940067D2C8 /* certificate.der in Resources */ = {isa = PBXBuildFile; fileRef = 4FA524DD1F4109940067D2C8 /* certificate.der */; };
 		4FAAEA261F46F90600DF4DA1 /* WakeupState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FAAEA251F46F90500DF4DA1 /* WakeupState.swift */; };
 		4FAAEA281F46F9C500DF4DA1 /* WakeupReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FAAEA271F46F9C500DF4DA1 /* WakeupReducer.swift */; };
 		4FAAEA2A1F46FA7A00DF4DA1 /* WakeupActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FAAEA291F46FA7A00DF4DA1 /* WakeupActions.swift */; };
@@ -187,7 +186,6 @@
 		4F920BF71F3B161100BD7FEF /* LibraryTimeState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryTimeState.swift; sourceTree = "<group>"; };
 		4F920BF91F3B1C7F00BD7FEF /* LibraryTimeStateAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryTimeStateAction.swift; sourceTree = "<group>"; };
 		4F920BFB1F3B1D6400BD7FEF /* LibraryTimeReducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryTimeReducer.swift; sourceTree = "<group>"; };
-		4FA524DD1F4109940067D2C8 /* certificate.der */ = {isa = PBXFileReference; lastKnownFileType = file; path = certificate.der; sourceTree = "<group>"; };
 		4FAAEA251F46F90500DF4DA1 /* WakeupState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WakeupState.swift; sourceTree = "<group>"; };
 		4FAAEA271F46F9C500DF4DA1 /* WakeupReducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WakeupReducer.swift; sourceTree = "<group>"; };
 		4FAAEA291F46FA7A00DF4DA1 /* WakeupActions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WakeupActions.swift; sourceTree = "<group>"; };
@@ -557,7 +555,6 @@
 				AADEF4C2249A124D0043C0AF /* MessagingProtocol.pb.swift */,
 				AA9954EA2498E2C200C0F91F /* MessagingProtocol.proto */,
 				F0AF0C3C1DB3912700E72E76 /* Info.plist */,
-				4FA524DD1F4109940067D2C8 /* certificate.der */,
 				4FBB8A9B1F30CAE200DEF04F /* SourceryTemplates */,
 				BC0647AD2187578C00555512 /* eddyStone */,
 				4FE620AB211B4D8100DF8DB2 /* LibraryStateHandling */,
@@ -703,7 +700,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FA524DE1F4109940067D2C8 /* certificate.der in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

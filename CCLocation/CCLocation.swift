@@ -20,8 +20,15 @@ internal struct Constants {
 }
 
 @objc(CCLocation) public protocol CCLocationDelegate: class {
+    /// Delegate method called once the connection with the server was successfully established, after starign the library
     @objc func ccLocationDidConnect()
+    
+    /// Delegate method called if connection with the server failed or cannot be established
+    /// Might be triggered by not having a network connection or issue with the websocked
     @objc func ccLocationDidFailWithError(error: Error)
+    
+    /// Delegate method called for every location update created by the server
+    /// Usually used for indoor navigation
     @objc func didReceiveCCLocation(_ location: LocationResponse)
 }
 
@@ -39,7 +46,8 @@ internal struct Constants {
         return instance
     }()
     
-    /// Start the Colocator library with credentials
+    /// Start the Colocator library with a specific unique key
+    /// During testing and development, the urlString parameter might be used
     ///
     @objc public func start(apiKey: String, urlString: String? = nil) {
         if libraryStarted == false {
@@ -87,6 +95,7 @@ internal struct Constants {
     }
     
     /// Filter the log levels that appears in the console
+    /// By default, only warnings and error are displayed in the console once the library starts
     ///
     @objc public func setLoggerLevels(verbose: Bool,
                                       info: Bool,
@@ -102,10 +111,16 @@ internal struct Constants {
                                            severe: severe)
     }
     
+    /// Add a survey mode field to each message sent to the server
+    /// Might influence server's behaviour
+    /// Used in testing and development only
+    ///
     @objc public func setSurveyMode(state: Bool) {
         colocatorManager?.ccRequestMessaging?.surveyMode = state
     }
     
+    /// Return a unique device ID if the server connection was established successfully
+    ///
     @objc public func getDeviceId() -> String? {
         return CCSocket.sharedInstance.deviceId
     }
@@ -115,6 +130,8 @@ internal struct Constants {
         colocatorManager?.setAliases(aliases: aliases)
     }
     
+    /// Add a (key, value) pair for the current device
+    ///
     @objc public func addAlias(key: String, value: String) {
         colocatorManager?.addAlias(key: key, value: value)
     }
@@ -124,11 +141,17 @@ internal struct Constants {
         CCLocation.sharedInstance.triggerMotionPermissionPopUp()
     }
    
+    /// Display the OS pop-up asking the user to enable the Motion & Fitness permission
+    /// Used mostly for indoor positioning and navigation
+    ///
     @objc public func triggerMotionPermissionPopUp() {
         CMPedometer().stopUpdates()
         CCLocation.sharedInstance.colocatorManager?.ccInertial?.updateFitnessAndMotionStatus()
     }
     
+    /// Display the OS pop-up asking the user to enable the Bluetooht permission
+    /// Used mostly for indoor positioning and navigation
+    ///
     @objc public func triggerBluetoothPermissionPopUp() {
         var centralManager: CBCentralManager? = nil
         centralManager = CBCentralManager(delegate: nil,
@@ -140,12 +163,17 @@ internal struct Constants {
         })
     }
     
+    /// Update the library state when a silent Push Notification was received
+    /// To be called only from didReceiveRemoteNotification method of AppDelegate
+    ///
     @objc public func receivedSilentNotification(userInfo: [AnyHashable : Any], clientKey key: String, completion: @escaping (Bool) -> Void) {
         updateLibraryBasedOnClientStatus(clientKey: key, isSilentNotification: true) { isNewData in
             completion(isNewData)
         }
     }
     
+    /// Update the library state when a silent Push Notification was received
+    ///
     @objc public func updateLibraryBasedOnClientStatus(clientKey key: String, isSilentNotification: Bool = false, completion: @escaping (Bool) -> Void) {
         let endpointUrlString = Constants.kEndPointUpdateLibraryBackgroundUrl
         let deviceID = getDeviceId() ?? ""
@@ -208,6 +236,9 @@ internal struct Constants {
     
     //MARK: - Location Callbacks
     
+    /// Request one location update from the server
+    /// Usually used for indoor positioning
+    ///
     @objc public func requestLocation() {
         if libraryStarted == true && colocatorManager?.ccRequestMessaging != nil {
             colocatorManager?.ccRequestMessaging?.sendLocationRequestMessage(type: 1)
@@ -217,6 +248,9 @@ internal struct Constants {
         }
     }
     
+    /// Register toa  stream of location updates from the server
+    /// Usually used for indoor positioning
+    ///
     @objc public func registerLocationListener() {
         if libraryStarted == true && colocatorManager?.ccRequestMessaging != nil {
             colocatorManager?.ccRequestMessaging?.sendLocationRequestMessage(type: 2)
@@ -226,6 +260,9 @@ internal struct Constants {
         }
     }
     
+    /// Stop the location updates coming from the server
+    /// To be called whenever the navigation screen is dismissed
+    ///
     @objc public func unregisterLocationListener() {
         if libraryStarted == true && colocatorManager?.ccRequestMessaging != nil {
             Log.info("[Colocator] Unregistered for Colocator location updates")
@@ -237,6 +274,9 @@ internal struct Constants {
     
     // MARK: - Test Library Integration
     
+    /// Return a string describing the status of the library integration
+    /// Details about library state, permission state, device state and notifications
+    ///
     @objc public func testLibraryIntegration() -> String {
         let semaphore = DispatchSemaphore(value: 0)
         
@@ -361,10 +401,6 @@ extension CCLocation: CCSocketDelegate {
         for message in messages {
             delegate?.didReceiveCCLocation(message)
         }
-    }
-    
-    func receivedTextMessage(message: NSDictionary) {
-        Log.verbose("Received text message from Colocator\n\(message)")
     }
     
     func ccSocketDidConnect() {

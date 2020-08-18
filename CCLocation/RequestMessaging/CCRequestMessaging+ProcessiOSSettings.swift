@@ -15,7 +15,11 @@ import CoreBluetooth
 
 extension CCRequestMessaging {
     
+    // All the settings from the server are in a specific format and the decoding is done via protobuf
+    // Depending on what is present or missing in the settings payload and the value of the fields
+    // The library updates its state and saves a copy of the settings
     func processIosSettings (serverMessage: Messaging_ServerMessage, store: Store<LibraryState>) {
+        
         // When Missing Settings
         
         if serverMessage.hasIosSettings && !serverMessage.iosSettings.hasGeoSettings {
@@ -57,6 +61,11 @@ extension CCRequestMessaging {
     // MARK: - Disabling Settings
     
     // Disable Settings Actions
+    
+    // Actions are used for triggering the desired changes everywhere is a need
+    // It's a subscription model
+    // Each module and functionality subscribes to the updates of the library state
+    // And changes its behaviour according to the new settings
     
     private func disableGEOActions(store: Store<LibraryState>) {
         DispatchQueue.main.async {store.dispatch(DisableBackgroundGEOAction())}
@@ -223,7 +232,9 @@ extension CCRequestMessaging {
             let eidSettings = contactSettings.eid
             updateEIDState(eidSettings: eidSettings, store: store)
         } else {
-            //Probably not necessary
+            // Probably not necessary
+            // After being sent once, if the eid settings disappear, the local copy will be used since an EID must be generated when the contact tracing module is on
+            
 //            DispatchQueue.main.async {store.dispatch(DisableEIDAction())}
         }
     }
@@ -249,6 +260,9 @@ extension CCRequestMessaging {
     }
     
     // MARK: - Configurating GEO Settings
+    
+    // There are different settings for geo module in background and foreground
+    // The OS reports when the application state changes and the transition is smooth
     
     public func configureBackgroundGEOSettings(geoSettings: Messaging_IosGeoSettings, store: Store<LibraryState>) {
         var desiredAccuracy: Int32?
@@ -465,7 +479,11 @@ extension CCRequestMessaging {
             let coordinates = CLLocationCoordinate2D(latitude: geofenceRegion.latitude,
                                                      longitude: geofenceRegion.longitude)
             
-            //TODO add identifier here
+            // An identifier set up by the server can be added for knowing exactly what geofence has triggered an entry/exit event
+            // Meanwhile, there is a random UUID for each geofence
+            // Differentiating the geofences only based on the center (lat, lon)
+            // might not work properly in cases when there are multiple geofences with the same center and different radius values
+            
             let identifier = "CC_geofence_\(UUID())"
             
             let geofence = CLCircularRegion(center: coordinates,
@@ -485,6 +503,9 @@ extension CCRequestMessaging {
         if !region.hasUuid {
             return [CLBeaconRegion]()
         }
+        
+        // A BeaconRegion requires at least an UUID to be created
+        // More complex filters can be obtained by adding the major and the minor values
         
         if region.hasMajor {
             if region.hasMinor, let uuid = UUID(uuidString: region.uuid) {

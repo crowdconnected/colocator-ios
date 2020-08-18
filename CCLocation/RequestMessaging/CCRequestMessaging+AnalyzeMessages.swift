@@ -12,6 +12,9 @@ import Foundation
 
 extension CCRequestMessaging {
     
+    // The data can be any kind of reports and requires conversion to a specific message type
+    // Also, survey mode value is added for messages
+    // And the final client message is created and returned
     public func handleMessageType(message: Data,
                                   subMessageInitialNumber: Int = 0,
                                   compiledMessage: Messaging_ClientMessage = Messaging_ClientMessage(),
@@ -212,7 +215,7 @@ extension CCRequestMessaging {
             geofenceMessage.latitude = tempGeofenceMessage.latitude
             geofenceMessage.radius = tempGeofenceMessage.radius
             
-            //TODO Add identifier and type later
+            // Add identifier and type later 
             
             if subMessageNo >= 0 {
                 clientMessagesToCompile.append(geofenceMessage)

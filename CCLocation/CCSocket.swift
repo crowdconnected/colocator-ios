@@ -12,6 +12,8 @@ import SocketRocket
 import CoreLocation
 import TrueTime
 
+// Object to be returned as location update from the server
+// Objective-C compatible and represented as Dictionary in the cross-platform wrappers
 @objc public class LocationResponse: NSObject {
     @objc public var latitude: Double
     @objc public var longitude: Double
@@ -39,7 +41,6 @@ import TrueTime
 }
 
 protocol CCSocketDelegate: AnyObject{
-    func receivedTextMessage(message: NSDictionary)
     func receivedLocationMessages(_ messages: [LocationResponse])
     func ccSocketDidConnect()
     func ccSocketDidFailWithError(error: Error)
@@ -48,7 +49,6 @@ protocol CCSocketDelegate: AnyObject{
 class CCSocket:NSObject {
     
     var webSocket: SRWebSocket?
-    
     var delegate: CCSocketDelegate?
     
     var deviceId: String?
@@ -119,46 +119,14 @@ class CCSocket:NSObject {
     }
     
     private func configureWebSocket() {
-        var certRef: SecCertificate?
-        var certDataRef: CFData?
-
         guard let ccWebsocketBaseURL = self.ccWebsocketBaseURL,
             let socketURL = createWebsocketURL(url: ccWebsocketBaseURL, id: deviceId) else {
             Log.error("[Colocator] Construction of the Websocket connection request URL failed, will not attempt to connect to CoLocator backend")
             return
         }
         
-        let platformConnectionRequest = NSMutableURLRequest(url: socketURL)
-        
-        if let cerPath = Bundle(for: type(of: self)).path(forResource: "certificate", ofType: "der") {
-            do {
-                let certData = try Data(contentsOf: URL(fileURLWithPath: cerPath))
-                certDataRef = certData as CFData
-            }
-            catch {
-                Log.error("[Colocator] Could not create certificate data")
-            }
-        } else {
-            Log.error("[Colocator] Could not find certificate file in Application Bundle, will not attempt to connect to CoLocator backend")
-        }
-        
-        guard let certDataRefUnwrapped = certDataRef else {
-            return
-        }
-        
-        certRef = SecCertificateCreateWithData(nil, certDataRefUnwrapped)
-        
-        guard let certRefUnwrapped = certRef else {
-            Log.error("[Colocator] Certificate is not a valid DER-encoded X.509 certificate")
-            return
-        }
-        
-        platformConnectionRequest.sr_SSLPinnedCertificates = [certRefUnwrapped]
-        
-        if platformConnectionRequest.url != nil {
-            self.webSocket = SRWebSocket.init(urlRequest: platformConnectionRequest as URLRequest?)
-            self.webSocket?.delegate = self
-        }
+        self.webSocket = SRWebSocket.init(url: socketURL)
+        self.webSocket?.delegate = self
         self.webSocket?.open()
     }
     
@@ -170,6 +138,8 @@ class CCSocket:NSObject {
         Log.debug("Location observations stopped")
     }
     
+    // The library attempts to reconnect after a dynamic interval
+    // Starting with 1 seconds and increasing up to 1 hour
     private func delayReconnect() {
         if delay == 0 {
             delay = CCSocketConstants.kMinDelay
@@ -205,6 +175,7 @@ class CCSocket:NSObject {
         firstReconnect = false
     }
     
+    // Once the connection is established, the server return a unique device ID that will be stored locally
     func setDeviceId(deviceId: String) {
         self.deviceId = deviceId
         UserDefaults.standard.set(self.deviceId!, forKey: CCSocketConstants.kLastDeviceIDKey)

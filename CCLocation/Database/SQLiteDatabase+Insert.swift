@@ -13,6 +13,10 @@ import SQLite3
 
 extension SQLiteDatabase {
     
+    // The database has a maximum predefined size of 100.000 entries (but this can be modified and set up to 2 Gb)
+    // When the database is full, the oldest entries are deleted and replaced with the new ones
+    // Database count variable for messages (not beacons and eddyston) must be updated every time there si an insert or a delete
+    
     // MARK: - Beacons
     
     func insertBeacon(beacon: Beacon) throws {

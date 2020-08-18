@@ -31,10 +31,14 @@ class ColocatorManager {
     var beaconsDatabase: SQLiteDatabase!
     var eddystoneBeaconsDatabase:  SQLiteDatabase!
     
-    private let messagesDBName = "observations.db"
-    private let iBeaconMessagesDBName = "iBeaconMessages.db"
-    private let eddystoneBeaconMessagesDBName = "eddystoneMessages.db"
+    // Separate databases for different usage
+    private let messagesDBName = "observations.db"                      // Storing the messages before being sent to the server
+    private let iBeaconMessagesDBName = "iBeaconMessages.db"            // Storing the monitored beacons
+    private let eddystoneBeaconMessagesDBName = "eddystoneMessages.db"  // Storing the monitored eddystone
     
+    // When stopping the library, the main components and refences are removed
+    // After a second, all the data in the database starts being sent to the server
+    // The transfer process should be completed in less than 120 seconds, before the connection will be closed
     var stopLibraryTimer: Timer?
     var secondsFromStopTrigger = 0
     
@@ -132,6 +136,7 @@ class ColocatorManager {
     @objc private func checkDatabaseAndStopLibrary() {
         secondsFromStopTrigger += 1
         
+        // Destroy connection if the data transfer takes more than 120 seconds
         if secondsFromStopTrigger > ColocatorManagerConstants.kMaxTimeSendingDataAtStop {
             let leftMessages = ccRequestMessaging?.getMessageCount() ?? 0
             Log.warning("[Colocator] Library stopped. \(leftMessages) unsent messages")
@@ -141,6 +146,7 @@ class ColocatorManager {
             return
         }
         
+        // Destroy connection immediately if the database is empty
         if checkDatabaseEmptiness() {
             destroyConnection()
         }
@@ -167,11 +173,15 @@ class ColocatorManager {
         Log.info("[Colocator] Active back-end connection destroyed")
     }
     
+    // Stop location observations and collection geo data
+    // Method used if there was no network connection for the last 24 hours since the library started
+    // Prevent data overriding in the databse and collecting data that won't be sent to the server
     public func stopLocationObservations() {
         ccLocationManager?.stopAllLocationObservations()
         ccLocationManager?.updateGEOAndBeaconStatesWithoutObservations()
     }
     
+    // Store the pairs in UserDefaults and send them to the server
     public func setAliases(aliases: Dictionary<String, String>) {
         UserDefaults.standard.set(aliases, forKey: CCSocketConstants.kAliasKey)
         if let ccRequestMessaging = self.ccRequestMessaging {
@@ -179,6 +189,7 @@ class ColocatorManager {
         }
     }
     
+    // Store the pair in UserDefaults and send it to the server
     public func addAlias(key: String, value: String) {
         let alias = [key: value]
         updateAliasesInUserDefaults(alias)
@@ -222,6 +233,9 @@ class ColocatorManager {
         }
     }
     
+    // It is important to close the databases once the library stops
+    // Elsewise there will be multiple connections to the same databses when the library starts again
+    // Leading to memory leaking
     deinit {
         if messagesDatabase != nil {
             messagesDatabase.close()
@@ -237,6 +251,7 @@ class ColocatorManager {
 
 //MARK: - Database
 extension ColocatorManager {
+    
     func openLocalDatabase() {
         // Get the library directory
         let dirPaths = NSSearchPathForDirectoriesInDomains (.libraryDirectory, .userDomainMask, true)
@@ -249,6 +264,7 @@ extension ColocatorManager {
             return
         }
         
+        // Open messages database connection
         do {
             messagesDatabase = try SQLiteDatabase.open(path: messagesDBPathStringUnwrapped)
             Log.debug("Successfully opened connection to messages database.")
@@ -265,6 +281,7 @@ extension ColocatorManager {
             return
         }
         
+        // Open beacons database connection
         do {
             beaconsDatabase = try SQLiteDatabase.open(path: beaconsDBPathStringUnwrapped)
             Log.debug("Successfully opened connection to beacons database.")
@@ -281,6 +298,7 @@ extension ColocatorManager {
             return
         }
         
+        // Open eddystone database connection
         do {
             eddystoneBeaconsDatabase = try SQLiteDatabase.open(path: eddystoneBeaconsDBPathStringUnwrapped)
             Log.debug("Successfully opened connection to eddystone beacons database.")
@@ -294,6 +312,8 @@ extension ColocatorManager {
 
 // MARK: - Device, Network, Library details
 extension ColocatorManager {
+    
+    // Return a string containing the main details about the current device (model, OS, version)
     func deviceDescription() -> String {
         let deviceModel = self.platformString()
         let deviceOs = "iOS"
@@ -302,6 +322,7 @@ extension ColocatorManager {
         return String(format: "model=%@&os=%@&version=%@", deviceModel, deviceOs, deviceVersion)
     }
     
+    // Return a string specifying whether there is a WiFi connection or a mobile connection
     func networkType() -> String {
         var networkType: String = ""
         if ReachabilityManager.shared.isReachableViaWiFi() {
@@ -314,11 +335,13 @@ extension ColocatorManager {
         return networkType
     }
     
+    // Return the Colocator library version used
     func libraryVersion() -> String {
         let libraryVersion = CCSocketConstants.kLibraryVersionToReport
         return String(format: "&libVersion=%@" , libraryVersion)
     }
     
+    // Return the device model
     func platform() -> NSString {
         var size = 0
         sysctlbyname("hw.machine", nil, &size, nil, 0)
@@ -339,6 +362,8 @@ extension ColocatorManager {
 }
 
 // MARK: - CCLocationManagerDelegate
+
+// Handle all the events that must be reported to the server or that will change the library behaviour
 extension ColocatorManager: CCLocationManagerDelegate {
     public func receivedGeofenceEvent(type: Int, region: CLCircularRegion) {
         ccRequestMessaging?.processGeofenceEvent(type: type, region: region)

@@ -44,13 +44,21 @@ class ContactAdvertiser: NSObject, CBPeripheralManagerDelegate {
             peripheralManager?.stopAdvertising()
         }
         
+        // The same service UUID is used across both iOS and Android devices
+        // It will be the main scanning filter for detecting contact
         let service = CBMutableService(type: ContactTracingUUIDs.colocatorServiceUUID, primary: true)
 
+        // The identity characteristic is used to pass the EID of the iOS device to the devices that connect with it
+        // This will happen when a connection is established and when the EID is changed (periodically)
         identityCharacteristic = CBMutableCharacteristic(
             type: ContactTracingUUIDs.colocatorIdCharacteristicUUID,
             properties: CBCharacteristicProperties([.read, .notify]),
             value: nil,
             permissions: .readable)
+        
+        // The keepalive characteristic is used to send a notification to the connected devices
+        // When an iOS devices received this notitication, it will read the rssi of the connection
+        // and report the contact status even if both devices are with the screen off
         keepaliveCharacteristic = CBMutableCharacteristic(
             type: ContactTracingUUIDs.keepaliveCharacteristicUUID,
             properties: CBCharacteristicProperties([.notify]),

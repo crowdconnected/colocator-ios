@@ -25,6 +25,7 @@ extension CCLocationManager {
         }
         Log.verbose("------- list end -------")
         
+        // restart region monitoring (updated)
         for region in currentiBeaconMonitoringState.monitoringRegions {
             var regionInMonitoredRegions = false
             
@@ -127,8 +128,6 @@ extension CCLocationManager {
         maxBeaconRunTimer?.invalidate()
         maxBeaconRunTimer = nil
         
-        //        if currentBeaconState.isCyclingEnabled! {
-        
         // check whether we have any beacons to scan for
         let isIBeaconEnabled = currentBeaconState.isIBeaconRangingEnabled
         let isEddystoneScanEnabled = currentBeaconState.isEddystoneScanningEnabled
@@ -182,6 +181,7 @@ extension CCLocationManager: BeaconScannerDelegate {
     func didFindBeacon(beaconScanner: BeaconScanner, beaconInfo: EddystoneBeaconInfo) {
         Log.verbose("Finde beacon \(beaconInfo.description)")
         
+        // check the type of the beacon and handle accordingly to the filter (if any)
         if beaconInfo.beaconID.beaconType == BeaconID.BeaconType.EddystoneEID {
             var isFilterAvailable = false
             checkIfWindowSizeAndMaxObservationsAreAvailable(&isFilterAvailable)
@@ -204,6 +204,7 @@ extension CCLocationManager: BeaconScannerDelegate {
     func didUpdateBeacon(beaconScanner: BeaconScanner, beaconInfo: EddystoneBeaconInfo) {
         Log.verbose("Update beacon \(beaconInfo.description)")
         
+        // check the type of the beacon and handle accordingly to the filter (if any)
         if beaconInfo.beaconID.beaconType == BeaconID.BeaconType.EddystoneEID {
             var isFilterAvailable = false
             checkIfWindowSizeAndMaxObservationsAreAvailable(&isFilterAvailable)
