@@ -18,6 +18,10 @@ struct LocationAuthStatusChangedAction : Action {
     let locationAuthStatus: CLAuthorizationStatus?
 }
 
+struct LocationAccuracyStatusChangedAction : Action {
+    let locationAccuracyStatus: CLAccuracyAuthorization?
+}
+
 struct BluetoothHardwareChangedAction : Action {
     let bluetoothHardware: CBCentralManagerState?
 }

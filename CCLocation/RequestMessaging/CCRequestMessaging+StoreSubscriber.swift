@@ -46,6 +46,7 @@ extension CCRequestMessaging: StoreSubscriber {
             currentCapabilityState = newCapabilityState
             
             processIOSCapability(locationAuthStatus: newCapabilityState.locationAuthStatus,
+                                 locationAccuracyStatus: newCapabilityState.locationAccuracyStatus,
                                  bluetoothHardware: newCapabilityState.bluetoothHardware,
                                  batteryState: newCapabilityState.batteryState,
                                  isLowPowerModeEnabled: newCapabilityState.isLowPowerModeEnabled,

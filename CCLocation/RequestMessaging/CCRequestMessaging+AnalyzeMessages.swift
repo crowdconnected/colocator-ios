@@ -373,6 +373,9 @@ extension CCRequestMessaging {
         if tempCapabilityMessage.hasLocationAuthStatus {
             capabilityMessage.locationAuthStatus = tempCapabilityMessage.locationAuthStatus
         }
+        if tempCapabilityMessage.hasAccuracyStatus {
+            capabilityMessage.accuracyStatus = tempCapabilityMessage.accuracyStatus
+        }
         if tempCapabilityMessage.hasBluetoothHardware {
             capabilityMessage.bluetoothHardware = tempCapabilityMessage.bluetoothHardware
         }

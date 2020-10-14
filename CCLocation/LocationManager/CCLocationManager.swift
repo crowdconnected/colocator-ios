@@ -411,52 +411,54 @@ extension CCLocationManager {
 
 extension CCLocationManager {
     
-    public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        Log.debug("Changed authorization status")
+    /// Method is being called when there is a location authorization change or an accuracy authorization change
+    /// Valid and triggered by devices running iOS 14.0 or newer
+    @available (iOS 14.0, *)
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        Log.warning("Changed location authorization or accuracy status")
+
+        DispatchQueue.main.async {
+            if self.stateStore != nil {
+                self.stateStore.dispatch(LocationAuthStatusChangedAction(locationAuthStatus: manager.authorizationStatus))
+                self.stateStore.dispatch(LocationAccuracyStatusChangedAction(locationAccuracyStatus: manager.accuracyAuthorization))
+                self.stateStore.dispatch(IsLocationServicesEnabledAction(isLocationServicesEnabled: CLLocationManager.locationServicesEnabled()))
+            }
+        }
         
+        updateBackgroundLocationUpdates(forAuthorizationStatus: manager.authorizationStatus)
+    }
+
+    /// Method is being called when there is a location authorization change
+    /// Valid and triggered by devices running iOS <14.0
+    public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        Log.warning("Changed authorization status")
+
         DispatchQueue.main.async {
             if self.stateStore != nil {
                 self.stateStore.dispatch(LocationAuthStatusChangedAction(locationAuthStatus: status))
                 self.stateStore.dispatch(IsLocationServicesEnabledAction(isLocationServicesEnabled: CLLocationManager.locationServicesEnabled()))
             }
         }
-        
+
+        updateBackgroundLocationUpdates(forAuthorizationStatus: status)
+    }
+    
+    private func updateBackgroundLocationUpdates(forAuthorizationStatus status: CLAuthorizationStatus) {
         switch (status) {
         case .notDetermined:
             Log.info("[Colocator] CLLocationManager authorization status not determined")
         case .restricted:
             Log.info("[Colocator] CLLocationManager authorization status restricted, can not use location services")
-            
-            if #available(iOS 9.0, *) {
-                locationManager.allowsBackgroundLocationUpdates = false
-            } else {
-                // Fallback on earlier versions
-            }
+            locationManager.allowsBackgroundLocationUpdates = false
         case .denied:
             Log.info("[Colocator] CLLocationManager authorization status denied in user settings, can not use location services, until user enables them")
-            // might consider here to ask a question to the user to enable location services again
-            
-            if #available(iOS 9.0, *) {
-                locationManager.allowsBackgroundLocationUpdates = false
-            } else {
-                // Fallback on earlier versions
-            }
+            locationManager.allowsBackgroundLocationUpdates = false
         case .authorizedAlways:
             Log.info("[Colocator] CLLocationManager authorization status set to always authorized, we are ready to go")
-            
-            if #available(iOS 9.0, *) {
-                locationManager.allowsBackgroundLocationUpdates = true
-            } else {
-                // Fallback on earlier versions
-            }
+            locationManager.allowsBackgroundLocationUpdates = true
         case .authorizedWhenInUse:
             Log.info("[Colocator] CLLocationManager authorization status set to in use, no background updates enabled")
-        
-            if #available(iOS 9.0, *) {
-                locationManager.allowsBackgroundLocationUpdates = false
-            } else {
-                // Fallback on earlier versions
-            }
+            locationManager.allowsBackgroundLocationUpdates = false
         }
     }
 }

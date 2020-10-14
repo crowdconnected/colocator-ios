@@ -2486,6 +2486,15 @@ struct Messaging_IosCapability {
   /// Clears the value of `motionAndFitness`. Subsequent reads from it will return its default value.
   mutating func clearMotionAndFitness() {self._motionAndFitness = nil}
 
+  var accuracyStatus: Messaging_IosCapability.AccuracyStatus {
+    get {return _accuracyStatus ?? .precise}
+    set {_accuracyStatus = newValue}
+  }
+  /// Returns true if `accuracyStatus` has been explicitly set.
+  var hasAccuracyStatus: Bool {return self._accuracyStatus != nil}
+  /// Clears the value of `accuracyStatus`. Subsequent reads from it will return its default value.
+  mutating func clearAccuracyStatus() {self._accuracyStatus = nil}
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   enum LocationAuthStatus: SwiftProtobuf.Enum {
@@ -2593,6 +2602,32 @@ struct Messaging_IosCapability {
 
   }
 
+  enum AccuracyStatus: SwiftProtobuf.Enum {
+    typealias RawValue = Int
+    case precise // = 1
+    case approximate // = 2
+
+    init() {
+      self = .precise
+    }
+
+    init?(rawValue: Int) {
+      switch rawValue {
+      case 1: self = .precise
+      case 2: self = .approximate
+      default: return nil
+      }
+    }
+
+    var rawValue: Int {
+      switch self {
+      case .precise: return 1
+      case .approximate: return 2
+      }
+    }
+
+  }
+
   init() {}
 
   fileprivate var _locationServices: Bool? = nil
@@ -2601,6 +2636,7 @@ struct Messaging_IosCapability {
   fileprivate var _batteryState: Messaging_IosCapability.BatteryState? = nil
   fileprivate var _lowPowerMode: Bool? = nil
   fileprivate var _motionAndFitness: Bool? = nil
+  fileprivate var _accuracyStatus: Messaging_IosCapability.AccuracyStatus? = nil
 }
 
 #if swift(>=4.2)
@@ -2614,6 +2650,10 @@ extension Messaging_IosCapability.BluetoothHardware: CaseIterable {
 }
 
 extension Messaging_IosCapability.BatteryState: CaseIterable {
+  // Support synthesized by the compiler.
+}
+
+extension Messaging_IosCapability.AccuracyStatus: CaseIterable {
   // Support synthesized by the compiler.
 }
 
@@ -5079,6 +5119,7 @@ extension Messaging_IosCapability: SwiftProtobuf.Message, SwiftProtobuf._Message
     4: .same(proto: "batteryState"),
     5: .same(proto: "lowPowerMode"),
     6: .same(proto: "motionAndFitness"),
+    7: .same(proto: "accuracyStatus"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -5090,6 +5131,7 @@ extension Messaging_IosCapability: SwiftProtobuf.Message, SwiftProtobuf._Message
       case 4: try decoder.decodeSingularEnumField(value: &self._batteryState)
       case 5: try decoder.decodeSingularBoolField(value: &self._lowPowerMode)
       case 6: try decoder.decodeSingularBoolField(value: &self._motionAndFitness)
+      case 7: try decoder.decodeSingularEnumField(value: &self._accuracyStatus)
       default: break
       }
     }
@@ -5114,6 +5156,9 @@ extension Messaging_IosCapability: SwiftProtobuf.Message, SwiftProtobuf._Message
     if let v = self._motionAndFitness {
       try visitor.visitSingularBoolField(value: v, fieldNumber: 6)
     }
+    if let v = self._accuracyStatus {
+      try visitor.visitSingularEnumField(value: v, fieldNumber: 7)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -5124,6 +5169,7 @@ extension Messaging_IosCapability: SwiftProtobuf.Message, SwiftProtobuf._Message
     if lhs._batteryState != rhs._batteryState {return false}
     if lhs._lowPowerMode != rhs._lowPowerMode {return false}
     if lhs._motionAndFitness != rhs._motionAndFitness {return false}
+    if lhs._accuracyStatus != rhs._accuracyStatus {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -5156,6 +5202,13 @@ extension Messaging_IosCapability.BatteryState: SwiftProtobuf._ProtoNameProvidin
     2: .same(proto: "UNPLUGGED"),
     3: .same(proto: "CHARGING"),
     4: .same(proto: "FULL"),
+  ]
+}
+
+extension Messaging_IosCapability.AccuracyStatus: SwiftProtobuf._ProtoNameProviding {
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "PRECISE"),
+    2: .same(proto: "APPROXIMATE"),
   ]
 }
 
