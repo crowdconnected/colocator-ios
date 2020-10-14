@@ -76,6 +76,7 @@ public func == (lhs: CCRequestMessagingState, rhs: CCRequestMessagingState) -> B
 extension CapabilityState: Equatable {}
 public func == (lhs: CapabilityState, rhs: CapabilityState) -> Bool {
     guard compareOptionals(lhs: lhs.locationAuthStatus, rhs: rhs.locationAuthStatus, compare: ==) else { return false }
+    guard compareOptionals(lhs: lhs.locationAccuracyStatus, rhs: rhs.locationAccuracyStatus, compare: ==) else { return false }
     guard compareOptionals(lhs: lhs.bluetoothHardware, rhs: rhs.bluetoothHardware, compare: ==) else { return false }
     guard compareOptionals(lhs: lhs.batteryState, rhs: rhs.batteryState, compare: ==) else { return false }
     guard compareOptionals(lhs: lhs.isLowPowerModeEnabled, rhs: rhs.isLowPowerModeEnabled, compare: ==) else { return false }

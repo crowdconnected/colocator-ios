@@ -22,6 +22,13 @@ extension CCRequestMessaging {
         }
     }
     
+    func getLocationAccuracyStatus(forAccuracyStatus status: CLAccuracyAuthorization) -> Messaging_IosCapability.AccuracyStatus {
+        switch status {
+        case .fullAccuracy: return Messaging_IosCapability.AccuracyStatus.precise
+        case .reducedAccuracy: return Messaging_IosCapability.AccuracyStatus.approximate
+        }
+    }
+    
     func getBluetoothStatus(forBluetoothState state: CBCentralManagerState) -> Messaging_IosCapability.BluetoothHardware {
         switch state {
         case .poweredOff: return Messaging_IosCapability.BluetoothHardware.off

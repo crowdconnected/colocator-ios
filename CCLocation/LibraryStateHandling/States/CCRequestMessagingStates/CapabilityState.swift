@@ -12,6 +12,7 @@ import CoreBluetooth
 
 public struct CapabilityState: StateType, AutoEquatable {
     var locationAuthStatus: CLAuthorizationStatus?
+    var locationAccuracyStatus: CLAccuracyAuthorization?
     var bluetoothHardware: CBCentralManagerState?
     var batteryState: UIDevice.BatteryState?
     var isLowPowerModeEnabled: Bool?
@@ -19,6 +20,7 @@ public struct CapabilityState: StateType, AutoEquatable {
     var isMotionAndFitnessAvailable: Bool?
     
     init(locationAuthStatus: CLAuthorizationStatus?,
+         locationAccuracyStatus: CLAccuracyAuthorization?,
          bluetoothHardware: CBCentralManagerState?,
          batteryState: UIDevice.BatteryState?,
          isLowPowerModeEnabled: Bool?,
@@ -26,6 +28,7 @@ public struct CapabilityState: StateType, AutoEquatable {
          isMotionAndFitnessEnabled: Bool?) {
         
         self.locationAuthStatus = locationAuthStatus
+        self.locationAccuracyStatus = locationAccuracyStatus
         self.bluetoothHardware = bluetoothHardware
         self.batteryState = batteryState
         self.isLowPowerModeEnabled = isLowPowerModeEnabled

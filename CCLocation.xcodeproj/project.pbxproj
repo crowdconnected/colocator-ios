@@ -117,8 +117,8 @@
 		AA4AE87F2497C05A00F9E954 /* EIDReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA4AE87E2497C05A00F9E954 /* EIDReducer.swift */; };
 		AA4AE8812497C1E200F9E954 /* EIDActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA4AE8802497C1E200F9E954 /* EIDActions.swift */; };
 		AA4AE8832497D60D00F9E954 /* EIDGeneratorManager+StoreSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA4AE8822497D60D00F9E954 /* EIDGeneratorManager+StoreSubscriber.swift */; };
-		AA9954EC2498E2C300C0F91F /* MessagingProtocol.proto in Sources */ = {isa = PBXBuildFile; fileRef = AA9954EA2498E2C200C0F91F /* MessagingProtocol.proto */; };
-		AADEF4C3249A124D0043C0AF /* MessagingProtocol.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = AADEF4C2249A124D0043C0AF /* MessagingProtocol.pb.swift */; };
+		AAF49310253781C3001ACFF9 /* MessagingProtocol.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAF4930E253781C3001ACFF9 /* MessagingProtocol.pb.swift */; };
+		AAF49311253781C4001ACFF9 /* MessagingProtocol.proto in Sources */ = {isa = PBXBuildFile; fileRef = AAF4930F253781C3001ACFF9 /* MessagingProtocol.proto */; };
 		BC0647AF218757A500555512 /* CCBeaconScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0647AE218757A500555512 /* CCBeaconScanner.swift */; };
 		BC0647B1218757B900555512 /* CCEddystone.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0647B0218757B900555512 /* CCEddystone.swift */; };
 		BC0647B5218757E200555512 /* DispatchTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0647B4218757E200555512 /* DispatchTimer.swift */; };
@@ -268,8 +268,8 @@
 		AA4AE87E2497C05A00F9E954 /* EIDReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EIDReducer.swift; sourceTree = "<group>"; };
 		AA4AE8802497C1E200F9E954 /* EIDActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EIDActions.swift; sourceTree = "<group>"; };
 		AA4AE8822497D60D00F9E954 /* EIDGeneratorManager+StoreSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EIDGeneratorManager+StoreSubscriber.swift"; sourceTree = "<group>"; };
-		AA9954EA2498E2C200C0F91F /* MessagingProtocol.proto */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.protobuf; path = MessagingProtocol.proto; sourceTree = "<group>"; };
-		AADEF4C2249A124D0043C0AF /* MessagingProtocol.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingProtocol.pb.swift; sourceTree = "<group>"; };
+		AAF4930E253781C3001ACFF9 /* MessagingProtocol.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingProtocol.pb.swift; sourceTree = "<group>"; };
+		AAF4930F253781C3001ACFF9 /* MessagingProtocol.proto */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.protobuf; path = MessagingProtocol.proto; sourceTree = "<group>"; };
 		BC0647AE218757A500555512 /* CCBeaconScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CCBeaconScanner.swift; path = CCLocation/CCBeaconScanner.swift; sourceTree = SOURCE_ROOT; };
 		BC0647B0218757B900555512 /* CCEddystone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CCEddystone.swift; sourceTree = "<group>"; };
 		BC0647B4218757E200555512 /* DispatchTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchTimer.swift; sourceTree = "<group>"; };
@@ -552,8 +552,8 @@
 		F0AF0C3A1DB3912700E72E76 /* CCLocation */ = {
 			isa = PBXGroup;
 			children = (
-				AADEF4C2249A124D0043C0AF /* MessagingProtocol.pb.swift */,
-				AA9954EA2498E2C200C0F91F /* MessagingProtocol.proto */,
+				AAF4930E253781C3001ACFF9 /* MessagingProtocol.pb.swift */,
+				AAF4930F253781C3001ACFF9 /* MessagingProtocol.proto */,
 				F0AF0C3C1DB3912700E72E76 /* Info.plist */,
 				4FBB8A9B1F30CAE200DEF04F /* SourceryTemplates */,
 				BC0647AD2187578C00555512 /* eddyStone */,
@@ -807,6 +807,7 @@
 				4FBB8A8D1F2F2F6300DEF04F /* BackgroundGEOActions.swift in Sources */,
 				975C8E03230BF7E700A48FE9 /* CurrentGeofencesMonitoringReducer.swift in Sources */,
 				97044505230BE76C001B2815 /* CurrentGeofencesMonitoringState.swift in Sources */,
+				AAF49310253781C3001ACFF9 /* MessagingProtocol.pb.swift in Sources */,
 				4F8FFD7F1F2C74940001910A /* LifecycleState.swift in Sources */,
 				970ACF3B22D894DD00317525 /* ColocatorManager.swift in Sources */,
 				97FF65E3230E9C9D00C50D52 /* CreateTableStatements.swift in Sources */,
@@ -815,12 +816,12 @@
 				97FF65E5230E9CEB00C50D52 /* SQLiteErrors.swift in Sources */,
 				4F222B1E1F90F17F00FB11BD /* BatteryLevelActions.swift in Sources */,
 				4F648D672051A38D0043175F /* SQLiteDatabase.swift in Sources */,
+				AAF49311253781C4001ACFF9 /* MessagingProtocol.proto in Sources */,
 				4FBB8AB61F32089400DEF04F /* CurrentiBeaconMonitoringState.swift in Sources */,
 				4FBB8AB41F311D3400DEF04F /* BackgroundBeaconActions.swift in Sources */,
 				97036DCC22CE4D50005A8322 /* CCLocationManager+DatabaseOperations.swift in Sources */,
 				4F8FFD871F2C809E0001910A /* WebSocketAction.swift in Sources */,
 				4FBB8AAE1F31149300DEF04F /* ForegroundBeaconReducer.swift in Sources */,
-				AADEF4C3249A124D0043C0AF /* MessagingProtocol.pb.swift in Sources */,
 				4FBB8AB21F311D2000DEF04F /* ForegroundBeaconActions.swift in Sources */,
 				4F8FFD931F2CE38E0001910A /* CurrentGEOState.swift in Sources */,
 				4FBB8AB01F3114B300DEF04F /* BackgroundiBeaconReducer.swift in Sources */,
@@ -844,7 +845,6 @@
 				97FF65EB230EA10100C50D52 /* SQLiteDatabase+Get.swift in Sources */,
 				AA4AE8792497BE9900F9E954 /* EIDState.swift in Sources */,
 				9702361022CCBDAB00D559A8 /* CCRequestMessaging+SendMessages.swift in Sources */,
-				AA9954EC2498E2C300C0F91F /* MessagingProtocol.proto in Sources */,
 				97FF65E0230E9A9700C50D52 /* DatabaseStructures.swift in Sources */,
 				4F03E1A41F9D30BF0023EEC2 /* CapabilityActions.swift in Sources */,
 				4F8FFD991F2CEC9E0001910A /* CurrentGEOSettingsAction.swift in Sources */,
@@ -911,6 +911,7 @@
 				DYLIB_CURRENT_VERSION = 2.0.3;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -974,6 +975,7 @@
 				DYLIB_CURRENT_VERSION = 2.0.3;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;

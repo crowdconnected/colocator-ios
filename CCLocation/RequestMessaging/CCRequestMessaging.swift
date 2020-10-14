@@ -128,6 +128,7 @@ class CCRequestMessaging: NSObject {
     // Capabilities are reported to the server when the connection is established and when at least one of them is changed
     // Be it a permission, a module state or device's battery state
     public func processIOSCapability(locationAuthStatus: CLAuthorizationStatus?,
+                                     locationAccuracyStatus: CLAccuracyAuthorization?,
                                      bluetoothHardware: CBCentralManagerState?,
                                      batteryState: UIDevice.BatteryState?,
                                      isLowPowerModeEnabled: Bool?,
@@ -147,6 +148,9 @@ class CCRequestMessaging: NSObject {
         }
         if let locationAuthStatus = locationAuthStatus {
             capabilityMessage.locationAuthStatus = getLocationAuthStatus(forAuthorisationStatus: locationAuthStatus)
+        }
+        if let locationAccuracyStatus = locationAccuracyStatus {
+            capabilityMessage.accuracyStatus = getLocationAccuracyStatus(forAccuracyStatus: locationAccuracyStatus)
         }
         if let bluetoothHardware = bluetoothHardware {
             capabilityMessage.bluetoothHardware = getBluetoothStatus(forBluetoothState: bluetoothHardware)

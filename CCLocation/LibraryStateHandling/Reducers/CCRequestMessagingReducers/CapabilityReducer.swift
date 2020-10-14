@@ -13,6 +13,7 @@ import CoreLocation
 struct CapabilityReducerConstants {
     static let userDefaultsCapabilityKey = "userDefaultsCapabilityKey"
     static let locationAuthStatus = "locationAuthStatus"
+    static let locationAccuracyStatus = "locationAccuracyStatus"
     static let bluetoothHardware = "bluetoothHardware"
     static let batteryState = "batteryState"
     static let isLowPowerModeEnabled = "isLowPowerModeEnabled"
@@ -24,7 +25,7 @@ private typealias C = CapabilityReducerConstants
 
 func capabilityReducer (action: Action, state: CapabilityState?) -> CapabilityState {
     
-    var state = CapabilityState(locationAuthStatus: CLAuthorizationStatus.notDetermined, bluetoothHardware: CBCentralManagerState.unknown, batteryState: UIDevice.BatteryState.unknown, isLowPowerModeEnabled: false, isLocationServicesEnabled: false, isMotionAndFitnessEnabled: nil)
+    var state = CapabilityState(locationAuthStatus: CLAuthorizationStatus.notDetermined, locationAccuracyStatus: nil, bluetoothHardware: CBCentralManagerState.unknown, batteryState: UIDevice.BatteryState.unknown, isLowPowerModeEnabled: false, isLocationServicesEnabled: false, isMotionAndFitnessEnabled: nil)
     
     if let loadedCapabilityState = getCapabilityStateFromUserDefaults() {
         state = loadedCapabilityState
@@ -48,6 +49,10 @@ func capabilityReducer (action: Action, state: CapabilityState?) -> CapabilitySt
         
     case let isMotionAndFitnessEnabled as IsMotionAndFitnessEnabledAction:
         state.isMotionAndFitnessAvailable = isMotionAndFitnessEnabled.isMotionAndFitnessEnabled
+        
+    case let locationAccuracyStatusChangedAction as LocationAccuracyStatusChangedAction:
+        state.locationAccuracyStatus = locationAccuracyStatusChangedAction.locationAccuracyStatus
+
     default: break
     }
 
@@ -63,14 +68,17 @@ func getCapabilityStateFromUserDefaults () -> CapabilityState? {
     
     if dictionary != nil {
         
-        var locationAuthStatus:CLAuthorizationStatus?
-        var bluetoothHardware:CBCentralManagerState?
-        var batteryState:UIDevice.BatteryState?
+        var locationAuthStatus: CLAuthorizationStatus?
+        var locationAccuracyStatus: CLAccuracyAuthorization?
+        var bluetoothHardware: CBCentralManagerState?
+        var batteryState: UIDevice.BatteryState?
         
         if let authStateRaw = dictionary?[C.locationAuthStatus] {
             locationAuthStatus = CLAuthorizationStatus(rawValue: authStateRaw as! Int32)
         }
-
+        if let accuracyStatusRaw = dictionary?[C.locationAccuracyStatus] {
+            locationAccuracyStatus = CLAccuracyAuthorization(rawValue: accuracyStatusRaw as! Int)
+        }
         if let bluetoothHardwareRaw = dictionary?[C.bluetoothHardware] {
             bluetoothHardware = CBCentralManagerState(rawValue: bluetoothHardwareRaw as! Int)
         }
@@ -78,7 +86,13 @@ func getCapabilityStateFromUserDefaults () -> CapabilityState? {
             batteryState = UIDevice.BatteryState(rawValue: batteryStateRaw as! Int)
         }
 
-        return CapabilityState(locationAuthStatus: locationAuthStatus, bluetoothHardware: bluetoothHardware, batteryState: batteryState, isLowPowerModeEnabled: dictionary?[C.isLowPowerModeEnabled] as? Bool, isLocationServicesEnabled: dictionary?[C.isLocationServicesEnabled] as? Bool, isMotionAndFitnessEnabled: dictionary?[C.isMotionAndFitnessEnabled] as? Bool)
+        return CapabilityState(locationAuthStatus: locationAuthStatus,
+                               locationAccuracyStatus: locationAccuracyStatus,
+                               bluetoothHardware: bluetoothHardware,
+                               batteryState: batteryState,
+                               isLowPowerModeEnabled: dictionary?[C.isLowPowerModeEnabled] as? Bool,
+                               isLocationServicesEnabled: dictionary?[C.isLocationServicesEnabled] as? Bool,
+                               isMotionAndFitnessEnabled: dictionary?[C.isMotionAndFitnessEnabled] as? Bool)
     } else {
         return nil
     }
@@ -116,6 +130,10 @@ func saveCapabilityStateToUserDefaults (capabilityState: CapabilityState?){
     
     if let locationAuthStatus = capabilityState.locationAuthStatus {
         dictionary[C.locationAuthStatus] = locationAuthStatus.rawValue
+    }
+    
+    if let locationAccuracyStatus = capabilityState.locationAccuracyStatus {
+        dictionary[C.locationAccuracyStatus] = Int32(locationAccuracyStatus.rawValue)
     }
     
     userDefaults.set(dictionary, forKey: C.userDefaultsCapabilityKey)

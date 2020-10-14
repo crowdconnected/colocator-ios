@@ -372,12 +372,17 @@ message IosCapability {
         CHARGING = 3;
         FULL = 4;
     }
+    enum AccuracyStatus {
+        PRECISE = 1;
+        APPROXIMATE = 2;
+    }
     optional bool locationServices = 1;
     optional LocationAuthStatus locationAuthStatus = 2;
     optional BluetoothHardware bluetoothHardware = 3;
     optional BatteryState batteryState = 4;
     optional bool lowPowerMode = 5;
     optional bool motionAndFitness = 6;
+    optional AccuracyStatus accuracyStatus = 7;
 }
 
 message AliasMessage {
