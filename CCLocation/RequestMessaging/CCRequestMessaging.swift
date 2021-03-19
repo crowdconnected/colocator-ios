@@ -20,7 +20,7 @@ class CCRequestMessaging: NSObject {
     }
     
     weak var ccSocket: CCSocket?
-    weak var stateStore: Store<LibraryState>!
+    weak var stateStore: Store<LibraryState>?
     weak var timeHandling: TimeHandling!
     
     var currentRadioSilenceTimerState: TimerState?
@@ -78,9 +78,12 @@ class CCRequestMessaging: NSObject {
         // The empty message is ignored
         // The location update is converted in a LocationReponse object and sent to the delegate fo the library
         // The settings are analysed separately (global and ios settings), stored locally and the library state si updated to match them
-        
-        processGlobalSettings(serverMessage: serverMessage, store: stateStore)
-        processIosSettings(serverMessage: serverMessage, store: stateStore)
+
+        if stateStore != nil {
+            processGlobalSettings(serverMessage: serverMessage, store: stateStore!)
+            processIosSettings(serverMessage: serverMessage, store: stateStore!)
+        }
+
         processLocationResponseMessages(serverMessage: serverMessage)
     }
     
@@ -170,24 +173,30 @@ class CCRequestMessaging: NSObject {
     // MARK: - STATE HANDLING FUNCTIONS
     
     public func webSocketDidOpen() {
-        DispatchQueue.main.async {
-            if self.stateStore == nil { return }
-            self.stateStore.dispatch(WebSocketAction(connectionState: ConnectionState.online))
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else {
+                return
+            }
+
+            self.stateStore?.dispatch(WebSocketAction(connectionState: ConnectionState.online))
         }
     }
     
     public func webSocketDidClose() {
-        DispatchQueue.main.async {
-            if self.stateStore == nil { return }
-            self.stateStore.dispatch(WebSocketAction(connectionState: ConnectionState.offline))
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else {
+                return
+            }
+
+            self.stateStore?.dispatch(WebSocketAction(connectionState: ConnectionState.offline))
         }
     }
     
     // MARK: - HIGH LEVEL SEND CLIENT MESSAGE DATA
     
     func sendOrQueueClientMessage(data: Data, messageType: MessageType) {
-        let connectionState = stateStore.state.ccRequestMessagingState.webSocketState?.connectionState
-        let timeBetweenSends = stateStore.state.ccRequestMessagingState.radiosilenceTimerState?.timeInterval
+        let connectionState = stateStore?.state.ccRequestMessagingState.webSocketState?.connectionState
+        let timeBetweenSends = stateStore?.state.ccRequestMessagingState.radiosilenceTimerState?.timeInterval
         
         sendOrQueueClientMessage(data: data,
                                  messageType: messageType,
@@ -235,17 +244,17 @@ class CCRequestMessaging: NSObject {
     // sendQueuedClientMessage for timeBetweenSendsTimer firing
     @objc internal func sendQueuedClientMessagesTimerFired() {
         Log.verbose("Flushing queued messages")
-        if stateStore != nil {
-            if stateStore.state.ccRequestMessagingState.webSocketState?.connectionState == .online {
-                self.sendQueuedClientMessages(firstMessage: nil)
-            }
+
+        if stateStore?.state.ccRequestMessagingState.webSocketState?.connectionState == .online {
+            self.sendQueuedClientMessages(firstMessage: nil)
         }
     }
     
     func sendQueuedMessagesAndStopTimer() {
-        if stateStore.state.ccRequestMessagingState.webSocketState?.connectionState == .online {
+        if stateStore?.state.ccRequestMessagingState.webSocketState?.connectionState == .online {
             self.sendQueuedClientMessages(firstMessage: nil)
         }
+
         timeBetweenSendsTimer?.invalidate()
         timeBetweenSendsTimer = nil
     }
@@ -255,15 +264,20 @@ class CCRequestMessaging: NSObject {
         sendQueuedClientMessagesTimerFired()
         
         // now we simply resume the normal timer
-        DispatchQueue.main.async {
-            if self.stateStore == nil { return }
-            self.stateStore.dispatch(ScheduleSilencePeriodTimerAction())
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else {
+                return
+            }
+
+            self.stateStore?.dispatch(ScheduleSilencePeriodTimerAction())
         }
     }
     
     func stop() {
         NotificationCenter.default.removeObserver(self)
-        stateStore.unsubscribe(self)
+
+        stateStore?.unsubscribe(self)
+
         killTimeBetweenSendsTimer()
         
         timeHandling.delegate = nil
@@ -297,22 +311,28 @@ extension CCRequestMessaging: TimeHandlingDelegate {
             LastRebootTime \(lastRebootTime)
             """)
         
-        DispatchQueue.main.async {
-            if self.stateStore == nil { return }
-            self.stateStore.dispatch(NewTruetimeReceivedAction(lastTrueTime: trueTime,
-                                                               bootTimeIntervalAtLastTrueTime: timeIntervalSinceBootTime,
-                                                               systemTimeAtLastTrueTime: systemTime,
-                                                               lastRebootTime: lastRebootTime))
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else {
+                return
+            }
+
+            self.stateStore?.dispatch(NewTruetimeReceivedAction(lastTrueTime: trueTime,
+                                                                bootTimeIntervalAtLastTrueTime: timeIntervalSinceBootTime,
+                                                                systemTimeAtLastTrueTime: systemTime,
+                                                                lastRebootTime: lastRebootTime))
         }
         
-        guard let radioSilenceTimerState = stateStore.state.ccRequestMessagingState.radiosilenceTimerState else {
+        guard let radioSilenceTimerState = stateStore?.state.ccRequestMessagingState.radiosilenceTimerState else {
             return
         }
         
         if radioSilenceTimerState.timer == .stopped && radioSilenceTimerState.startTimeInterval != nil {
-            DispatchQueue.main.async {
-                if self.stateStore == nil { return }
-                self.stateStore.dispatch(ScheduleSilencePeriodTimerAction())
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else {
+                    return
+                }
+
+                self.stateStore?.dispatch(ScheduleSilencePeriodTimerAction())
             }
         }
     }

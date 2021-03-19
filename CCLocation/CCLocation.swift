@@ -69,10 +69,14 @@ internal struct Constants {
             )
             
             colocatorManager = ColocatorManager.sharedInstance
+            guard let stateStore = stateStore else {
+                Log.severe("State store is nil when the library starts")
+                return
+            }
             colocatorManager?.start(urlString: tempUrlString,
                                     apiKey: apiKey,
                                     ccLocation: self,
-                                    stateStore: stateStore!)
+                                    stateStore: stateStore)
         } else {
             NSLog("[Colocator] already running: Colocator start method called more than once in a row")
         }

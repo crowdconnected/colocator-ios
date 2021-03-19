@@ -70,19 +70,19 @@ class ColocatorManager {
         
             ccSocket = CCSocket.sharedInstance
             ccSocket!.delegate = ccLocation
-            
-            ccLocationManager = CCLocationManager(stateStore: self.state!)
+
+            ccLocationManager = CCLocationManager(stateStore: stateStore)
             ccLocationManager!.delegate = self
             
-            ccInertial = CCInertial(stateStore: self.state!)
+            ccInertial = CCInertial(stateStore: stateStore)
             ccInertial!.delegate = self
 
-            ccEidGenerator = EIDGeneratorManager(stateStore: self.state!)
-            ccContactTracing = ContactTracing(stateStore: self.state!)
+            ccEidGenerator = EIDGeneratorManager(stateStore: stateStore)
+            ccContactTracing = ContactTracing(stateStore: stateStore)
             ccContactTracing?.eidGenerator = ccEidGenerator
             ccContactTracing?.delegate = self
             
-            ccRequestMessaging = CCRequestMessaging(ccSocket: ccSocket!, stateStore: state!)
+            ccRequestMessaging = CCRequestMessaging(ccSocket: ccSocket!, stateStore: stateStore)
             
             Log.info("[Colocator] Attempt to connect to back-end with URL: \(urlString) and APIKey: \(apiKey)")
                        

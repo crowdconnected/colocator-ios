@@ -166,7 +166,7 @@ extension CCRequestMessaging {
         if beaconSettings.hasBackgroundRanging {
             configureBeaconRanging(forAppState: .background, beaconSettings: beaconSettings, store: store)
         } else {
-            DispatchQueue.main.async {self.stateStore.dispatch(DisableBackgroundiBeaconAction())}
+            DispatchQueue.main.async {store.dispatch(DisableBackgroundiBeaconAction())}
         }
     }
     
@@ -184,8 +184,7 @@ extension CCRequestMessaging {
             interval = inertialSettings.interval
         }
        
-        DispatchQueue.main.async {self.stateStore.dispatch(InertialStateChangedAction(isEnabled: isInertialEnable,
-                                                                                                 interval: interval))}
+        DispatchQueue.main.async {store.dispatch(InertialStateChangedAction(isEnabled: isInertialEnable, interval: interval))}
     }
     
     // Updating Contact Settings

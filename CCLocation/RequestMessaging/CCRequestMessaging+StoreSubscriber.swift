@@ -59,13 +59,15 @@ extension CCRequestMessaging: StoreSubscriber {
         currentRadioSilenceTimerState = newState
         
         // Covers case were app starts from terminated and no timer is available yet
-        if timeBetweenSendsTimer == nil && timeHandling.isRebootTimeSame(stateStore: stateStore, ccSocket: ccSocket) {
+        if let stateStore = stateStore, timeBetweenSendsTimer == nil && timeHandling.isRebootTimeSame(stateStore: stateStore, ccSocket: ccSocket) {
             Log.verbose("RadioSilence timeBetweenSendsTimer is nil, scheduling new timer")
             
-            DispatchQueue.main.async {
-                if self.stateStore != nil {
-                    self.stateStore.dispatch(ScheduleSilencePeriodTimerAction())
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else {
+                    return
                 }
+
+                self.stateStore?.dispatch(ScheduleSilencePeriodTimerAction())
             }
         }
         
@@ -81,10 +83,12 @@ extension CCRequestMessaging: StoreSubscriber {
             timeBetweenSendsTimer?.invalidate()
             timeBetweenSendsTimer = nil
             
-            DispatchQueue.main.async {
-                if self.stateStore != nil {
-                    self.stateStore.dispatch(TimerStoppedAction())
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else {
+                    return
                 }
+
+                self.stateStore?.dispatch(TimerStoppedAction())
             }
         }
     }
@@ -108,10 +112,12 @@ extension CCRequestMessaging: StoreSubscriber {
                                                              selector: #selector(self.sendQueuedClientMessagesTimerFiredOnce),
                                                              userInfo: nil,
                                                              repeats: false)
-                DispatchQueue.main.async {
-                    if self.stateStore != nil {
-                        self.stateStore.dispatch(TimerRunningAction(startTimeInterval: nil))
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else {
+                        return
                     }
+
+                    self.stateStore?.dispatch(TimerRunningAction(startTimeInterval: nil))
                 }
                 return
             }
@@ -127,10 +133,12 @@ extension CCRequestMessaging: StoreSubscriber {
                                                      selector: #selector(self.sendQueuedClientMessagesTimerFired),
                                                      userInfo: nil,
                                                      repeats: true)
-        DispatchQueue.main.async {
-            if self.stateStore != nil {
-                self.stateStore.dispatch(TimerRunningAction(startTimeInterval: TimeHandling.timeIntervalSinceBoot()))
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else {
+                return
             }
+
+            self.stateStore?.dispatch(TimerRunningAction(startTimeInterval: TimeHandling.timeIntervalSinceBoot()))
         }
     }
 }

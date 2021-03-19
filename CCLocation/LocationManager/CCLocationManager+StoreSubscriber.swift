@@ -15,24 +15,26 @@ import ReSwift
 extension CCLocationManager: StoreSubscriber {
     
     public func newState(state: CurrentLocationState) {
-        let wakeUpState = stateStore.state.locationSettingsState.currentLocationState?.wakeupState?.ccWakeup
+        let wakeUpState = stateStore?.state.locationSettingsState.currentLocationState?.wakeupState?.ccWakeup
         let isWakeUpNotification = wakeUpState == CCWakeup.notifyWakeup
         
         // Geo State
         
-        let newGEOState = state.currentGEOState
-        if (newGEOState != nil && newGEOState != self.currentGEOState) || isWakeUpNotification {
+
+        if let newGEOState = state.currentGEOState,
+           (newGEOState != self.currentGEOState || isWakeUpNotification) {
             Log.verbose("New GEOState \n \(String(describing: newGEOState))")
                 
             self.currentGEOState = newGEOState
-            updateSignificantUpdatesForGEOState(newGEOState!)
-            updateGEOState(newGEOState!)
+            updateSignificantUpdatesForGEOState(newGEOState)
+            updateGEOState(newGEOState)
         }
         
         // Geofence State
         
-        let newGeofencesState = state.currentGeofencesMonitoringState
-        if newGeofencesState != nil && newGeofencesState != self.currentGeofencesMonitoringState {
+
+        if let newGeofencesState = state.currentGeofencesMonitoringState,
+           newGeofencesState != self.currentGeofencesMonitoringState {
             Log.verbose("New GeofencesMonitoringState \n \(String(describing: newGeofencesState))")
             
             self.currentGeofencesMonitoringState = newGeofencesState
@@ -41,8 +43,9 @@ extension CCLocationManager: StoreSubscriber {
         
         // Beacon Monitoring State
         
-        let newiBeaconMonitoringState = state.currentiBeaconMonitoringState
-        if  newiBeaconMonitoringState != nil && newiBeaconMonitoringState != self.currentiBeaconMonitoringState {
+
+        if let newiBeaconMonitoringState = state.currentiBeaconMonitoringState,
+           newiBeaconMonitoringState != self.currentiBeaconMonitoringState {
             Log.verbose("New iBeaconMonitoringState \n \(String(describing: newiBeaconMonitoringState))")
 
             self.currentiBeaconMonitoringState = newiBeaconMonitoringState
@@ -51,8 +54,9 @@ extension CCLocationManager: StoreSubscriber {
         
         // Beacon State
 
-        let newBeaconState = state.currentBeaconState
-        if (newBeaconState != nil && newBeaconState != currentBeaconState) || isWakeUpNotification {
+
+        if let newBeaconState = state.currentBeaconState,
+           (newBeaconState != currentBeaconState || isWakeUpNotification) {
             Log.verbose("New BeaconState \n \(String(describing: newBeaconState))")
             
             currentBeaconState = newBeaconState
@@ -72,15 +76,18 @@ extension CCLocationManager: StoreSubscriber {
         
         // WakeUp State
         
-        let newWakeupNotificationState = state.wakeupState
-        if  newWakeupNotificationState != nil && newWakeupNotificationState != wakeupState {
+
+        if let newWakeupNotificationState = state.wakeupState,
+           newWakeupNotificationState != wakeupState {
             Log.verbose("New WakeUpState \n \(String(describing: newWakeupNotificationState))")
             
             wakeupState = newWakeupNotificationState
             if wakeupState.ccWakeup == CCWakeup.notifyWakeup {
-                DispatchQueue.main.async {
-                    if self.stateStore == nil { return }
-                    self.stateStore.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.idle))
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else {
+                        return
+                    }
+                    self.stateStore?.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.idle))
                 }
             }
         }
@@ -133,9 +140,11 @@ extension CCLocationManager: StoreSubscriber {
         if let offTime = newGEOState.offTime {
             if offTime <= Date() {
                 Log.debug("GeoTimer offTime passed and reset to nil")
-                DispatchQueue.main.async {
-                    if self.stateStore == nil { return }
-                    self.stateStore.dispatch(SetGEOOffTimeEnd(offTimeEnd: nil))
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else {
+                        return
+                    }
+                    self.stateStore?.dispatch(SetGEOOffTimeEnd(offTimeEnd: nil))
                 }
             }
             
@@ -180,9 +189,11 @@ extension CCLocationManager: StoreSubscriber {
         }
       
         if newGEOState.offTime != nil {
-            DispatchQueue.main.async {
-                if self.stateStore == nil { return }
-                self.stateStore.dispatch(SetGEOOffTimeEnd(offTimeEnd: nil))
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else {
+                    return
+                }
+                self.stateStore?.dispatch(SetGEOOffTimeEnd(offTimeEnd: nil))
             }
         }
     }

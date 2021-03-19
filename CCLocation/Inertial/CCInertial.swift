@@ -42,29 +42,31 @@ class CCInertial: NSObject {
         return queue
     }()
 
-    var currentInertialState: InertialState!
-    weak var stateStore: Store<LibraryState>!
+    var currentInertialState: InertialState
+    weak var stateStore: Store<LibraryState>?
     public weak var delegate: CCInertialDelegate?
     
     init(stateStore: Store<LibraryState>) {
+        currentInertialState = InertialState(isEnabled: false, interval: 0)
         super.init()
         
         self.stateStore = stateStore
-        currentInertialState = InertialState(isEnabled: false, interval: 0)
         stateStore.subscribe(self)
     }
     
     public func updateFitnessAndMotionStatus() {
         // The 5 seconds time frame is the estimated time (+ margin) for the user to make a choice in granting permission
         // After that the authorization status will be checked, saved and reported as capability to the server
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-            if self.stateStore == nil { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
+            guard let self = self else {
+                return
+            }
+
             if #available(iOS 11.0, *) {
-                if self.stateStore == nil { return }
                 switch CMMotionActivityManager.authorizationStatus() {
-                    case .authorized:  self.stateStore.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: true))
-                    case .restricted, .denied: self.stateStore.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: false))
-                    case .notDetermined: self.stateStore.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: nil))
+                    case .authorized:  self.stateStore?.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: true))
+                    case .restricted, .denied: self.stateStore?.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: false))
+                    case .notDetermined: self.stateStore?.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: nil))
                 }
             } else {
                 // Fallback on earlier versions
@@ -78,16 +80,19 @@ class CCInertial: NSObject {
            
            if pedometerAuthStatus == .authorized || pedometerAuthStatus == .notDetermined {
                Log.info("[Colocator] Starting inertial")
-            
+
                startCountingSteps()
                startMotionUpdates()
                updateFitnessAndMotionStatus()
            } else {
                Log.info("[Colocator] Cannot start inertial due to restricted permission for Motion&Fitness")
             
-               DispatchQueue.main.async {
-                    if self.stateStore == nil { return }
-                    self.stateStore.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: false))
+               DispatchQueue.main.async { [weak self] in
+                    guard let self = self else {
+                        return
+                    }
+
+                    self.stateStore?.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: false))
                }
            }
        } else {
@@ -138,7 +143,7 @@ class CCInertial: NSObject {
                 return
             }
 
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [weak self] in
                 self?.handleDeviceMotionData(data)
             }
         }

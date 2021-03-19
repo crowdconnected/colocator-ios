@@ -101,7 +101,11 @@ extension CCRequestMessaging {
         if location.verticalAccuracy >= 0 {
             locationMessage.altitude = location.altitude
         }
-        
+
+        guard let stateStore = stateStore else {
+            Log.error("State store is nil when instruction using it is processed.")
+            return
+        }
         let trueTimeSame = timeHandling.isRebootTimeSame(stateStore: stateStore, ccSocket: ccSocket)
         
         if stateStore.state.ccRequestMessagingState.libraryTimeState?.lastTrueTime != nil || trueTimeSame {
@@ -157,7 +161,11 @@ extension CCRequestMessaging {
         var stepMessage = Messaging_Step()
         
         stepMessage.angle = angle
-        
+
+        guard let stateStore = stateStore else {
+            Log.error("State store is nil when instruction using it is processed.")
+            return
+        }
         let trueTimeSame = timeHandling.isRebootTimeSame(stateStore: stateStore, ccSocket: ccSocket)
         
         if stateStore.state.ccRequestMessagingState.libraryTimeState?.lastTrueTime != nil || trueTimeSame {
@@ -204,7 +212,11 @@ extension CCRequestMessaging {
         
         contactMessage.eid = EID
         contactMessage.rssi = Int32(RSSI)
-        
+
+        guard let stateStore = stateStore else {
+            Log.error("State store is nil when instruction using it is processed.")
+            return
+        }
         let trueTimeSame = timeHandling.isRebootTimeSame(stateStore: stateStore, ccSocket: ccSocket)
         
         if stateStore.state.ccRequestMessagingState.libraryTimeState?.lastTrueTime != nil || trueTimeSame {
