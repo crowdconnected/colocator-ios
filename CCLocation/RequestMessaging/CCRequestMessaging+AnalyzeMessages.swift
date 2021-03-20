@@ -401,11 +401,7 @@ extension CCRequestMessaging {
                     batteryMessage.battery = batteryLevel
                     newBatteryMessage = batteryMessage
                     DispatchQueue.main.async { [weak self] in
-                        guard let self = self else {
-                            return
-                        }
-
-                        self.stateStore?.dispatch(BatteryLevelReportedAction())
+                        self?.stateStore?.dispatch(BatteryLevelReportedAction())
                     }
                 }
             }

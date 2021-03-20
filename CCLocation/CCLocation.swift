@@ -36,7 +36,7 @@ internal struct Constants {
     
     @objc public weak var delegate: CCLocationDelegate?
     
-    var stateStore: Store<LibraryState>?
+    @Atomic var stateStore: Store<LibraryState>?
     var libraryStarted: Bool?
     var colocatorManager: ColocatorManager?
     
@@ -53,7 +53,7 @@ internal struct Constants {
         if libraryStarted == false {
             libraryStarted = true
             
-            setLoggerLevels(verbose: false, info: false, debug: false, warning: true, error: true, severe: true)
+            setLoggerLevels(verbose: false, info: true, debug: true, warning: true, error: true, severe: true)
             
             NSLog("[Colocator] Initialising Colocator")
             
@@ -62,21 +62,13 @@ internal struct Constants {
             if urlString != nil {
                 tempUrlString = urlString!
             }
-             
-            stateStore = Store<LibraryState> (
-                reducer: libraryReducer,
-                state: nil
-            )
-            
+
             colocatorManager = ColocatorManager.sharedInstance
-            guard let stateStore = stateStore else {
-                Log.severe("State store is nil when the library starts")
-                return
-            }
+            stateStore = Store<LibraryState>(reducer: libraryReducer, state: nil)
             colocatorManager?.start(urlString: tempUrlString,
                                     apiKey: apiKey,
                                     ccLocation: self,
-                                    stateStore: stateStore)
+                                    stateStore: stateStore!)
         } else {
             NSLog("[Colocator] already running: Colocator start method called more than once in a row")
         }

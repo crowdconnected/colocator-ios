@@ -71,9 +71,15 @@ class ColocatorManager {
             ccSocket = CCSocket.sharedInstance
             ccSocket!.delegate = ccLocation
 
-            ccLocationManager = CCLocationManager(stateStore: stateStore)
-            ccLocationManager!.delegate = self
-            
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else {
+                    return
+                }
+                
+                self.ccLocationManager = CCLocationManager(stateStore: stateStore)
+                self.ccLocationManager!.delegate = self
+            }
+
             ccInertial = CCInertial(stateStore: stateStore)
             ccInertial!.delegate = self
 

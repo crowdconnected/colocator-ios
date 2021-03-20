@@ -26,7 +26,7 @@ enum GeofenceEventType: Int {
 
 class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDelegate {
     
-    internal let locationManager = CLLocationManager()
+    internal var locationManager = CLLocationManager()
     internal var eddystoneBeaconScanner: BeaconScanner? = nil
     
     internal var currentGEOState: CurrentGEOState
@@ -87,15 +87,14 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
         super.init()
         
         self.stateStore = stateStore
-        
-        locationManager.delegate = self
+        self.locationManager.delegate = self
         
         stateStore.subscribe(self) {
             $0.select {
                 state in state.locationSettingsState.currentLocationState!
             }
         }
-        
+
         // initial dispatch of location state
         DispatchQueue.main.async {
             stateStore.dispatch(LocationAuthStatusChangedAction(locationAuthStatus: CLLocationManager.authorizationStatus()))

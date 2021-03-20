@@ -64,9 +64,18 @@ class CCInertial: NSObject {
 
             if #available(iOS 11.0, *) {
                 switch CMMotionActivityManager.authorizationStatus() {
-                    case .authorized:  self.stateStore?.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: true))
-                    case .restricted, .denied: self.stateStore?.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: false))
-                    case .notDetermined: self.stateStore?.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: nil))
+                    case .authorized:
+                        DispatchQueue.main.async { [weak self] in
+                            self?.stateStore?.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: true))
+                        }
+                    case .restricted, .denied:
+                        DispatchQueue.main.async { [weak self] in
+                            self?.stateStore?.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: false))
+                        }
+                    case .notDetermined:
+                        DispatchQueue.main.async { [weak self] in
+                            self?.stateStore?.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: nil))
+                        }
                 }
             } else {
                 // Fallback on earlier versions
@@ -88,11 +97,7 @@ class CCInertial: NSObject {
                Log.info("[Colocator] Cannot start inertial due to restricted permission for Motion&Fitness")
             
                DispatchQueue.main.async { [weak self] in
-                    guard let self = self else {
-                        return
-                    }
-
-                    self.stateStore?.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: false))
+                    self?.stateStore?.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: false))
                }
            }
        } else {

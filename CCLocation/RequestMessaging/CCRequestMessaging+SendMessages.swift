@@ -37,12 +37,12 @@ extension CCRequestMessaging {
 
             let maxMessagesToReturn = 100
             let messageNumber = self.getMessageCount()
-            var connectionState = self.stateStore?.state.ccRequestMessagingState.webSocketState?.connectionState
+            var connectionState = self.getStateConnectionState()
 
             Log.verbose ("\(messageNumber) Queued messages are available")
             
             while self.getMessageCount() > 0 && connectionState == .online {
-                connectionState = self.stateStore?.state.ccRequestMessagingState.webSocketState?.connectionState
+                connectionState = self.getStateConnectionState()
                 
                 var compiledClientMessage = Messaging_ClientMessage()
                 var backToQueueMessages = Messaging_ClientMessage()

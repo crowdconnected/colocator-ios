@@ -20,11 +20,7 @@ extension CCRequestMessaging {
         Log.debug("[APP STATE] applicationDidEnterBackground")
         
         DispatchQueue.main.async { [weak self] in
-            guard let self = self else {
-                return
-            }
-
-            self.stateStore?.dispatch(LifeCycleAction(lifecycleState: LifeCycle.background))
+            self?.stateStore?.dispatch(LifeCycleAction(lifecycleState: LifeCycle.background))
         }
     }
     
@@ -36,11 +32,7 @@ extension CCRequestMessaging {
         Log.debug("[APP STATE] applicationDidBecomeActive")
         
         DispatchQueue.main.async { [weak self] in
-            guard let self = self else {
-                return
-            }
-
-            self.stateStore?.dispatch(LifeCycleAction(lifecycleState: LifeCycle.foreground))
+            self?.stateStore?.dispatch(LifeCycleAction(lifecycleState: LifeCycle.foreground))
         }
     }
     
@@ -96,11 +88,7 @@ extension CCRequestMessaging {
         let batteryLevel = UIDevice.current.batteryLevel
         
         DispatchQueue.main.async { [weak self] in
-            guard let self = self else {
-                return
-            }
-
-            self.stateStore?.dispatch(BatteryLevelChangedAction(batteryLevel: UInt32(batteryLevel * 100)))
+            self?.stateStore?.dispatch(BatteryLevelChangedAction(batteryLevel: UInt32(batteryLevel * 100)))
         }
     }
     
@@ -108,11 +96,7 @@ extension CCRequestMessaging {
         let batteryState = UIDevice.current.batteryState
         
         DispatchQueue.main.async { [weak self] in
-            guard let self = self else {
-                return
-            }
-
-            self.stateStore?.dispatch(BatteryStateChangedAction(batteryState: batteryState))
+            self?.stateStore?.dispatch(BatteryStateChangedAction(batteryState: batteryState))
         }
     }
         
@@ -121,11 +105,7 @@ extension CCRequestMessaging {
             let isLowPowerMode = ProcessInfo.processInfo.isLowPowerModeEnabled
             
             DispatchQueue.main.async { [weak self] in
-                guard let self = self else {
-                    return
-                }
-
-                self.stateStore?.dispatch(IsLowPowerModeEnabledAction(isLowPowerModeEnabled: isLowPowerMode))
+                self?.stateStore?.dispatch(IsLowPowerModeEnabledAction(isLowPowerModeEnabled: isLowPowerMode))
             }
         }
     }
