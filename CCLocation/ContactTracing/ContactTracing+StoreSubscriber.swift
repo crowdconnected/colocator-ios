@@ -47,7 +47,9 @@ extension ContactTracing: StoreSubscriber {
     }
     
     private func updateCurrentContactStateActivity(newState: ContactBluetoothState) {
-        stop()
+        if isRunning {
+            stop()
+        }
         
         if newState.isEnabled ?? false {
             start()

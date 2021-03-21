@@ -59,13 +59,11 @@ extension CCRequestMessaging: StoreSubscriber {
         currentRadioSilenceTimerState = newState
         
         // Covers case were app starts from terminated and no timer is available yet
-        if timeBetweenSendsTimer == nil && timeHandling.isRebootTimeSame(stateStore: stateStore, ccSocket: ccSocket) {
+        if let stateStore = stateStore, timeBetweenSendsTimer == nil && timeHandling.isRebootTimeSame(stateStore: stateStore, ccSocket: ccSocket) {
             Log.verbose("RadioSilence timeBetweenSendsTimer is nil, scheduling new timer")
             
-            DispatchQueue.main.async {
-                if self.stateStore != nil {
-                    self.stateStore.dispatch(ScheduleSilencePeriodTimerAction())
-                }
+            DispatchQueue.main.async { [weak self] in
+                self?.stateStore?.dispatch(ScheduleSilencePeriodTimerAction())
             }
         }
         
@@ -81,10 +79,8 @@ extension CCRequestMessaging: StoreSubscriber {
             timeBetweenSendsTimer?.invalidate()
             timeBetweenSendsTimer = nil
             
-            DispatchQueue.main.async {
-                if self.stateStore != nil {
-                    self.stateStore.dispatch(TimerStoppedAction())
-                }
+            DispatchQueue.main.async { [weak self] in
+                self?.stateStore?.dispatch(TimerStoppedAction())
             }
         }
     }
@@ -103,15 +99,18 @@ extension CCRequestMessaging: StoreSubscriber {
             Log.verbose("RadioSilence intervalForLastTimer = \(intervalForLastTimer)")
             
             if intervalForLastTimer < Double(Double(newTimeInterval) / 1000) {
-                timeBetweenSendsTimer = Timer.scheduledTimer(timeInterval: TimeInterval(intervalForLastTimer),
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else {
+                        return
+                    }
+
+                    self.timeBetweenSendsTimer = Timer.scheduledTimer(timeInterval: TimeInterval(intervalForLastTimer),
                                                              target: self,
                                                              selector: #selector(self.sendQueuedClientMessagesTimerFiredOnce),
                                                              userInfo: nil,
                                                              repeats: false)
-                DispatchQueue.main.async {
-                    if self.stateStore != nil {
-                        self.stateStore.dispatch(TimerRunningAction(startTimeInterval: nil))
-                    }
+
+                    self.stateStore?.dispatch(TimerRunningAction(startTimeInterval: nil))
                 }
                 return
             }
@@ -122,15 +121,18 @@ extension CCRequestMessaging: StoreSubscriber {
     }
     
     private func setTimeBetweenSendsAndAction(interval: UInt64) {
-        timeBetweenSendsTimer = Timer.scheduledTimer(timeInterval: TimeInterval(Double(interval) / 1000),
-                                                     target: self,
-                                                     selector: #selector(self.sendQueuedClientMessagesTimerFired),
-                                                     userInfo: nil,
-                                                     repeats: true)
-        DispatchQueue.main.async {
-            if self.stateStore != nil {
-                self.stateStore.dispatch(TimerRunningAction(startTimeInterval: TimeHandling.timeIntervalSinceBoot()))
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else {
+                return
             }
+
+            self.timeBetweenSendsTimer = Timer.scheduledTimer(timeInterval: TimeInterval(Double(interval) / 1000),
+                                                         target: self,
+                                                         selector: #selector(self.sendQueuedClientMessagesTimerFired),
+                                                         userInfo: nil,
+                                                         repeats: true)
+
+            self.stateStore?.dispatch(TimerRunningAction(startTimeInterval: TimeHandling.timeIntervalSinceBoot()))
         }
     }
 }

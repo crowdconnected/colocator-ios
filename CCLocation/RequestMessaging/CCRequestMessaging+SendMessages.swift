@@ -31,14 +31,18 @@ extension CCRequestMessaging {
     // If there are more reports in the database, multiple messages will be sent
     private func sendAllMessagesFromDatabase() {
         DispatchQueue.global(qos: .utility).async { [weak self] in
+            guard let self = self else {
+                return
+            }
+
             let maxMessagesToReturn = 100
-            var connectionState = self?.stateStore.state.ccRequestMessagingState.webSocketState?.connectionState
-            
-            let messageNumber = self?.getMessageCount() ?? -1
+            let messageNumber = self.getMessageCount()
+            var connectionState = self.getStateConnectionState()
+
             Log.verbose ("\(messageNumber) Queued messages are available")
             
-            while self?.getMessageCount() ?? -1 > 0 && connectionState == .online {
-                connectionState = self?.stateStore.state.ccRequestMessagingState.webSocketState?.connectionState
+            while self.getMessageCount() > 0 && connectionState == .online {
+                connectionState = self.getStateConnectionState()
                 
                 var compiledClientMessage = Messaging_ClientMessage()
                 var backToQueueMessages = Messaging_ClientMessage()
@@ -46,22 +50,17 @@ extension CCRequestMessaging {
                 var tempMessageData: [Data]?
                 var subMessageCounter: Int = 0
                 
-                while self?.getMessageCount() ?? -1 > 0 && subMessageCounter < maxMessagesToReturn {
-                    tempMessageData = self?.popMessagesFromLocalDatabase(maxMessagesToReturn: maxMessagesToReturn)
+                while self.getMessageCount() > 0 && subMessageCounter < maxMessagesToReturn {
+                    tempMessageData = self.popMessagesFromLocalDatabase(maxMessagesToReturn: maxMessagesToReturn)
                     
                     if let unwrappedTempMessageData = tempMessageData {
                         for tempMessage in unwrappedTempMessageData {
-                            
                             let (newSubMessageCounter,
                                  newCompiledClientMessage,
-                                 newBackToQueueMessages) = self?.handleMessageType(message: tempMessage,
+                                 newBackToQueueMessages) = self.handleMessageType(message: tempMessage,
                                                                                    subMessageInitialNumber: subMessageCounter,
                                                                                    compiledMessage: compiledClientMessage,
                                                                                    queueMessage: backToQueueMessages)
-                                                            ?? (subMessageCounter,
-                                                                Messaging_ClientMessage(),
-                                                                Messaging_ClientMessage())
-                            
                             subMessageCounter = newSubMessageCounter
                             compiledClientMessage = newCompiledClientMessage
                             backToQueueMessages = newBackToQueueMessages
@@ -69,11 +68,11 @@ extension CCRequestMessaging {
                     }
                 }
                 
-                self?.handleMessageBackToQueue(backToQueueMessages)
+                self.handleMessageBackToQueue(backToQueueMessages)
                 
                 if let data = try? compiledClientMessage.serializedData(), data.count > 0 {
-                    self?.setupSentTime(forMessage: &compiledClientMessage)
-                    self?.sendMessageThroughSocket(compiledClientMessage)
+                    self.setupSentTime(forMessage: &compiledClientMessage)
+                    self.sendMessageThroughSocket(compiledClientMessage)
                 }
             }
         }
@@ -82,17 +81,16 @@ extension CCRequestMessaging {
     // Sending a single message, ignores the databse and creates a client message with the exact data received as parameter
     func sendSingleMessage(_ message: Data) {
         DispatchQueue.global(qos: .utility).async { [weak self] in
-            var (_,
-                 compiledClientMessage,
-                 backToQueueMessage) = self?.handleMessageType(message: message) ?? (0,
-                                                                                     Messaging_ClientMessage(),
-                                                                                     Messaging_ClientMessage())
-            
-            self?.handleMessageBackToQueue(backToQueueMessage)
+            guard let self = self else {
+                return
+            }
+
+            var (_, compiledClientMessage, backToQueueMessage) = self.handleMessageType(message: message)
+            self.handleMessageBackToQueue(backToQueueMessage)
         
             if let data = try? compiledClientMessage.serializedData(), data.count > 0 {
-                self?.setupSentTime(forMessage: &compiledClientMessage)
-                self?.sendMessageThroughSocket(compiledClientMessage)
+                self.setupSentTime(forMessage: &compiledClientMessage)
+                self.sendMessageThroughSocket(compiledClientMessage)
             }
         }
     }
@@ -111,11 +109,11 @@ extension CCRequestMessaging {
     // Every client message requires the true time added as timestamp
     // The local time on the device cannot be used since the data must be correct and uniform across all the devices
     private func setupSentTime(forMessage message: inout Messaging_ClientMessage) {
-        if stateStore == nil {
+        guard let stateStore = stateStore else {
+            Log.error("State store is nil when attempting to insert a beacon in the database")
             return
         }
-        
-        let isRebootTimeSame = self.timeHandling.isRebootTimeSame(stateStore: stateStore, ccSocket: ccSocket)
+        let isRebootTimeSame = timeHandling.isRebootTimeSame(stateStore: stateStore, ccSocket: ccSocket)
         let currentTimePeriod = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore)
         
         if isRebootTimeSame && currentTimePeriod != nil {

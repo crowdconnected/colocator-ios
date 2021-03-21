@@ -60,8 +60,8 @@ class BeaconScanner: NSObject, CBCentralManagerDelegate {
     /// scanning.
     ///
     func startScanning() {
-        beaconOperationsQueue.async {
-            self.startScanningSynchronized()
+        beaconOperationsQueue.async { [weak self] in
+            self?.startScanningSynchronized()
         }
     }
     

@@ -21,9 +21,9 @@ struct SQLiteConstants {
 
 class SQLiteDatabase {
     
-    var messagesBuffer : [CCMessage] = [CCMessage] ()
-    var eddystoneBeaconBuffer : [EddystoneBeacon] = [EddystoneBeacon] ()
-    var ibeaconBeaconBuffer : [Beacon] = [Beacon] ()
+    var messagesBuffer = [CCMessage]()
+    var eddystoneBeaconBuffer = [EddystoneBeacon]()
+    var ibeaconBeaconBuffer = [Beacon]()
     
     weak var messagesBufferClearTimer : Timer?
     let constants = SQLiteConstants.self
@@ -48,11 +48,18 @@ class SQLiteDatabase {
     
     fileprivate init(dbPointer: OpaquePointer?) {
         self.dbPointer = dbPointer
-        messagesBufferClearTimer = Timer.scheduledTimer(timeInterval: TimeInterval(1),
-                                                        target: self,
-                                                        selector: #selector(clearBuffers),
-                                                        userInfo: nil,
-                                                        repeats: true)
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else {
+                return
+            }
+
+            self.messagesBufferClearTimer = Timer.scheduledTimer(timeInterval: TimeInterval(1),
+                                                            target: self,
+                                                            selector: #selector(self.clearBuffers),
+                                                            userInfo: nil,
+                                                            repeats: true)
+        }
     }
     
     deinit {
@@ -91,10 +98,10 @@ class SQLiteDatabase {
         sqlite3_close(dbPointer)
     }
     
-    @objc func clearBuffers() throws {
-        try insertBundlediBeacons()
-        try insertBundledMessages()
-        try insertBundledEddystoneBeacons()
+    @objc func clearBuffers() {
+        insertBundlediBeacons()
+        insertBundledMessages()
+        insertBundledEddystoneBeacons()
     }
 }
 

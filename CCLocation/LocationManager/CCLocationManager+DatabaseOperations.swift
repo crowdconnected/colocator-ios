@@ -97,7 +97,11 @@ extension CCLocationManager {
     }
     
     func insert(beacon: CLBeacon) {
-        
+
+        guard let stateStore = stateStore else {
+            Log.error("State store is nil when attempting to insert a beacon in the database")
+            return
+        }
         if let timeIntervalSinceBoot = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {
             
             do {
@@ -153,7 +157,12 @@ extension CCLocationManager {
     }
     
     func insert(eddystoneBeacon: EddystoneBeaconInfo) {
-        
+
+        guard let stateStore = stateStore else {
+            Log.error("State store is nil when attempting to insert a beacon in the database")
+            return
+        }
+
         if let timeIntervalSinceBoot = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {
             
             do {
@@ -216,7 +225,7 @@ extension CCLocationManager {
                beaconsPerWindow.append(youngestBeaconInWindow!)
            }
            
-           if let maxObservations = stateStore.state.locationSettingsState.currentLocationState?.currentBeaconState?.filterMaxObservations {
+           if let maxObservations = stateStore?.state.locationSettingsState.currentLocationState?.currentBeaconState?.filterMaxObservations {
                
                var sortedValues = beaconsPerWindow.sorted(by: {$0.rssi > $1.rssi})
                
@@ -281,7 +290,7 @@ extension CCLocationManager {
                Log.verbose("Youngest beacon in window: \(String(describing: youngestBeaconInWindow))")
            }
            
-           if let maxObservations = stateStore.state.locationSettingsState.currentLocationState?.currentBeaconState?.filterMaxObservations {
+           if let maxObservations = stateStore?.state.locationSettingsState.currentLocationState?.currentBeaconState?.filterMaxObservations {
                
                var sortedValues = beaconsPerWindow.sorted(by: {$0.rssi > $1.rssi})
                

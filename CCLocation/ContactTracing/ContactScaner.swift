@@ -50,8 +50,8 @@ class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         if scanDuration != nil && scanInterval != nil {
             Log.verbose("Started scanning cycle for \(String(describing: scanDuration)) seconds")
                     
-            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(scanDuration!)) {
-                self.stopScanningCycle()
+            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(scanDuration!)) { [weak self] in
+                self?.stopScanningCycle()
             }
             
         } else {
@@ -66,8 +66,8 @@ class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         
         if self.scannerOn {
             // Used 1 as backup to avoid a crash if scanInterval is set to nil meanwhile
-            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(self.scanInterval ?? 1)) {
-                self.startScanningCycle()
+            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(self.scanInterval ?? 1)) { [weak self] in
+                self?.startScanningCycle()
             }
         }
     }
@@ -236,8 +236,8 @@ class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         let time = Date().timeIntervalSince1970
         
         if let deviceEID = getEIDForPeripheral(peripheral) {
-            DispatchQueue.main.async {
-                self.delegate?.newContact(EID: deviceEID, RSSI: Int(truncating: RSSI), timestamp: time)
+            DispatchQueue.main.async { [weak self] in
+                self?.delegate?.newContact(EID: deviceEID, RSSI: Int(truncating: RSSI), timestamp: time)
             }
         } else {
             Log.debug("No EID found for peripheral identifier \(peripheral.identifier)")
@@ -246,8 +246,8 @@ class ContactScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     
     func handleAndroidContactWith(deviceEID: String, RSSI: NSNumber) {
         let time = Date().timeIntervalSince1970
-        DispatchQueue.main.async {
-            self.delegate?.newContact(EID: deviceEID, RSSI: Int(truncating: RSSI), timestamp: time)
+        DispatchQueue.main.async { [weak self] in
+            self?.delegate?.newContact(EID: deviceEID, RSSI: Int(truncating: RSSI), timestamp: time)
         }
     }
     

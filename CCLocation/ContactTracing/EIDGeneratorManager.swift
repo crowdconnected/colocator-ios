@@ -21,16 +21,16 @@ class EIDGeneratorManager: NSObject {
     internal var renewEIDTimer: Timer? = nil
     private var lastGeneratedEID: Data? = nil
     
-    var currentEIDState: EIDState!
-    weak var stateStore: Store<LibraryState>!
+    var currentEIDState: EIDState
+    weak var stateStore: Store<LibraryState>?
     
     init(stateStore: Store<LibraryState>) {
-        super.init()
-        
-        self.stateStore = stateStore
         currentEIDState = EIDState(secret: "",
                                    k: 0,
                                    clockOffset: 0)
+        super.init()
+        
+        self.stateStore = stateStore
         stateStore.subscribe(self)
     }
     

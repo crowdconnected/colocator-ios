@@ -82,7 +82,7 @@ class TimeHandling {
         })
     }
 
-    func isRebootTimeSame (stateStore: Store<LibraryState>, ccSocket: CCSocket?) -> Bool {
+    func isRebootTimeSame(stateStore: Store<LibraryState>, ccSocket: CCSocket?) -> Bool {
         guard !isFetchingTrueTime else {
             return false
         }

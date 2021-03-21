@@ -29,11 +29,11 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
     internal let locationManager = CLLocationManager()
     internal var eddystoneBeaconScanner: BeaconScanner? = nil
     
-    internal var currentGEOState: CurrentGEOState!
-    internal var currentGeofencesMonitoringState: CurrentGeofencesMonitoringState!
-    internal var currentBeaconState: CurrentBeaconState!
-    internal var currentiBeaconMonitoringState: CurrentiBeaconMonitoringState!
-    internal var wakeupState: WakeupState!
+    internal var currentGEOState: CurrentGEOState
+    internal var currentGeofencesMonitoringState: CurrentGeofencesMonitoringState
+    internal var currentBeaconState: CurrentBeaconState
+    internal var currentiBeaconMonitoringState: CurrentiBeaconMonitoringState
+    internal var wakeupState: WakeupState
     
     internal var maxRunGEOTimer: Timer?
     internal var maxBeaconRunTimer: Timer?
@@ -50,7 +50,7 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
     
     public weak var delegate: CCLocationManagerDelegate?
     
-    weak var stateStore: Store<LibraryState>!
+    weak var stateStore: Store<LibraryState>?
     
     // Initial value has to be true, otherwise after force quiting the app, the location manager will never start collecting all the data again
     var isWaitingForSignificantUpdates = true
@@ -61,10 +61,6 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
     #endif
     
     public init(stateStore: Store<LibraryState>) {
-        super.init()
-        
-        self.stateStore = stateStore
-        
         currentGEOState = CurrentGEOState(isInForeground: nil,
                                           activityType: nil,
                                           maxRuntime: nil,
@@ -74,10 +70,6 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
                                           pausesUpdates: nil,
                                           isSignificantUpdates: nil,
                                           isStandardGEOEnabled: nil)
-        
-        currentGeofencesMonitoringState = CurrentGeofencesMonitoringState(monitoringGeofences: [])
-        currentiBeaconMonitoringState = CurrentiBeaconMonitoringState(monitoringRegions: [])
-        
         currentBeaconState = CurrentBeaconState(isIBeaconEnabled: nil,
                                                 isInForeground: nil,
                                                 maxRuntime: nil,
@@ -89,23 +81,24 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
                                                 offTime: nil,
                                                 maxOnTimeStart: nil,
                                                 eddystoneScanEnabled: false)
-        
+        currentGeofencesMonitoringState = CurrentGeofencesMonitoringState(monitoringGeofences: [])
+        currentiBeaconMonitoringState = CurrentiBeaconMonitoringState(monitoringRegions: [])
         wakeupState = WakeupState(ccWakeup: CCWakeup.idle)
+        super.init()
         
-        locationManager.delegate = self
+        self.stateStore = stateStore
+        self.locationManager.delegate = self
         
         stateStore.subscribe(self) {
             $0.select {
                 state in state.locationSettingsState.currentLocationState!
             }
         }
-        
+
         // initial dispatch of location state
         DispatchQueue.main.async {
-            if self.stateStore != nil {
-                stateStore.dispatch(LocationAuthStatusChangedAction(locationAuthStatus: CLLocationManager.authorizationStatus()))
-                stateStore.dispatch(IsLocationServicesEnabledAction(isLocationServicesEnabled: CLLocationManager.locationServicesEnabled()))
-            }
+            stateStore.dispatch(LocationAuthStatusChangedAction(locationAuthStatus: CLLocationManager.authorizationStatus()))
+            stateStore.dispatch(IsLocationServicesEnabledAction(isLocationServicesEnabled: CLLocationManager.locationServicesEnabled()))
         }
         
         openIBeaconDatabase()
@@ -149,14 +142,12 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
             if minOffTime > 0 {
                 let offTimeEnd = Date().addingTimeInterval(TimeInterval(minOffTime / 1000))
                 
-                DispatchQueue.main.async {
-                    if self.stateStore == nil { return }
-                    self.stateStore.dispatch(SetGEOOffTimeEnd(offTimeEnd: offTimeEnd))
+                DispatchQueue.main.async { [weak self] in
+                    self?.stateStore?.dispatch(SetGEOOffTimeEnd(offTimeEnd: offTimeEnd))
                 }
             } else {
-                DispatchQueue.main.async {
-                    if self.stateStore == nil { return }
-                    self.stateStore.dispatch(SetGEOOffTimeEnd(offTimeEnd: nil))
+                DispatchQueue.main.async { [weak self] in
+                    self?.stateStore?.dispatch(SetGEOOffTimeEnd(offTimeEnd: nil))
                 }
             }
         }
@@ -274,7 +265,7 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
         iBeaconMessagesDB = nil
         eddystoneBeaconMessagesDB = nil
         
-        stateStore.unsubscribe(self)
+        stateStore?.unsubscribe(self)
         stopAllLocationObservations()
         removeLocationManagers()
     }
@@ -369,10 +360,9 @@ extension CCLocationManager {
     }
     
     private func triggerWakeUpAction() {
-        DispatchQueue.main.async {
-            if self.stateStore == nil { return }
-            self.stateStore.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.idle))
-            self.stateStore.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.notifyWakeup))
+        DispatchQueue.main.async { [weak self] in
+            self?.stateStore?.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.idle))
+            self?.stateStore?.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.notifyWakeup))
         }
     }
     
@@ -417,12 +407,10 @@ extension CCLocationManager {
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         Log.warning("Changed location authorization or accuracy status")
 
-        DispatchQueue.main.async {
-            if self.stateStore != nil {
-                self.stateStore.dispatch(LocationAuthStatusChangedAction(locationAuthStatus: manager.authorizationStatus))
-                self.stateStore.dispatch(LocationAccuracyStatusChangedAction(locationAccuracyStatus: manager.accuracyAuthorization))
-                self.stateStore.dispatch(IsLocationServicesEnabledAction(isLocationServicesEnabled: CLLocationManager.locationServicesEnabled()))
-            }
+        DispatchQueue.main.async { [weak self] in
+            self?.stateStore?.dispatch(LocationAuthStatusChangedAction(locationAuthStatus: manager.authorizationStatus))
+            self?.stateStore?.dispatch(LocationAccuracyStatusChangedAction(locationAccuracyStatus: manager.accuracyAuthorization))
+            self?.stateStore?.dispatch(IsLocationServicesEnabledAction(isLocationServicesEnabled: CLLocationManager.locationServicesEnabled()))
         }
         
         updateBackgroundLocationUpdates(forAuthorizationStatus: manager.authorizationStatus)
@@ -433,11 +421,9 @@ extension CCLocationManager {
     public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         Log.warning("Changed authorization status")
 
-        DispatchQueue.main.async {
-            if self.stateStore != nil {
-                self.stateStore.dispatch(LocationAuthStatusChangedAction(locationAuthStatus: status))
-                self.stateStore.dispatch(IsLocationServicesEnabledAction(isLocationServicesEnabled: CLLocationManager.locationServicesEnabled()))
-            }
+        DispatchQueue.main.async { [weak self] in
+            self?.stateStore?.dispatch(LocationAuthStatusChangedAction(locationAuthStatus: status))
+            self?.stateStore?.dispatch(IsLocationServicesEnabledAction(isLocationServicesEnabled: CLLocationManager.locationServicesEnabled()))
         }
 
         updateBackgroundLocationUpdates(forAuthorizationStatus: status)

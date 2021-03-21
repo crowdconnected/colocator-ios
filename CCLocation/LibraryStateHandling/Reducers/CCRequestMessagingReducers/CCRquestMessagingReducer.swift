@@ -63,14 +63,13 @@ func ccRequestMessagingReducer(action: Action, state: CCRequestMessagingState?) 
 }
 
 func updateRadioSilenceTimeInterval(forState state: inout CCRequestMessagingState, withValue newValue: UInt64) {
-    
-    if state.radiosilenceTimerState!.timeInterval != newValue {
+    if state.radiosilenceTimerState?.timeInterval != newValue {
         
-        state.radiosilenceTimerState!.timeInterval = newValue
-        state.radiosilenceTimerState!.timer = CCTimer.invalidate
+        state.radiosilenceTimerState?.timeInterval = newValue
+        state.radiosilenceTimerState?.timer = CCTimer.invalidate
         
-        if state.radiosilenceTimerState!.timeInterval != nil {
-            state.radiosilenceTimerState!.timer = CCTimer.schedule
+        if state.radiosilenceTimerState?.timeInterval != nil {
+            state.radiosilenceTimerState?.timer = CCTimer.schedule
         }
     }
 }

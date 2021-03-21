@@ -19,9 +19,8 @@ extension CCRequestMessaging {
     @objc func applicationDidEnterBackground() {
         Log.debug("[APP STATE] applicationDidEnterBackground")
         
-        DispatchQueue.main.async {
-            if self.stateStore == nil { return }
-            self.stateStore.dispatch(LifeCycleAction(lifecycleState: LifeCycle.background))
+        DispatchQueue.main.async { [weak self] in
+            self?.stateStore?.dispatch(LifeCycleAction(lifecycleState: LifeCycle.background))
         }
     }
     
@@ -32,9 +31,8 @@ extension CCRequestMessaging {
     @objc func applicationDidBecomeActive() {
         Log.debug("[APP STATE] applicationDidBecomeActive")
         
-        DispatchQueue.main.async {
-            if self.stateStore == nil { return }
-            self.stateStore.dispatch(LifeCycleAction(lifecycleState: LifeCycle.foreground))
+        DispatchQueue.main.async { [weak self] in
+            self?.stateStore?.dispatch(LifeCycleAction(lifecycleState: LifeCycle.foreground))
         }
     }
     
@@ -89,18 +87,16 @@ extension CCRequestMessaging {
     @objc func batteryLevelDidChange(notification: Notification) {
         let batteryLevel = UIDevice.current.batteryLevel
         
-        DispatchQueue.main.async {
-            if self.stateStore == nil { return }
-            self.stateStore.dispatch(BatteryLevelChangedAction(batteryLevel: UInt32(batteryLevel * 100)))
+        DispatchQueue.main.async { [weak self] in
+            self?.stateStore?.dispatch(BatteryLevelChangedAction(batteryLevel: UInt32(batteryLevel * 100)))
         }
     }
     
     @objc func batteryStateDidChange(notification: Notification) {
         let batteryState = UIDevice.current.batteryState
         
-        DispatchQueue.main.async {
-            if self.stateStore == nil { return }
-            self.stateStore.dispatch(BatteryStateChangedAction(batteryState: batteryState))
+        DispatchQueue.main.async { [weak self] in
+            self?.stateStore?.dispatch(BatteryStateChangedAction(batteryState: batteryState))
         }
     }
         
@@ -108,9 +104,8 @@ extension CCRequestMessaging {
         if #available(iOS 9.0, *) {
             let isLowPowerMode = ProcessInfo.processInfo.isLowPowerModeEnabled
             
-            DispatchQueue.main.async {
-                if self.stateStore == nil { return }
-                self.stateStore.dispatch(IsLowPowerModeEnabledAction(isLowPowerModeEnabled: isLowPowerMode))
+            DispatchQueue.main.async { [weak self] in
+                self?.stateStore?.dispatch(IsLowPowerModeEnabledAction(isLowPowerModeEnabled: isLowPowerMode))
             }
         }
     }

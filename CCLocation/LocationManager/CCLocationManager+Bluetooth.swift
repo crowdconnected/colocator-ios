@@ -188,7 +188,7 @@ extension CCLocationManager: BeaconScannerDelegate {
             
             if isFilterAvailable {
                 insert(eddystoneBeacon: beaconInfo)
-            } else if let timeIntervalSinceBoot = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {
+            } else if let stateStore = stateStore, let timeIntervalSinceBoot = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {
                 delegate?.receivedEddystoneBeaconInfo(eid: beaconInfo.beaconID.hexBeaconID() as NSString,
                                                       tx: beaconInfo.txPower,
                                                       rssi: beaconInfo.RSSI,
@@ -211,7 +211,7 @@ extension CCLocationManager: BeaconScannerDelegate {
             
             if isFilterAvailable {
                 insert(eddystoneBeacon: beaconInfo)
-            } else if let timeIntervalSinceBoot = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {
+            } else if let stateStore = stateStore, let timeIntervalSinceBoot = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {
                 delegate?.receivedEddystoneBeaconInfo(eid: beaconInfo.beaconID.hexBeaconID() as NSString,
                                                       tx: beaconInfo.txPower,
                                                       rssi: beaconInfo.RSSI,
@@ -230,9 +230,7 @@ extension CCLocationManager: BeaconScannerDelegate {
 extension CCLocationManager {
     
     fileprivate func checkIfWindowSizeAndMaxObservationsAreAvailable(_ isFilterAvailable: inout Bool) {
-        if stateStore == nil { return }
-        
-        guard let currentBeaconState = stateStore.state.locationSettingsState.currentLocationState?.currentBeaconState else {
+        guard let currentBeaconState = stateStore?.state.locationSettingsState.currentLocationState?.currentBeaconState else {
             return
         }
         
@@ -285,7 +283,7 @@ extension CCLocationManager {
             var isFilterAvailable: Bool = false
             checkIfWindowSizeAndMaxObservationsAreAvailable(&isFilterAvailable)
             
-            let extractedCurrentBeaconState = stateStore.state.locationSettingsState.currentLocationState?.currentBeaconState
+            let extractedCurrentBeaconState = stateStore?.state.locationSettingsState.currentLocationState?.currentBeaconState
             
             if let excludeRegions = extractedCurrentBeaconState?.filterExcludeRegions {
                 checkBeaconInExcludedRegions(beacon: beacon,
@@ -320,7 +318,7 @@ extension CCLocationManager {
     }
     
     private func sendBeaconInfoToDelegate(_ beacon: CLBeacon) {
-        if let timeIntervalSinceBoot = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {
+        if let stateStore = stateStore, let timeIntervalSinceBoot = TimeHandling.getCurrentTimePeriodSince1970(stateStore: stateStore) {
             delegate?.receivediBeaconInfo(proximityUUID: beacon.proximityUUID,
                                           major: Int(truncating: beacon.major),
                                           minor: Int(truncating: beacon.minor),
@@ -339,9 +337,8 @@ extension CCLocationManager {
 // CBCentralManagerDelegate
 extension CCLocationManager {
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        DispatchQueue.main.async {
-            if self.stateStore == nil { return }
-            self.stateStore.dispatch(BluetoothHardwareChangedAction(bluetoothHardware: central.centralManagerState))
+        DispatchQueue.main.async { [weak self] in
+            self?.stateStore?.dispatch(BluetoothHardwareChangedAction(bluetoothHardware: central.centralManagerState))
         }
     }
 }

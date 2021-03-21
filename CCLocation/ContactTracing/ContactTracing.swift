@@ -34,21 +34,21 @@ class ContactTracing: NSObject {
     private var central: CBCentralManager?
     private var peripheral: CBPeripheralManager?
     
-    var currentContactState: ContactBluetoothState!
-    weak var stateStore: Store<LibraryState>!
+    var currentContactState: ContactBluetoothState
+    weak var stateStore: Store<LibraryState>?
     public weak var delegate: ContactScannerDelegate?
     public var eidGenerator: EIDGeneratorManager?
     
     init(stateStore: Store<LibraryState>) {
-        super.init()
-        
-        self.stateStore = stateStore
         currentContactState = ContactBluetoothState(isEnabled: false,
                                            serviceUUID: "",
                                            scanInterval: 0,
                                            scanDuration: 0,
                                            advertiseInterval: 0,
                                            advertiseDuration: 0)
+        super.init()
+        
+        self.stateStore = stateStore
         stateStore.subscribe(self)
     }
     

@@ -36,7 +36,7 @@ internal struct Constants {
     
     @objc public weak var delegate: CCLocationDelegate?
     
-    var stateStore: Store<LibraryState>?
+    @Atomic var stateStore: Store<LibraryState>?
     var libraryStarted: Bool?
     var colocatorManager: ColocatorManager?
     
@@ -62,13 +62,9 @@ internal struct Constants {
             if urlString != nil {
                 tempUrlString = urlString!
             }
-             
-            stateStore = Store<LibraryState> (
-                reducer: libraryReducer,
-                state: nil
-            )
-            
+
             colocatorManager = ColocatorManager.sharedInstance
+            stateStore = Store<LibraryState>(reducer: libraryReducer, state: nil)
             colocatorManager?.start(urlString: tempUrlString,
                                     apiKey: apiKey,
                                     ccLocation: self,
