@@ -98,7 +98,7 @@ class SQLiteDatabase {
         sqlite3_close(dbPointer)
     }
     
-    @objc func clearBuffers() throws {
+    @objc func clearBuffers() {
         insertBundlediBeacons()
         insertBundledMessages()
         insertBundledEddystoneBeacons()

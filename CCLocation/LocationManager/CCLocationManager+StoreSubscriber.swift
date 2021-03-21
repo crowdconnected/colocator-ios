@@ -84,10 +84,7 @@ extension CCLocationManager: StoreSubscriber {
             wakeupState = newWakeupNotificationState
             if wakeupState.ccWakeup == CCWakeup.notifyWakeup {
                 DispatchQueue.main.async { [weak self] in
-                    guard let self = self else {
-                        return
-                    }
-                    self.stateStore?.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.idle))
+                    self?.stateStore?.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.idle))
                 }
             }
         }
@@ -141,10 +138,7 @@ extension CCLocationManager: StoreSubscriber {
             if offTime <= Date() {
                 Log.debug("GeoTimer offTime passed and reset to nil")
                 DispatchQueue.main.async { [weak self] in
-                    guard let self = self else {
-                        return
-                    }
-                    self.stateStore?.dispatch(SetGEOOffTimeEnd(offTimeEnd: nil))
+                    self?.stateStore?.dispatch(SetGEOOffTimeEnd(offTimeEnd: nil))
                 }
             }
             
@@ -190,10 +184,7 @@ extension CCLocationManager: StoreSubscriber {
       
         if newGEOState.offTime != nil {
             DispatchQueue.main.async { [weak self] in
-                guard let self = self else {
-                    return
-                }
-                self.stateStore?.dispatch(SetGEOOffTimeEnd(offTimeEnd: nil))
+                self?.stateStore?.dispatch(SetGEOOffTimeEnd(offTimeEnd: nil))
             }
         }
     }

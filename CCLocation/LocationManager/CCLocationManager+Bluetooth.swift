@@ -338,10 +338,7 @@ extension CCLocationManager {
 extension CCLocationManager {
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
         DispatchQueue.main.async { [weak self] in
-            guard let self = self else {
-                return
-            }
-            self.stateStore?.dispatch(BluetoothHardwareChangedAction(bluetoothHardware: central.centralManagerState))
+            self?.stateStore?.dispatch(BluetoothHardwareChangedAction(bluetoothHardware: central.centralManagerState))
         }
     }
 }

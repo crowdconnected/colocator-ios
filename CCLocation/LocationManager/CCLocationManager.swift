@@ -26,7 +26,7 @@ enum GeofenceEventType: Int {
 
 class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDelegate {
     
-    internal var locationManager = CLLocationManager()
+    internal let locationManager = CLLocationManager()
     internal var eddystoneBeaconScanner: BeaconScanner? = nil
     
     internal var currentGEOState: CurrentGEOState
@@ -143,17 +143,11 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
                 let offTimeEnd = Date().addingTimeInterval(TimeInterval(minOffTime / 1000))
                 
                 DispatchQueue.main.async { [weak self] in
-                    guard let self = self else {
-                        return
-                    }
-                    self.stateStore?.dispatch(SetGEOOffTimeEnd(offTimeEnd: offTimeEnd))
+                    self?.stateStore?.dispatch(SetGEOOffTimeEnd(offTimeEnd: offTimeEnd))
                 }
             } else {
                 DispatchQueue.main.async { [weak self] in
-                    guard let self = self else {
-                        return
-                    }
-                    self.stateStore?.dispatch(SetGEOOffTimeEnd(offTimeEnd: nil))
+                    self?.stateStore?.dispatch(SetGEOOffTimeEnd(offTimeEnd: nil))
                 }
             }
         }
@@ -367,11 +361,8 @@ extension CCLocationManager {
     
     private func triggerWakeUpAction() {
         DispatchQueue.main.async { [weak self] in
-            guard let self = self else {
-                return
-            }
-            self.stateStore?.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.idle))
-            self.stateStore?.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.notifyWakeup))
+            self?.stateStore?.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.idle))
+            self?.stateStore?.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.notifyWakeup))
         }
     }
     
@@ -417,12 +408,9 @@ extension CCLocationManager {
         Log.warning("Changed location authorization or accuracy status")
 
         DispatchQueue.main.async { [weak self] in
-            guard let self = self else {
-                return
-            }
-            self.stateStore?.dispatch(LocationAuthStatusChangedAction(locationAuthStatus: manager.authorizationStatus))
-            self.stateStore?.dispatch(LocationAccuracyStatusChangedAction(locationAccuracyStatus: manager.accuracyAuthorization))
-            self.stateStore?.dispatch(IsLocationServicesEnabledAction(isLocationServicesEnabled: CLLocationManager.locationServicesEnabled()))
+            self?.stateStore?.dispatch(LocationAuthStatusChangedAction(locationAuthStatus: manager.authorizationStatus))
+            self?.stateStore?.dispatch(LocationAccuracyStatusChangedAction(locationAccuracyStatus: manager.accuracyAuthorization))
+            self?.stateStore?.dispatch(IsLocationServicesEnabledAction(isLocationServicesEnabled: CLLocationManager.locationServicesEnabled()))
         }
         
         updateBackgroundLocationUpdates(forAuthorizationStatus: manager.authorizationStatus)
@@ -434,11 +422,8 @@ extension CCLocationManager {
         Log.warning("Changed authorization status")
 
         DispatchQueue.main.async { [weak self] in
-            guard let self = self else {
-                return
-            }
-            self.stateStore?.dispatch(LocationAuthStatusChangedAction(locationAuthStatus: status))
-            self.stateStore?.dispatch(IsLocationServicesEnabledAction(isLocationServicesEnabled: CLLocationManager.locationServicesEnabled()))
+            self?.stateStore?.dispatch(LocationAuthStatusChangedAction(locationAuthStatus: status))
+            self?.stateStore?.dispatch(IsLocationServicesEnabledAction(isLocationServicesEnabled: CLLocationManager.locationServicesEnabled()))
         }
 
         updateBackgroundLocationUpdates(forAuthorizationStatus: status)
