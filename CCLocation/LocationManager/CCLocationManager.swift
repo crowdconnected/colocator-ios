@@ -261,6 +261,8 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
     }
     
     public func stop() {
+        Log.info("[Colocator] Stopping LocationManager ...")
+
         stopTimers()
         
         iBeaconMessagesDB.close()

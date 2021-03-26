@@ -65,7 +65,7 @@ class ContactTracing: NSObject {
     }
     
     internal func stop() {
-        Log.info("Contact Tracing stopping...")
+        Log.info("[Colocator] Stopping ContactTracing ...")
         
         isRunning = false
         peripheral?.stopAdvertising()

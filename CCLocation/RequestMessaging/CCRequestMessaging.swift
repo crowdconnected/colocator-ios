@@ -280,6 +280,7 @@ class CCRequestMessaging: NSObject {
     }
     
     func stop() {
+        Log.info("[Colocator] Stopping RequestMessaging ...")
         NotificationCenter.default.removeObserver(self)
 
         killTimeBetweenSendsTimer()

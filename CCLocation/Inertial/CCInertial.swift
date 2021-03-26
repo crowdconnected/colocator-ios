@@ -113,7 +113,7 @@ class CCInertial: NSObject {
     }
        
     internal func stop() {
-        Log.info("[Colocator] Stopping inertial")
+        Log.info("[Colocator] Stopping Inertial ...")
            
         pedometer.stopUpdates()
         motion.stopDeviceMotionUpdates()
