@@ -53,7 +53,11 @@ class CCInertial: NSObject {
         self.stateStore = stateStore
         stateStore.subscribe(self)
     }
-    
+
+    deinit {
+        Log.info("Deinitialize CCInertial")
+    }
+
     public func updateFitnessAndMotionStatus() {
         // The 5 seconds time frame is the estimated time (+ margin) for the user to make a choice in granting permission
         // After that the authorization status will be checked, saved and reported as capability to the server

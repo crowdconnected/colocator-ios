@@ -33,7 +33,11 @@ class EIDGeneratorManager: NSObject {
         self.stateStore = stateStore
         stateStore.subscribe(self)
     }
-    
+
+    deinit {
+        Log.info("Deinitialize EIDGeneratorManager")
+    }
+
     // An EID is generated when it is requested by the contact module to be sent as identifier
     // Also it is renewed automatically after a period specified in the settings
     func generateEIDData() -> Data? {

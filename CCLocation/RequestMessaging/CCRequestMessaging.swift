@@ -282,10 +282,7 @@ class CCRequestMessaging: NSObject {
     func stop() {
         NotificationCenter.default.removeObserver(self)
 
-        stateStore?.unsubscribe(self)
-
         killTimeBetweenSendsTimer()
-        
         timeHandling.delegate = nil
         
         messagesDB.close()
@@ -299,7 +296,8 @@ class CCRequestMessaging: NSObject {
     
     deinit {
         NotificationCenter.default.removeObserver(self)
-        Log.debug("CCRequestMessaging DEINIT")
+
+        Log.info("Deinitialize CCRequestMessaging")
     }
 }
 

@@ -107,7 +107,11 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
         openEddystoneBeaconDatabase()
         createEddystoneBeaconTable()
     }
-    
+
+    deinit {
+        Log.info("Deinitialize CCLocationManager")
+    }
+
     func startReceivingSignificantLocationChanges() {
         locationManager.startMonitoringSignificantLocationChanges()
         #if DEBUG
@@ -265,7 +269,6 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
         iBeaconMessagesDB = nil
         eddystoneBeaconMessagesDB = nil
         
-        stateStore?.unsubscribe(self)
         stopAllLocationObservations()
         removeLocationManagers()
     }
@@ -405,7 +408,7 @@ extension CCLocationManager {
     /// Valid and triggered by devices running iOS 14.0 or newer
     @available (iOS 14.0, *)
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        Log.warning("Changed location authorization or accuracy status")
+        Log.info("Changed location authorization or accuracy status")
 
         DispatchQueue.main.async { [weak self] in
             self?.stateStore?.dispatch(LocationAuthStatusChangedAction(locationAuthStatus: manager.authorizationStatus))
