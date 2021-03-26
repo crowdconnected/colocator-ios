@@ -102,11 +102,6 @@ class ColocatorManager {
     }
     
     public func stop() {
-        // Helps for debugging of possible retain cycles to ensure library shuts down correctly
-        Log.debug("CCRequest retain cycle count: \(CFGetRetainCount(ccSocket))")
-        Log.debug("CCLocationManager retain cycle count: \(CFGetRetainCount(ccLocationManager))")
-        Log.debug("CCRequestMessaging retain cycle count: \(CFGetRetainCount(ccRequestMessaging))")
-
         if running {
             running = false
             
