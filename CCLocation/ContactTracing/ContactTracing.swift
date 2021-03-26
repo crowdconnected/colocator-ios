@@ -35,10 +35,10 @@ class ContactTracing: NSObject {
     private var peripheral: CBPeripheralManager?
     
     var currentContactState: ContactBluetoothState
+    var eidGenerator: EIDGeneratorManager
     weak var stateStore: Store<LibraryState>?
     public weak var delegate: ContactScannerDelegate?
-    public var eidGenerator: EIDGeneratorManager?
-    
+
     init(stateStore: Store<LibraryState>) {
         currentContactState = ContactBluetoothState(isEnabled: false,
                                            serviceUUID: "",
@@ -46,12 +46,17 @@ class ContactTracing: NSObject {
                                            scanDuration: 0,
                                            advertiseInterval: 0,
                                            advertiseDuration: 0)
+        eidGenerator = EIDGeneratorManager(stateStore: stateStore)
         super.init()
-        
+
         self.stateStore = stateStore
         stateStore.subscribe(self)
     }
-    
+
+    deinit {
+        Log.info("Deinitialize ContactTracing")
+    }
+
     internal func start() {
         Log.info("Contact Tracing starting...")
         
@@ -73,12 +78,6 @@ class ContactTracing: NSObject {
     }
     
     private func startAdvertising() {
-        guard let eidGenerator = eidGenerator else {
-            Log.warning("Cannot start advertising with a nil EIDGenerator")
-            isRunning = false
-            return
-        }
-        
         advertiser = ContactAdvertiser(eidGenerator: eidGenerator)
         advertiser?.advertiseDuration = advertisingPeriod != nil ? Int(advertisingPeriod! / 1000) : nil
         advertiser?.advertiseInterval = advertisingInterval != nil ? Int(advertisingInterval! / 1000) : nil
