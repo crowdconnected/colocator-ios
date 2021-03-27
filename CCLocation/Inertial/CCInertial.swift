@@ -51,7 +51,7 @@ class CCInertial: NSObject {
         super.init()
         
         self.stateStore = stateStore
-        stateStore.subscribe(self)
+        self.stateStore?.subscribe(self)
     }
 
     deinit {

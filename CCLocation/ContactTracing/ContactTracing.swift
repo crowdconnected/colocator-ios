@@ -36,6 +36,7 @@ class ContactTracing: NSObject {
     
     var currentContactState: ContactBluetoothState
     var eidGenerator: EIDGeneratorManager
+
     weak var stateStore: Store<LibraryState>?
     public weak var delegate: ContactScannerDelegate?
 
@@ -50,7 +51,7 @@ class ContactTracing: NSObject {
         super.init()
 
         self.stateStore = stateStore
-        stateStore.subscribe(self)
+        self.stateStore?.subscribe(self)
     }
 
     deinit {

@@ -44,7 +44,7 @@ class CCRequestMessaging: NSObject {
         timeHandling = TimeHandling.shared
         timeHandling.delegate = self
         
-        stateStore.subscribe(self) {
+        self.stateStore?.subscribe(self) {
             $0.select {
                 state in state.ccRequestMessagingState
             }

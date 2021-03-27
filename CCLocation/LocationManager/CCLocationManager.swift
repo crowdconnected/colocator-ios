@@ -49,7 +49,7 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
     internal let eddystoneBeaconMessagesDBName = "eddystoneMessages.db"
     
     public weak var delegate: CCLocationManagerDelegate?
-    
+
     weak var stateStore: Store<LibraryState>?
     
     // Initial value has to be true, otherwise after force quiting the app, the location manager will never start collecting all the data again
@@ -88,8 +88,8 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
         
         self.stateStore = stateStore
         self.locationManager.delegate = self
-        
-        stateStore.subscribe(self) {
+
+        self.stateStore?.subscribe(self) {
             $0.select {
                 state in state.locationSettingsState.currentLocationState!
             }
