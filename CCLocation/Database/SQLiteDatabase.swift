@@ -61,15 +61,7 @@ class SQLiteDatabase {
                                                             repeats: true)
         }
     }
-    
-    deinit {
-        if messagesBufferClearTimer != nil {
-            messagesBufferClearTimer?.invalidate()
-            messagesBufferClearTimer = nil
-        }
-        sqlite3_close(dbPointer)
-    }
-    
+
     static func open(path: String) throws -> SQLiteDatabase {
         var db: OpaquePointer? = nil
         if sqlite3_open_v2(path, &db, SQLITE_OPEN_FULLMUTEX | SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE, nil) == SQLITE_OK {
@@ -95,6 +87,7 @@ class SQLiteDatabase {
             messagesBufferClearTimer?.invalidate()
             messagesBufferClearTimer = nil
         }
+
         sqlite3_close(dbPointer)
     }
     
@@ -111,6 +104,7 @@ extension SQLiteDatabase {
     func prepareStatement(sql: String) throws -> OpaquePointer? {
         var statement: OpaquePointer? = nil
         guard sqlite3_prepare_v2(dbPointer, sql, -1, &statement, nil) == SQLITE_OK else {
+            sqlite3_finalize(statement)
             throw SQLiteError.Prepare(message: errorMessage)
         }
         
@@ -191,7 +185,7 @@ extension SQLiteDatabase {
         
         let querySql = "SELECT COUNT(*) FROM " + table + ";"
         
-        guard let queryStatement = try? prepareStatement(sql: querySql) else {
+        guard let queryStatement = try prepareStatement(sql: querySql) else {
             throw SQLiteError.Prepare(message: errorMessage)
         }
         
