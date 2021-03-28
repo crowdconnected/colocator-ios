@@ -40,7 +40,7 @@ class ColocatorManager {
     // The transfer process should be completed in less than 120 seconds, before the connection will be closed
     var stopLibraryTimer: Timer?
     var secondsFromStopTrigger = 0
-    
+
     public static let sharedInstance: ColocatorManager = {
         let instance = ColocatorManager()
         instance.openLocalDatabase()
@@ -70,25 +70,19 @@ class ColocatorManager {
             ccSocket = CCSocket.sharedInstance
             ccSocket?.delegate = ccLocation
 
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else {
-                    return
-                }
-                
-                self.ccLocationManager = CCLocationManager(stateStore: stateStore)
-                self.ccLocationManager!.delegate = self
-            }
+            ccLocationManager = CCLocationManager(stateStore: stateStore)
+            ccLocationManager?.delegate = self
 
             ccInertial = CCInertial(stateStore: stateStore)
             ccInertial?.delegate = self
 
             ccContactTracing = ContactTracing(stateStore: stateStore)
             ccContactTracing?.delegate = self
-            
+
             ccRequestMessaging = CCRequestMessaging(ccSocket: ccSocket!, stateStore: stateStore)
-            
+
             Log.info("[Colocator] Attempt to connect to back-end with URL: \(urlString) and APIKey: \(apiKey)")
-                       
+
             ccSocket?.start(urlString: urlString,
                             apiKey: apiKey,
                             ccRequestMessaging: ccRequestMessaging!)
