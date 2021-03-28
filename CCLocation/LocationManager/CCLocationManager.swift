@@ -302,7 +302,7 @@ extension CCLocationManager {
         #endif
         
         for location in locations {
-            Log.info("Geolocation information: \(location.description)")
+            Log.debug("Geolocation information: \(location.description)")
             delegate?.receivedGEOLocation(location: location)
         }
         

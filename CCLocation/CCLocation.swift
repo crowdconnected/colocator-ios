@@ -53,7 +53,7 @@ internal struct Constants {
         if libraryStarted == false {
             libraryStarted = true
             
-            setLoggerLevels(verbose: false, info: true, debug: false, warning: true, error: true, severe: true)
+            setLoggerLevels(verbose: false, info: false, debug: false, warning: false, error: true, severe: true)
             
             NSLog("[Colocator] Initialising Colocator")
             
