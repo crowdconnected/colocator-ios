@@ -53,7 +53,7 @@ internal struct Constants {
         if libraryStarted == false {
             libraryStarted = true
             
-            setLoggerLevels(verbose: false, info: false, debug: false, warning: true, error: true, severe: true)
+            setLoggerLevels(verbose: false, info: false, debug: false, warning: false, error: true, severe: true)
             
             NSLog("[Colocator] Initialising Colocator")
             
@@ -86,7 +86,7 @@ internal struct Constants {
             colocatorManager?.stop()
             colocatorManager = nil
         } else {
-            NSLog("[Colocator] already stopped")
+            NSLog("[Colocator] Already stopped")
         }
     }
     
@@ -202,22 +202,28 @@ internal struct Constants {
                 
                 if clientStatus == true {
                     if self.libraryStarted == true {
-                        self.stop()
-                        self.start(apiKey: key)
-                        Log.info("[Colocator] Library started from background")
-                        completion(true)
+                        DispatchQueue.main.async {
+                            self.stop()
+                            self.start(apiKey: key)
+                            Log.info("[Colocator] Library started from background")
+                            completion(true)
+                        }
                         return
                     } else {
-                        self.start(apiKey: key)
-                        Log.info("[Colocator] Library started from background")
-                        completion(true)
+                        DispatchQueue.main.async {
+                            self.start(apiKey: key)
+                            Log.info("[Colocator] Library started from background")
+                            completion(true)
+                        }
                         return
                     }
                 }
                 if clientStatus == false {
-                    self.stop()
-                    Log.info("[Colocator] Library stopped from background")
-                    completion(false)
+                    DispatchQueue.main.async {
+                        self.stop()
+                        Log.info("[Colocator] Library stopped from background")
+                        completion(false)
+                    }
                     return
                 }
                 completion(false)

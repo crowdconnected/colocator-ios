@@ -20,7 +20,7 @@ extension CCLocationManager {
         
         // then see if we can start monitoring for new region
         Log.verbose("------- a list of monitored regions before adding iBeacons -------")
-        for monitoredRegion in locationManager.monitoredRegions {
+        for monitoredRegion in locationManagerMonitoredRegions {
             Log.verbose("region \(monitoredRegion)")
         }
         Log.verbose("------- list end -------")
@@ -29,7 +29,7 @@ extension CCLocationManager {
         for region in currentiBeaconMonitoringState.monitoringRegions {
             var regionInMonitoredRegions = false
             
-            for monitoredRegion in locationManager.monitoredRegions where monitoredRegion is CLBeaconRegion {
+            for monitoredRegion in locationManagerMonitoredRegions where monitoredRegion is CLBeaconRegion {
                 if (monitoredRegion as! CLBeaconRegion).proximityUUID.uuidString == region.proximityUUID.uuidString {
                     regionInMonitoredRegions = true
                 }
@@ -37,14 +37,14 @@ extension CCLocationManager {
             
             if !regionInMonitoredRegions && CLLocationManager.isMonitoringAvailable(for: CLBeaconRegion.self) {
                 region.notifyEntryStateOnDisplay = true
-                locationManager.startMonitoring(for: region)
+                locationManager?.startMonitoring(for: region)
             }
         }
     }
     
     func stopMonitoringForBeaconRegions () {
         // first check filter out all regions we are monitoring atm
-        let crowdConnectedRegions = locationManager.monitoredRegions.filter {
+        let crowdConnectedRegions = locationManagerMonitoredRegions.filter {
             if $0 is CLBeaconRegion {
                 return ($0 as! CLBeaconRegion).identifier.range(of: "CC") != nil
             } else {
@@ -54,7 +54,7 @@ extension CCLocationManager {
         
         // second stop monitoring for beacons that are not included in the current settings
         for region in crowdConnectedRegions where !currentiBeaconMonitoringState.monitoringRegions.contains(region as! CLBeaconRegion) {
-            locationManager.stopMonitoring(for: region as! CLBeaconRegion)
+            locationManager?.stopMonitoring(for: region as! CLBeaconRegion)
         }
     }
     
@@ -105,14 +105,14 @@ extension CCLocationManager {
         for region in currentBeaconState.regions {
             var regionInRangedRegions = false
             
-            for rangedRegion in locationManager.rangedRegions where rangedRegion is CLBeaconRegion {
+            for rangedRegion in locationManagerRangedRegions where rangedRegion is CLBeaconRegion {
                 if (rangedRegion as! CLBeaconRegion).proximityUUID.uuidString == region.proximityUUID.uuidString {
                     regionInRangedRegions = true
                 }
             }
             
             if !regionInRangedRegions && CLLocationManager.isRangingAvailable() {
-                locationManager.startRangingBeacons(in: region)
+                locationManager?.startRangingBeacons(in: region)
             }
         }
     }
@@ -152,7 +152,7 @@ extension CCLocationManager {
     
     func stopRangingiBeacons (forCurrentSettings: Bool) {
         // iBeacon first filter for all regions we are ranging in atm
-        let crowdConnectedRegions = locationManager.rangedRegions.filter {
+        let crowdConnectedRegions = locationManagerRangedRegions.filter {
             if $0 is CLBeaconRegion {
                 return ($0 as! CLBeaconRegion).identifier.range(of: "CC") != nil
             } else {
@@ -165,11 +165,11 @@ extension CCLocationManager {
             // check if we only want to stop beacons that are not included in the current settings
             if (forCurrentSettings){
                 if !currentBeaconState.regions.contains(region as! CLBeaconRegion){
-                    locationManager.stopRangingBeacons(in: region as! CLBeaconRegion)
+                    locationManager?.stopRangingBeacons(in: region as! CLBeaconRegion)
                 }
                 // else we want to stop ranging for all beacons, because we either received new settings without ranging or the maxRuntime has expired
             } else {
-                locationManager.stopRangingBeacons(in: region as! CLBeaconRegion)
+                locationManager?.stopRangingBeacons(in: region as! CLBeaconRegion)
             }
         }
     }

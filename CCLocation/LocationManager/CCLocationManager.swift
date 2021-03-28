@@ -26,7 +26,14 @@ enum GeofenceEventType: Int {
 
 class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDelegate {
     
-    internal let locationManager = CLLocationManager()
+    internal var locationManager: CLLocationManager? = CLLocationManager()
+    internal var locationManagerMonitoredRegions: Set<CLRegion> {
+        return locationManager?.monitoredRegions ?? []
+    }
+    internal var locationManagerRangedRegions: Set<CLRegion> {
+        return locationManager?.rangedRegions ?? []
+    }
+
     internal var eddystoneBeaconScanner: BeaconScanner? = nil
     
     internal var currentGEOState: CurrentGEOState
@@ -41,7 +48,7 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
     internal var beaconWindowSizeDurationTimer: Timer?
     
     internal var centralManager: CBCentralManager?
-    
+
     internal var iBeaconMessagesDB: SQLiteDatabase!
     internal let iBeaconMessagesDBName = "iBeaconMessages.db"
     
@@ -49,7 +56,7 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
     internal let eddystoneBeaconMessagesDBName = "eddystoneMessages.db"
     
     public weak var delegate: CCLocationManagerDelegate?
-    
+
     weak var stateStore: Store<LibraryState>?
     
     // Initial value has to be true, otherwise after force quiting the app, the location manager will never start collecting all the data again
@@ -87,18 +94,24 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
         super.init()
         
         self.stateStore = stateStore
-        self.locationManager.delegate = self
-        
-        stateStore.subscribe(self) {
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else {
+                return
+            }
+            self.locationManager?.delegate = self
+        }
+
+        self.stateStore?.subscribe(self) {
             $0.select {
                 state in state.locationSettingsState.currentLocationState!
             }
         }
 
         // initial dispatch of location state
-        DispatchQueue.main.async {
-            stateStore.dispatch(LocationAuthStatusChangedAction(locationAuthStatus: CLLocationManager.authorizationStatus()))
-            stateStore.dispatch(IsLocationServicesEnabledAction(isLocationServicesEnabled: CLLocationManager.locationServicesEnabled()))
+        DispatchQueue.main.async { [weak self] in
+            self?.stateStore?.dispatch(LocationAuthStatusChangedAction(locationAuthStatus: CLLocationManager.authorizationStatus()))
+            self?.stateStore?.dispatch(IsLocationServicesEnabledAction(isLocationServicesEnabled: CLLocationManager.locationServicesEnabled()))
         }
         
         openIBeaconDatabase()
@@ -107,9 +120,13 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
         openEddystoneBeaconDatabase()
         createEddystoneBeaconTable()
     }
-    
+
+    deinit {
+        Log.info("Deinitialize CCLocationManager")
+    }
+
     func startReceivingSignificantLocationChanges() {
-        locationManager.startMonitoringSignificantLocationChanges()
+        locationManager?.startMonitoringSignificantLocationChanges()
         #if DEBUG
         areAllObservationsStopped = false
         #endif
@@ -117,14 +134,14 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
     
     func stopReceivingSignificantLocationChanges() {
         if CLLocationManager.significantLocationChangeMonitoringAvailable() {
-            locationManager.stopMonitoringSignificantLocationChanges()
+            locationManager?.stopMonitoringSignificantLocationChanges()
         }
     }
     
     @objc func stopLocationUpdates() {
         Log.info("[Colocator] Stop collecting GEO")
         
-        locationManager.stopUpdatingLocation()
+        locationManager?.stopUpdatingLocation()
         
         Log.debug("Waiting for significant updates only")
         
@@ -160,7 +177,8 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
         Log.debug("Update monitored geofences")
         
         Log.verbose("------- List of monitored geofences before adding new ones -------")
-        for monitoredGeofence in locationManager.monitoredRegions {
+
+        for monitoredGeofence in locationManagerMonitoredRegions {
             Log.verbose("Geofence \(monitoredGeofence)")
         }
         Log.verbose("------- List end -------")
@@ -169,7 +187,7 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
         for geofence in currentGeofencesMonitoringState.monitoringGeofences {
             var geofenceInMonitoredRegions = false
             
-            for monitoredGeofence in locationManager.monitoredRegions where monitoredGeofence is CLCircularRegion {
+            for monitoredGeofence in locationManagerMonitoredRegions where monitoredGeofence is CLCircularRegion {
                 if (monitoredGeofence as! CLCircularRegion).identifier == geofence.identifier {
                     geofenceInMonitoredRegions = true
                 }
@@ -180,7 +198,7 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
                 
                 geofence.notifyOnEntry = true
                 geofence.notifyOnExit = true
-                locationManager.startMonitoring(for: geofence)
+                locationManager?.startMonitoring(for: geofence)
             }
         }
     }
@@ -188,20 +206,20 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
     func stopMonitoringRemovedGeofences() {
         Log.debug("Stop monitoring previous geofences")
         
-        let crowdConnectedGeofences = locationManager.monitoredRegions.filter {
+        let crowdConnectedGeofences = locationManagerMonitoredRegions.filter {
             return $0 is CLCircularRegion ? (($0 as! CLCircularRegion).identifier.range(of: "CC") != nil) : false
         }
         
         for geofence in crowdConnectedGeofences
             where !currentGeofencesMonitoringState.monitoringGeofences.contains(geofence as! CLCircularRegion) {
-            locationManager.stopMonitoring(for: geofence as! CLCircularRegion)
+            locationManager?.stopMonitoring(for: geofence as! CLCircularRegion)
         }
     }
     
     func getCurrentGeofences() -> [CLCircularRegion] {
           var geofences = [CLCircularRegion]()
           
-          for monitoredGeofence in locationManager.monitoredRegions where monitoredGeofence is CLCircularRegion {
+          for monitoredGeofence in locationManagerMonitoredRegions where monitoredGeofence is CLCircularRegion {
               geofences.append(monitoredGeofence as! CLCircularRegion)
           }
           
@@ -234,7 +252,7 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
         #if DEBUG
         areAllObservationsStopped = true
         #endif
-        locationManager.stopUpdatingLocation()
+        locationManager?.stopUpdatingLocation()
         stopReceivingSignificantLocationChanges()
         stopRangingiBeacons(forCurrentSettings: false)
         stopMonitoringForBeaconRegions()
@@ -251,12 +269,14 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
     }
     
     private func removeLocationManagers() {
-        locationManager.delegate = nil
+        locationManager?.delegate = nil
         centralManager?.delegate = nil
         centralManager = nil
     }
     
     public func stop() {
+        Log.info("[Colocator] Stopping LocationManager ...")
+
         stopTimers()
         
         iBeaconMessagesDB.close()
@@ -265,7 +285,6 @@ class CCLocationManager: NSObject, CLLocationManagerDelegate, CBCentralManagerDe
         iBeaconMessagesDB = nil
         eddystoneBeaconMessagesDB = nil
         
-        stateStore?.unsubscribe(self)
         stopAllLocationObservations()
         removeLocationManagers()
     }
@@ -283,7 +302,7 @@ extension CCLocationManager {
         #endif
         
         for location in locations {
-            Log.verbose("Geolocation information: \(location.description)")
+            Log.debug("Geolocation information: \(location.description)")
             delegate?.receivedGEOLocation(location: location)
         }
         
@@ -405,7 +424,7 @@ extension CCLocationManager {
     /// Valid and triggered by devices running iOS 14.0 or newer
     @available (iOS 14.0, *)
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        Log.warning("Changed location authorization or accuracy status")
+        Log.info("Changed location authorization or accuracy status")
 
         DispatchQueue.main.async { [weak self] in
             self?.stateStore?.dispatch(LocationAuthStatusChangedAction(locationAuthStatus: manager.authorizationStatus))
@@ -435,16 +454,16 @@ extension CCLocationManager {
             Log.info("[Colocator] CLLocationManager authorization status not determined")
         case .restricted:
             Log.info("[Colocator] CLLocationManager authorization status restricted, can not use location services")
-            locationManager.allowsBackgroundLocationUpdates = false
+            locationManager?.allowsBackgroundLocationUpdates = false
         case .denied:
             Log.info("[Colocator] CLLocationManager authorization status denied in user settings, can not use location services, until user enables them")
-            locationManager.allowsBackgroundLocationUpdates = false
+            locationManager?.allowsBackgroundLocationUpdates = false
         case .authorizedAlways:
             Log.info("[Colocator] CLLocationManager authorization status set to always authorized, we are ready to go")
-            locationManager.allowsBackgroundLocationUpdates = true
+            locationManager?.allowsBackgroundLocationUpdates = true
         case .authorizedWhenInUse:
             Log.info("[Colocator] CLLocationManager authorization status set to in use, no background updates enabled")
-            locationManager.allowsBackgroundLocationUpdates = false
+            locationManager?.allowsBackgroundLocationUpdates = false
         }
     }
 }

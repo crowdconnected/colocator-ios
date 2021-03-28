@@ -24,10 +24,12 @@ extension CCLocationManager: StoreSubscriber {
         if let newGEOState = state.currentGEOState,
            (newGEOState != self.currentGEOState || isWakeUpNotification) {
             Log.verbose("New GEOState \n \(String(describing: newGEOState))")
-                
-            self.currentGEOState = newGEOState
-            updateSignificantUpdatesForGEOState(newGEOState)
-            updateGEOState(newGEOState)
+
+            DispatchQueue.main.async { [weak self] in
+                self?.currentGEOState = newGEOState
+                self?.updateSignificantUpdatesForGEOState(newGEOState)
+                self?.updateGEOState(newGEOState)
+            }
         }
         
         // Geofence State
@@ -36,9 +38,11 @@ extension CCLocationManager: StoreSubscriber {
         if let newGeofencesState = state.currentGeofencesMonitoringState,
            newGeofencesState != self.currentGeofencesMonitoringState {
             Log.verbose("New GeofencesMonitoringState \n \(String(describing: newGeofencesState))")
-            
-            self.currentGeofencesMonitoringState = newGeofencesState
-            self.updateMonitoringGeofences()
+
+            DispatchQueue.main.async { [weak self] in
+                self?.currentGeofencesMonitoringState = newGeofencesState
+                self?.updateMonitoringGeofences()
+            }
          }
         
         // Beacon Monitoring State
@@ -48,8 +52,10 @@ extension CCLocationManager: StoreSubscriber {
            newiBeaconMonitoringState != self.currentiBeaconMonitoringState {
             Log.verbose("New iBeaconMonitoringState \n \(String(describing: newiBeaconMonitoringState))")
 
-            self.currentiBeaconMonitoringState = newiBeaconMonitoringState
-            self.updateMonitoringForRegions()
+            DispatchQueue.main.async { [weak self] in
+                self?.currentiBeaconMonitoringState = newiBeaconMonitoringState
+                self?.updateMonitoringForRegions()
+            }
         }
         
         // Beacon State
@@ -58,19 +64,21 @@ extension CCLocationManager: StoreSubscriber {
         if let newBeaconState = state.currentBeaconState,
            (newBeaconState != currentBeaconState || isWakeUpNotification) {
             Log.verbose("New BeaconState \n \(String(describing: newBeaconState))")
-            
-            currentBeaconState = newBeaconState
-            let isIBeaconRangingEnabled = currentBeaconState.isIBeaconRangingEnabled
-            let isEddystoneScanEnabled = currentBeaconState.isEddystoneScanningEnabled
+
+            DispatchQueue.main.async { [weak self] in
+                self?.currentBeaconState = newBeaconState
+                let isIBeaconRangingEnabled = self?.currentBeaconState.isIBeaconRangingEnabled
+                let isEddystoneScanEnabled = self?.currentBeaconState.isEddystoneScanningEnabled
                 
-            if isIBeaconRangingEnabled != nil || isEddystoneScanEnabled != nil {
-                //TODO Add maxRunTime and minOffTime dependency
-                startBeaconScanning()
-                
-                updateWindowSizeFilter()
-            } else {
-                cleanUpBeaconTimers()
-                stopRangingBeaconsFor()
+                if isIBeaconRangingEnabled != nil || isEddystoneScanEnabled != nil {
+                    //TODO Add maxRunTime and minOffTime dependency
+                    self?.startBeaconScanning()
+
+                    self?.updateWindowSizeFilter()
+                } else {
+                    self?.cleanUpBeaconTimers()
+                    self?.stopRangingBeaconsFor()
+                }
             }
         }
         
@@ -80,10 +88,10 @@ extension CCLocationManager: StoreSubscriber {
         if let newWakeupNotificationState = state.wakeupState,
            newWakeupNotificationState != wakeupState {
             Log.verbose("New WakeUpState \n \(String(describing: newWakeupNotificationState))")
-            
-            wakeupState = newWakeupNotificationState
-            if wakeupState.ccWakeup == CCWakeup.notifyWakeup {
-                DispatchQueue.main.async { [weak self] in
+
+            DispatchQueue.main.async { [weak self] in
+                self?.wakeupState = newWakeupNotificationState
+                if self?.wakeupState.ccWakeup == CCWakeup.notifyWakeup {
                     self?.stateStore?.dispatch(NotifyWakeupAction(ccWakeup: CCWakeup.idle))
                 }
             }
@@ -117,17 +125,17 @@ extension CCLocationManager: StoreSubscriber {
     
     func updateSettingsForGEOState(_ newGEOState: CurrentGEOState) {
         if let activityType = newGEOState.activityType {
-            locationManager.activityType = activityType
+            locationManager?.activityType = activityType
         }
         if let desiredAccuracy = newGEOState.desiredAccuracy {
-            locationManager.desiredAccuracy = CLLocationAccuracy(desiredAccuracy)
+            locationManager?.desiredAccuracy = CLLocationAccuracy(desiredAccuracy)
         }
         if let distanceFilter = newGEOState.distanceFilter {
-            locationManager.distanceFilter = CLLocationDistance(distanceFilter)
+            locationManager?.distanceFilter = CLLocationDistance(distanceFilter)
         }
         #if RELEASE
         if let pausesUpdates = newGEOState.pausesUpdates {
-            locationManager.pausesLocationUpdatesAutomatically = pausesUpdates
+            locationManager?.pausesLocationUpdatesAutomatically = pausesUpdates
         }
         #endif
     }
@@ -145,8 +153,8 @@ extension CCLocationManager: StoreSubscriber {
             // If there's no offTime, start the location manager for maxRuntime
         } else {
             Log.info("Start collecting GEO")
-            
-            locationManager.startUpdatingLocation()
+
+            locationManager?.startUpdatingLocation()
             isContinuousGEOCollectionActive = true
             
             if let maxRunTime = newGEOState.maxRuntime {
@@ -175,7 +183,7 @@ extension CCLocationManager: StoreSubscriber {
     }
     
     func disableGeoStandardLocation(newGEOState: CurrentGEOState) {
-        locationManager.stopUpdatingLocation()
+        locationManager?.stopUpdatingLocation()
                   
         if self.maxRunGEOTimer != nil {
             self.maxRunGEOTimer?.invalidate()

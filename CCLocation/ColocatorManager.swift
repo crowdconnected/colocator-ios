@@ -24,7 +24,6 @@ class ColocatorManager {
     var ccRequestMessaging: CCRequestMessaging?
     var ccInertial: CCInertial?
     var ccContactTracing: ContactTracing?
-    var ccEidGenerator: EIDGeneratorManager?
     var ccSocket: CCSocket?
     
     var messagesDatabase: SQLiteDatabase!
@@ -41,7 +40,7 @@ class ColocatorManager {
     // The transfer process should be completed in less than 120 seconds, before the connection will be closed
     var stopLibraryTimer: Timer?
     var secondsFromStopTrigger = 0
-    
+
     public static let sharedInstance: ColocatorManager = {
         let instance = ColocatorManager()
         instance.openLocalDatabase()
@@ -69,29 +68,21 @@ class ColocatorManager {
             state = stateStore
         
             ccSocket = CCSocket.sharedInstance
-            ccSocket!.delegate = ccLocation
+            ccSocket?.delegate = ccLocation
 
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else {
-                    return
-                }
-                
-                self.ccLocationManager = CCLocationManager(stateStore: stateStore)
-                self.ccLocationManager!.delegate = self
-            }
+            ccLocationManager = CCLocationManager(stateStore: stateStore)
+            ccLocationManager?.delegate = self
 
             ccInertial = CCInertial(stateStore: stateStore)
-            ccInertial!.delegate = self
+            ccInertial?.delegate = self
 
-            ccEidGenerator = EIDGeneratorManager(stateStore: stateStore)
             ccContactTracing = ContactTracing(stateStore: stateStore)
-            ccContactTracing?.eidGenerator = ccEidGenerator
             ccContactTracing?.delegate = self
-            
+
             ccRequestMessaging = CCRequestMessaging(ccSocket: ccSocket!, stateStore: stateStore)
-            
+
             Log.info("[Colocator] Attempt to connect to back-end with URL: \(urlString) and APIKey: \(apiKey)")
-                       
+
             ccSocket?.start(urlString: urlString,
                             apiKey: apiKey,
                             ccRequestMessaging: ccRequestMessaging!)
@@ -105,11 +96,6 @@ class ColocatorManager {
     }
     
     public func stop() {
-        // Helps for debugging of possible retain cycles to ensure library shuts down correctly
-        Log.debug("CCRequest retain cycle count: \(CFGetRetainCount(ccSocket))")
-        Log.debug("CCLocationManager retain cycle count: \(CFGetRetainCount(ccLocationManager))")
-        Log.debug("CCRequestMessaging retain cycle count: \(CFGetRetainCount(ccRequestMessaging))")
-
         if running {
             running = false
             
@@ -243,6 +229,8 @@ class ColocatorManager {
     // Elsewise there will be multiple connections to the same databses when the library starts again
     // Leading to memory leaking
     deinit {
+        Log.warning("Deinitialize ColocatorManager")
+
         if messagesDatabase != nil {
             messagesDatabase.close()
         }

@@ -44,7 +44,7 @@ class CCRequestMessaging: NSObject {
         timeHandling = TimeHandling.shared
         timeHandling.delegate = self
         
-        stateStore.subscribe(self) {
+        self.stateStore?.subscribe(self) {
             $0.select {
                 state in state.ccRequestMessagingState
             }
@@ -280,12 +280,10 @@ class CCRequestMessaging: NSObject {
     }
     
     func stop() {
+        Log.info("[Colocator] Stopping RequestMessaging ...")
         NotificationCenter.default.removeObserver(self)
 
-        stateStore?.unsubscribe(self)
-
         killTimeBetweenSendsTimer()
-        
         timeHandling.delegate = nil
         
         messagesDB.close()
@@ -299,7 +297,8 @@ class CCRequestMessaging: NSObject {
     
     deinit {
         NotificationCenter.default.removeObserver(self)
-        Log.debug("CCRequestMessaging DEINIT")
+
+        Log.info("Deinitialize CCRequestMessaging")
     }
 }
 
