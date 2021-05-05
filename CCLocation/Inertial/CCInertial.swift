@@ -28,7 +28,9 @@ class CCInertial: NSObject {
     private let activityManager = CMMotionActivityManager()
     private let pedometer = CMPedometer()
     private let motion = CMMotionManager()
-    
+
+    private var isRunning = false
+
     private var pedometerStartDate: Date = Date()
     private var previousPedometerData: PedometerData?
     private var yawDataBuffer: [YawData] = []
@@ -88,35 +90,42 @@ class CCInertial: NSObject {
     }
     
     internal func start() {
-       if #available(iOS 11.0, *) {
-           let pedometerAuthStatus = CMPedometer.authorizationStatus()
-           
-           if pedometerAuthStatus == .authorized || pedometerAuthStatus == .notDetermined {
-               Log.info("[Colocator] Starting inertial")
+        isRunning = true
 
-               startCountingSteps()
-               startMotionUpdates()
-               updateFitnessAndMotionStatus()
-           } else {
-               Log.info("[Colocator] Cannot start inertial due to restricted permission for Motion&Fitness")
-            
-               DispatchQueue.main.async { [weak self] in
+        if #available(iOS 11.0, *) {
+            let pedometerAuthStatus = CMPedometer.authorizationStatus()
+
+            if pedometerAuthStatus == .authorized || pedometerAuthStatus == .notDetermined {
+                Log.info("[Colocator] Starting inertial")
+
+                startCountingSteps()
+                startMotionUpdates()
+                updateFitnessAndMotionStatus()
+            } else {
+                Log.info("[Colocator] Cannot start inertial due to restricted permission for Motion&Fitness")
+
+                DispatchQueue.main.async { [weak self] in
                     self?.stateStore?.dispatch(IsMotionAndFitnessEnabledAction(isMotionAndFitnessEnabled: false))
-               }
-           }
-       } else {
-           Log.info("[Colocator] Starting inertial")
-           
-           startCountingSteps()
-           startMotionUpdates()
-       }
+                }
+            }
+        } else {
+            Log.info("[Colocator] Starting inertial")
+
+            startCountingSteps()
+            startMotionUpdates()
+        }
     }
-       
+
     internal func stop() {
+        guard isRunning else {
+            return
+        }
+
         Log.info("[Colocator] Stopping Inertial ...")
-           
+
         pedometer.stopUpdates()
         motion.stopDeviceMotionUpdates()
+        isRunning = false
     }
     
     internal func startCountingSteps() {
