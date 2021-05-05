@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -74,11 +74,6 @@
 		9700649F22D62B9A00E7F9E9 /* DevicePlatformEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9700649E22D62B9A00E7F9E9 /* DevicePlatformEnum.swift */; };
 		9702361022CCBDAB00D559A8 /* CCRequestMessaging+SendMessages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9702360F22CCBDAB00D559A8 /* CCRequestMessaging+SendMessages.swift */; };
 		9702361222CCC2A100D559A8 /* CCRequestMessaging+DatabaseOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9702361122CCC2A100D559A8 /* CCRequestMessaging+DatabaseOperations.swift */; };
-		9702361722CCF2AB00D559A8 /* ReSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9702361622CCF2AB00D559A8 /* ReSwift.framework */; };
-		9702361E22CCF34500D559A8 /* SwiftProtobuf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9702361A22CCF34500D559A8 /* SwiftProtobuf.framework */; };
-		9702361F22CCF34500D559A8 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9702361B22CCF34500D559A8 /* Result.framework */; };
-		9702362022CCF34500D559A8 /* SocketRocket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9702361C22CCF34500D559A8 /* SocketRocket.framework */; };
-		9702362122CCF34500D559A8 /* TrueTime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9702361D22CCF34500D559A8 /* TrueTime.framework */; };
 		97036DBE22CE05A2005A8322 /* CCRequestMessaging+StoreSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DBD22CE05A2005A8322 /* CCRequestMessaging+StoreSubscriber.swift */; };
 		97036DC022CE06A3005A8322 /* CCRequestMessaging+ProcessEventsAndData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DBF22CE06A3005A8322 /* CCRequestMessaging+ProcessEventsAndData.swift */; };
 		97036DC222CE07BF005A8322 /* CCRequestMessaging+ProcessiOSSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97036DC122CE07BF005A8322 /* CCRequestMessaging+ProcessiOSSettings.swift */; };
@@ -102,6 +97,15 @@
 		97FF65EB230EA10100C50D52 /* SQLiteDatabase+Get.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FF65EA230EA10100C50D52 /* SQLiteDatabase+Get.swift */; };
 		97FF65EE230EAE3100C50D52 /* CCInertial+StoreSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FF65ED230EAE3100C50D52 /* CCInertial+StoreSubscriber.swift */; };
 		97FF65F0230EAF7C00C50D52 /* Inertial+Structures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FF65EF230EAF7C00C50D52 /* Inertial+Structures.swift */; };
+		AA108179260F5CBA00B76C0D /* SwiftProtobuf.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA1080FD260EB9D400B76C0D /* SwiftProtobuf.xcframework */; };
+		AA10817A260F5CBA00B76C0D /* SwiftProtobuf.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AA1080FD260EB9D400B76C0D /* SwiftProtobuf.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AA10817C260F5CCA00B76C0D /* TrueTime.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA108100260EB9F000B76C0D /* TrueTime.xcframework */; };
+		AA10817D260F5CCA00B76C0D /* TrueTime.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AA108100260EB9F000B76C0D /* TrueTime.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AA10817E260F5CCD00B76C0D /* ReSwift.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA1080F9260EB9BD00B76C0D /* ReSwift.xcframework */; };
+		AA10817F260F5CCD00B76C0D /* ReSwift.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AA1080F9260EB9BD00B76C0D /* ReSwift.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AA108180260F5CDD00B76C0D /* Result.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA108132260EBC9300B76C0D /* Result.xcframework */; };
+		AA108181260F5CDD00B76C0D /* Result.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AA108132260EBC9300B76C0D /* Result.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AA182372260FBD9C007C8A3B /* SocketRocket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA182371260FBD9C007C8A3B /* SocketRocket.framework */; platformFilter = ios; };
 		AA4AE86624976CEB00F9E954 /* ContactTracing.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA4AE86524976CEB00F9E954 /* ContactTracing.swift */; };
 		AA4AE86924976D2500F9E954 /* ContactAdvertiser.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA4AE86824976D2500F9E954 /* ContactAdvertiser.swift */; };
 		AA4AE86B24976D3400F9E954 /* ContactScaner.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA4AE86A24976D3400F9E954 /* ContactScaner.swift */; };
@@ -152,6 +156,20 @@
 			dstSubfolderSpec = 16;
 			files = (
 			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA10817B260F5CBA00B76C0D /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				AA108181260F5CDD00B76C0D /* Result.xcframework in Embed Frameworks */,
+				AA10817F260F5CCD00B76C0D /* ReSwift.xcframework in Embed Frameworks */,
+				AA10817D260F5CCA00B76C0D /* TrueTime.xcframework in Embed Frameworks */,
+				AA10817A260F5CBA00B76C0D /* SwiftProtobuf.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -254,6 +272,12 @@
 		97FF65EA230EA10100C50D52 /* SQLiteDatabase+Get.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SQLiteDatabase+Get.swift"; sourceTree = "<group>"; };
 		97FF65ED230EAE3100C50D52 /* CCInertial+StoreSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CCInertial+StoreSubscriber.swift"; sourceTree = "<group>"; };
 		97FF65EF230EAF7C00C50D52 /* Inertial+Structures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Inertial+Structures.swift"; sourceTree = "<group>"; };
+		AA1080F9260EB9BD00B76C0D /* ReSwift.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ReSwift.xcframework; path = Carthage/Build/ReSwift.xcframework; sourceTree = "<group>"; };
+		AA1080FD260EB9D400B76C0D /* SwiftProtobuf.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SwiftProtobuf.xcframework; path = Carthage/Build/SwiftProtobuf.xcframework; sourceTree = "<group>"; };
+		AA108100260EB9F000B76C0D /* TrueTime.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = TrueTime.xcframework; path = Carthage/Build/TrueTime.xcframework; sourceTree = "<group>"; };
+		AA108125260EBBF100B76C0D /* SocketRocket.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SocketRocket.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA108132260EBC9300B76C0D /* Result.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Result.xcframework; path = Carthage/Build/Result.xcframework; sourceTree = "<group>"; };
+		AA182371260FBD9C007C8A3B /* SocketRocket.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SocketRocket.framework; path = Carthage/Build/iOS/SocketRocket.framework; sourceTree = "<group>"; };
 		AA4AE86524976CEB00F9E954 /* ContactTracing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactTracing.swift; sourceTree = "<group>"; };
 		AA4AE86824976D2500F9E954 /* ContactAdvertiser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactAdvertiser.swift; sourceTree = "<group>"; };
 		AA4AE86A24976D3400F9E954 /* ContactScaner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactScaner.swift; sourceTree = "<group>"; };
@@ -294,12 +318,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9702361E22CCF34500D559A8 /* SwiftProtobuf.framework in Frameworks */,
-				9702361F22CCF34500D559A8 /* Result.framework in Frameworks */,
-				9702362022CCF34500D559A8 /* SocketRocket.framework in Frameworks */,
-				9702362122CCF34500D559A8 /* TrueTime.framework in Frameworks */,
-				9702361722CCF2AB00D559A8 /* ReSwift.framework in Frameworks */,
+				AA108180260F5CDD00B76C0D /* Result.xcframework in Frameworks */,
+				AA10817C260F5CCA00B76C0D /* TrueTime.xcframework in Frameworks */,
+				AA182372260FBD9C007C8A3B /* SocketRocket.framework in Frameworks */,
 				4F8FFD761F292DD00001910A /* libsqlite3.tbd in Frameworks */,
+				AA108179260F5CBA00B76C0D /* SwiftProtobuf.xcframework in Frameworks */,
+				AA10817E260F5CCD00B76C0D /* ReSwift.xcframework in Frameworks */,
 				F0AF0C5D1DB3ADA400E72E76 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -591,6 +615,12 @@
 		F0AF0C541DB395BB00E72E76 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				AA182371260FBD9C007C8A3B /* SocketRocket.framework */,
+				AA108132260EBC9300B76C0D /* Result.xcframework */,
+				AA108125260EBBF100B76C0D /* SocketRocket.framework */,
+				AA108100260EB9F000B76C0D /* TrueTime.xcframework */,
+				AA1080FD260EB9D400B76C0D /* SwiftProtobuf.xcframework */,
+				AA1080F9260EB9BD00B76C0D /* ReSwift.xcframework */,
 				9702361B22CCF34500D559A8 /* Result.framework */,
 				9702361C22CCF34500D559A8 /* SocketRocket.framework */,
 				9702361A22CCF34500D559A8 /* SwiftProtobuf.framework */,
@@ -626,6 +656,7 @@
 				F0AF0C351DB3912700E72E76 /* Headers */,
 				F0AF0C361DB3912700E72E76 /* Resources */,
 				4F920BEA1F39D61A00BD7FEF /* CopyFiles */,
+				AA10817B260F5CBA00B76C0D /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -991,7 +1022,8 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1019,14 +1051,21 @@
 				INFOPLIST_FILE = CCLocation/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				ONLY_ACTIVE_ARCH = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "";
 				OTHER_SWIFT_FLAGS = "-D DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.crowdConnected.CCLocation;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_INCLUDE_PATHS = "${SRCROOT}/Carthage/Checkouts/TrueTime.swift/Sources/CTrueTime";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_PRECOMPILE_BRIDGING_HEADER = YES;
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1053,13 +1092,20 @@
 				INFOPLIST_FILE = CCLocation/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				ONLY_ACTIVE_ARCH = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "";
 				OTHER_SWIFT_FLAGS = "-D RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.crowdConnected.CCLocation;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_INCLUDE_PATHS = "${SRCROOT}/Carthage/Checkouts/TrueTime.swift/Sources/CTrueTime";
+				SWIFT_PRECOMPILE_BRIDGING_HEADER = YES;
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1076,7 +1122,11 @@
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = CCLocationTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.crowdConnected.CCLocationTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_SWIFT3_OBJC_INFERENCE = On;
@@ -1094,7 +1144,11 @@
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = CCLocationTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.crowdConnected.CCLocationTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_SWIFT3_OBJC_INFERENCE = On;
